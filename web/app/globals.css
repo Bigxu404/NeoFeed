@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05020a;
+  --foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+/* 基础设置 */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden; /* 防止宽屏溢出 */
+}
+
+/* 🌟 补回丢失的动画与样式 🌟 */
+
+@layer utilities {
+  .fix-clipped-text {
+    line-height: 1.6 !important;
+    padding-bottom: 0.25em;
+    margin-bottom: -0.25em;
+    display: inline-block;
+  }
+
+  .dark-star-input::placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3); 
+    font-style: italic;
+    transition: opacity 0.3s ease;
+  }
+  
+  .dark-star-input:focus::placeholder {
+    opacity: 0.1;
+  }
+}
+
+/* Keyframes */
+@keyframes flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes particle-move {
+  0% { 
+    transform: rotate(0deg) translateX(var(--radius)) scale(0.5); 
+    opacity: 0; 
+  }
+  20% { 
+    opacity: var(--max-opacity); 
+    transform: rotate(var(--angle-start)) translateX(var(--radius)) scale(1);
+  }
+  100% { 
+    transform: rotate(var(--angle-end)) translateX(calc(var(--radius) * 0.2)) scale(0.1); 
+    opacity: 0; 
+  }
+}
+
+@keyframes particle-move-fast {
+  0% { 
+    transform: rotate(0deg) translateX(var(--radius)) scale(0.5); 
+    opacity: 0; 
+  }
+  20% { 
+    opacity: 1; 
+    transform: rotate(var(--angle-start)) translateX(var(--radius)) scale(1);
+  }
+  100% { 
+    transform: rotate(calc(var(--angle-end) * 2)) translateX(0px) scale(0); 
+    opacity: 0; 
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Component Classes */
+.accretion-ring {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 15%,
+    rgba(255, 255, 255, 0.9) 40%,
+    rgba(255, 255, 255, 1) 50%, 
+    rgba(255, 255, 255, 0.9) 60%, 
+    rgba(255, 255, 255, 0.1) 85%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: flow 8s linear infinite;
+}
+
+.particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: white;
+  border-radius: 50%;
+  animation: particle-move var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.8); 
+}
+
+.particles-accelerated .particle {
+  animation-duration: 1s !important; 
+  animation-name: particle-move-fast;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 1); 
+}
+
+.constellation-line {
+  stroke: rgba(255, 255, 255, 0.35); 
+  stroke-width: 0.6; 
+  fill: none;
+  transition: all 1s ease;
+}
+
+.constellation-star {
+  fill: rgba(255, 255, 255, 0.9); 
+  animation: twinkle 4s ease-in-out infinite;
+  transition: all 1s ease;
+}
+
+.stars-revealed .constellation-line {
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 1; 
+}
+
+.stars-revealed .constellation-star {
+  fill: #fff;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
+}
+
+.custom-caret {
+  animation: blink 1s step-end infinite;
+}
