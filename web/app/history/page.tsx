@@ -57,7 +57,7 @@ export default function HistoryPage() {
           onClick={() => window.location.href = '/'}
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Back to Singularity</span>
+          <span className="text-sm font-medium">返回</span>
         </button>
 
         <div className="text-right pointer-events-auto">

@@ -59,7 +59,7 @@ export default function InsightPage() {
                 className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/5 hover:bg-white/5 hover:border-green-500/30 bg-black/40 backdrop-blur-sm"
             >
                 <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="text-xs font-medium tracking-wide">BACK</span>
+                <span className="text-xs font-medium tracking-wide">返回</span>
             </button>
 
             {/* 📅 周切换器 */}

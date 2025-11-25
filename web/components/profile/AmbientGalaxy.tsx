@@ -60,15 +60,13 @@ function GalaxyParticles({ count = 2000 }) {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
+          args={[particlesPosition.positions, 3]}
           count={particlesPosition.positions.length / 3}
-          array={particlesPosition.positions}
-          itemSize={3}
         />
         <bufferAttribute
           attach="attributes-color"
+          args={[particlesPosition.colors, 3]}
           count={particlesPosition.colors.length / 3}
-          array={particlesPosition.colors}
-          itemSize={3}
         />
       </bufferGeometry>
       <pointsMaterial

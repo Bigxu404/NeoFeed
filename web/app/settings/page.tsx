@@ -94,10 +94,10 @@ export default function SettingsPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => window.location.href = '/'}
-            className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded border border-white/5 hover:bg-white/5 hover:border-green-500/30"
+            className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/5 hover:bg-white/5 hover:border-green-500/30"
           >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="text-xs font-mono">返回</span>
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="text-xs font-medium tracking-wide">返回</span>
           </button>
           <h1 className="text-lg font-mono font-bold tracking-wider text-white/90 flex items-center gap-2">
             <Terminal size={18} className="text-green-500" />
@@ -302,8 +302,8 @@ export default function SettingsPage() {
                         登出
                       </button>
                     </div>
-                  </div>
-                </div>
+          </div>
+          </div>
               )}
 
             </motion.div>

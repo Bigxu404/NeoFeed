@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Infinity } from 'lucide-react'; 
+import { Infinity, ChevronLeft } from 'lucide-react'; 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,9 +110,9 @@ export default function Home() {
                 className="fixed top-8 left-8 z-[60] cursor-pointer group pointer-events-auto"
                 onClick={handleBack}
             >
-                 <div className="flex items-center gap-3 text-white/30 group-hover:text-white/80 transition-colors duration-500">
-                    <Infinity className="h-5 w-5" />
-                    <span className="text-xs font-medium tracking-[0.3em] font-serif uppercase">Return</span>
+                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/5 hover:bg-white/10 transition-all text-white/50 group-hover:text-white">
+                    <ChevronLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="text-sm font-medium tracking-wide">返回</span>
       </div>
             </motion.div>
         )}

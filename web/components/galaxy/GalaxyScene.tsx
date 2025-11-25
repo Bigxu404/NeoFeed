@@ -8,17 +8,6 @@ import { GalaxyItem } from '@/lib/mockData';
 import { EffectComposer, Bloom, ChromaticAberration } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 
-// 🛠️ 修复 TypeScript 类型报错
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      terrestrialMaterial: any;
-      gaseousMaterial: any;
-      lavaMaterial: any;
-    }
-  }
-}
-
 // ==========================================
 // 🟢 Shader 1: 类地行星 (Terrestrial) - Life
 // ==========================================
@@ -192,6 +181,15 @@ const LavaMaterial = shaderMaterial(
     }
   `
 );
+
+// 🛠️ TypeScript 类型扩展 - 使用 any 避免复杂的 ref 类型推导
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    terrestrialMaterial: any;
+    gaseousMaterial: any;
+    lavaMaterial: any;
+  }
+}
 
 extend({ TerrestrialMaterial, GaseousMaterial, LavaMaterial });
 
@@ -412,7 +410,7 @@ function SimpleStars() {
   return (
     <points>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={3000} array={points} itemSize={3} />
+        <bufferAttribute attach="attributes-position" args={[points, 3]} count={3000} />
       </bufferGeometry>
       <pointsMaterial size={0.5} color="#ffffff" sizeAttenuation transparent opacity={0.8} />
     </points>
