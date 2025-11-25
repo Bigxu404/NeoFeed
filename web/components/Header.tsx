@@ -28,10 +28,10 @@ export function Header() {
             <nav className="py-4">
               {NAV_ITEMS.map((item) => (
                 <button
-                  key={item.id}
+                  key={item.href}
                   className="w-full flex items-center gap-3 px-6 py-3 hover:bg-gray-100 transition-colors text-left"
                   onClick={() => {
-                    router.push(item.path)
+                    router.push(item.href)
                     setIsNavOpen(false)
                   }}
                 >
