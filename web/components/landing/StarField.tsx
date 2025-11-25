@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react';
 import { motion, MotionValue } from 'framer-motion';
 
 interface StarFieldProps {
@@ -9,102 +10,137 @@ interface StarFieldProps {
   starMoveY: MotionValue<number>;
 }
 
+// ✨ 重构：使用 Canvas 实现的高性能、交互式星场 (带星座连线)
 export default function StarField({ isHovering, isFocused, starMoveX, starMoveY }: StarFieldProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 初始化画布
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    // 生成星星数据
+    const starCount = 400;
+    // 🌟 星座节点：标记为“可连接”的星星
+    const stars = Array.from({ length: starCount }).map(() => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 1.5 + 0.5,
+      baseOpacity: Math.random() * 0.2 + 0.1,
+      targetOpacity: Math.random() * 0.6 + 0.4,
+      blinkSpeed: Math.random() * 0.02 + 0.005,
+      blinkOffset: Math.random() * Math.PI * 2,
+      isConnector: Math.random() > 0.6, // 🔥 增加比例：40% 的星星是星座节点 (1 - 0.6)
+    }));
+
+    let animationFrameId: number;
+    let hoverProgress = 0; 
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // 💡 平滑过渡 hover 状态
+      const targetProgress = isHovering ? 1 : 0;
+      hoverProgress += (targetProgress - hoverProgress) * 0.05;
+
+      // 获取视差位移
+      const dx = starMoveX.get();
+      const dy = starMoveY.get();
+
+      const time = Date.now() * 0.001;
+
+      // 🌌 绘制星座连线 (先画线，再画点，这样线在点下面)
+      ctx.lineWidth = 0.8; // 🔥 加粗线条 (0.5 -> 0.8)
+      stars.forEach((star, i) => {
+        if (!star.isConnector) return;
+
+        // 应用视差计算当前位置
+        const parallaxFactor = star.size * 0.2;
+        const x1 = star.x + dx * parallaxFactor;
+        const y1 = star.y + dy * parallaxFactor;
+
+        // 寻找临近的连接点
+        for (let j = i + 1; j < stars.length; j++) {
+          const other = stars[j];
+          if (!other.isConnector) continue;
+
+          const otherParallax = other.size * 0.2;
+          const x2 = other.x + dx * otherParallax;
+          const y2 = other.y + dy * otherParallax;
+
+          const dist = Math.hypot(x2 - x1, y2 - y1);
+
+          // 连线距离阈值 (放宽距离 150 -> 180)
+          if (dist < 180) {
+            // 线条透明度 = 基础 (0.1) + 能量激发 (0.6) - 距离衰减
+            let lineOpacity = 0.1 + hoverProgress * 0.6; // 🔥 大幅提升亮度
+            lineOpacity *= (1 - dist / 180); // 越远越淡
+
+            if (lineOpacity > 0) {
+              ctx.beginPath();
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(x2, y2);
+              ctx.strokeStyle = `rgba(255, 255, 255, ${lineOpacity})`;
+              ctx.stroke();
+            }
+          }
+        }
+      });
+
+      // ✨ 绘制星星
+      stars.forEach(star => {
+        const blink = Math.sin(time * 2 + star.blinkOffset) * 0.1;
+        let currentOpacity = star.baseOpacity + blink; 
+        currentOpacity = currentOpacity + (star.targetOpacity - currentOpacity) * hoverProgress;
+        currentOpacity = Math.max(0, Math.min(1, currentOpacity));
+
+        const parallaxFactor = star.size * 0.2;
+        const x = star.x + dx * parallaxFactor;
+        const y = star.y + dy * parallaxFactor;
+
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 255, 255, ${currentOpacity})`;
+        ctx.arc(x, y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      stars.forEach(star => {
+        star.x = Math.random() * width;
+        star.y = Math.random() * height;
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isHovering, starMoveX, starMoveY]);
+
   return (
-    <div className={`fixed inset-0 pointer-events-none z-0 overflow-hidden ${isHovering ? 'stars-revealed' : ''}`}>
-       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay" />
-       
-       <motion.div
-          className="absolute inset-0"
-          animate={{ 
-              opacity: isFocused ? 0.2 : (isHovering ? 1 : 0.6), 
-              scale: isFocused ? 1.1 : 1,
-          }}
-          transition={{ duration: 1.5 }}
-       >
-           {/* SVG Constellations */}
-           <motion.svg 
-              className="absolute top-[5%] left-[5%] w-[300px] h-[300px] rotate-[-15deg]"
-              viewBox="0 0 100 100"
-              style={{ x: starMoveX, y: starMoveY }}
-           >
-              <path d="M10 20 L25 25 L25 40 L10 35 Z" className="constellation-line" /> 
-              <path d="M25 40 L35 42 L45 45 L60 55" className="constellation-line" />   
-              <circle cx="10" cy="20" r="0.8" className="constellation-star" style={{animationDelay: '0s'}} />
-              <circle cx="25" cy="25" r="0.9" className="constellation-star" style={{animationDelay: '1s'}} />
-              <circle cx="25" cy="40" r="0.9" className="constellation-star" style={{animationDelay: '2s'}} />
-              <circle cx="10" cy="35" r="0.7" className="constellation-star" style={{animationDelay: '3s'}} />
-              <circle cx="35" cy="42" r="0.6" className="constellation-star" style={{animationDelay: '1.5s'}} />
-              <circle cx="45" cy="45" r="0.6" className="constellation-star" style={{animationDelay: '2.5s'}} />
-              <circle cx="60" cy="55" r="0.9" className="constellation-star" style={{animationDelay: '0.5s'}} />
-           </motion.svg>
-           
-           <motion.svg 
-              className="absolute bottom-[5%] right-[5%] w-[380px] h-[380px] rotate-[10deg]"
-              viewBox="0 0 100 100"
-              style={{ x: starMoveX, y: starMoveY }}
-           >
-              <path d="M40 20 L50 30 L60 20" className="constellation-line" /> 
-              <path d="M50 30 L50 45 L40 55 L60 55 L50 45" className="constellation-line" />
-              <path d="M40 55 L30 70 M60 55 L70 70" className="constellation-line" strokeDasharray="2 2" />
-              <circle cx="40" cy="20" r="0.8" className="constellation-star" style={{animationDelay: '0s'}} />
-              <circle cx="60" cy="20" r="0.8" className="constellation-star" style={{animationDelay: '2s'}} />
-              <circle cx="50" cy="30" r="1.0" className="constellation-star" style={{animationDelay: '1s'}} />
-              <circle cx="50" cy="45" r="0.9" className="constellation-star" style={{animationDelay: '3s'}} />
-              <circle cx="40" cy="55" r="0.7" className="constellation-star" style={{animationDelay: '0.5s'}} />
-              <circle cx="60" cy="55" r="0.7" className="constellation-star" style={{animationDelay: '1.5s'}} />
-              <circle cx="30" cy="70" r="0.6" className="constellation-star" style={{animationDelay: '2.5s'}} />
-              <circle cx="70" cy="70" r="0.6" className="constellation-star" style={{animationDelay: '3.5s'}} />
-           </motion.svg>
-
-           <motion.svg 
-              className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] rotate-[5deg]"
-              viewBox="0 0 100 100"
-              style={{ x: starMoveX, y: starMoveY }}
-           >
-              <path d="M70 20 L65 30 L55 35 L45 40 L40 50 L45 60 L55 65 L65 60 L70 55" className="constellation-line" />
-              <path d="M70 20 L75 15 L80 15" className="constellation-line" />
-              <circle cx="70" cy="20" r="1.2" className="constellation-star" style={{animationDelay: '0s'}} /> 
-              <circle cx="65" cy="30" r="0.9" className="constellation-star" style={{animationDelay: '1s'}} />
-              <circle cx="55" cy="35" r="0.8" className="constellation-star" style={{animationDelay: '2s'}} />
-              <circle cx="45" cy="40" r="0.8" className="constellation-star" style={{animationDelay: '3s'}} />
-              <circle cx="40" cy="50" r="0.7" className="constellation-star" style={{animationDelay: '0.5s'}} />
-              <circle cx="45" cy="60" r="0.7" className="constellation-star" style={{animationDelay: '1.5s'}} />
-              <circle cx="55" cy="65" r="0.8" className="constellation-star" style={{animationDelay: '2.5s'}} />
-              <circle cx="65" cy="60" r="0.9" className="constellation-star" style={{animationDelay: '3.5s'}} />
-              <circle cx="70" cy="55" r="0.7" className="constellation-star" style={{animationDelay: '4s'}} />
-           </motion.svg>
-
-           <motion.svg 
-              className="absolute top-[15%] right-[10%] w-[280px] h-[280px] rotate-[-10deg]"
-              viewBox="0 0 100 100"
-              style={{ x: starMoveX, y: starMoveY }}
-           >
-              <path d="M30 60 L50 60 L60 40 L40 40 Z" className="constellation-line" /> 
-              <path d="M60 40 L50 20" className="constellation-line" /> 
-              <path d="M50 60 L60 70 L70 65" className="constellation-line" /> 
-              <path d="M30 60 L20 50" className="constellation-line" /> 
-              <circle cx="30" cy="60" r="0.9" className="constellation-star" />
-              <circle cx="50" cy="60" r="0.9" className="constellation-star" />
-              <circle cx="60" cy="40" r="1.0" className="constellation-star" />
-              <circle cx="40" cy="40" r="0.9" className="constellation-star" />
-              <circle cx="50" cy="20" r="0.8" className="constellation-star" />
-              <circle cx="60" cy="70" r="0.8" className="constellation-star" />
-              <circle cx="20" cy="50" r="0.7" className="constellation-star" />
-           </motion.svg>
-
-           <motion.svg 
-              className="absolute top-[2%] right-[30%] w-[300px] h-[300px] opacity-30 rotate-[20deg]"
-              viewBox="0 0 100 100"
-              style={{ x: starMoveX, y: starMoveY }}
-           >
-              <path d="M20 30 Q 50 50 80 40" className="constellation-line" />
-              <circle cx="20" cy="30" r="0.9" className="constellation-star" />
-              <circle cx="80" cy="40" r="0.9" className="constellation-star" />
-              <circle cx="50" cy="46" r="0.6" className="constellation-star" />
-           </motion.svg>
-       </motion.div>
-    </div>
+    <motion.canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-0 pointer-events-none"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isFocused ? 0 : 1 }}
+      transition={{ duration: 1 }}
+    />
   );
 }
-

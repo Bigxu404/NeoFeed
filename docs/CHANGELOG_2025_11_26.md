@@ -6,49 +6,32 @@
 
 ### 🧠 1. Insight 页面重构 (v5.0)
 从零打造了一个极具科幻感的数据仪表盘。
--   **视觉风格**：确立了 **"Dark Elegance + Cyber Glow"** (暗黑优雅+赛博微光) 的设计语言。摒弃了廉价的全屏绿，转而使用深邃黑底+白色数据流+品牌色点缀。
--   **Digital Rain 2.0**：
-    -   重写 Canvas 渲染逻辑，从 `setInterval` 迁移至 `requestAnimationFrame`，性能大幅提升。
-    -   增强视觉质感：头部高亮光晕、尾部渐变、片假名字符集。
--   **3D Parallax Card (视差卡片)**：
-    -   为核心的 "Weekly Brief" 引入 `framer-motion` 驱动的 3D 倾斜与光泽流动效果，提升交互质感。
--   **布局优化**：
-    -   移除冗余图表，确立 **"Weekly Brief (C位)" + "Daily Discovery (左护法)" + "Daily Spark (右护法)"** 的黄金三角布局。
+-   **视觉风格**：确立了 **"Dark Elegance + Cyber Glow"** (暗黑优雅+赛博微光) 的设计语言。
+-   **Dashboard**：三栏式布局，"Weekly Brief" 悬浮于 3D 视差卡片中，配合 "Digital Rain" 背景。
 
-### 🤖 2. AI Chat Terminal (Agent Smith 彩蛋)
-实现了一个打破第四面墙的交互彩蛋。
--   **触发机制**：右下角常驻呼吸灯芯片，页面停留 10秒 自动唤醒。
--   **角色扮演**：AI 以 **Agent Smith** (黑客帝国) 的口吻进行哲学拷问。
--   **交互闭环**：支持用户输入，AI 会根据神回复库 (`RESPONSES`) 给出充满隐喻的反馈，随后优雅最小化。
-
-### 🌌 3. Memories 星系升级 (v2.0)
--   **时间螺旋布局 (Time Spiral)**：
-    -   重构星系生成算法。不再是随机分布，而是基于 `timestamp`。
-    -   **内圈 = 最新**，**外圈 = 历史**。解决了“刚存的内容找不到”的痛点。
--   **列表联动**：
-    -   左侧终端列表强制按时间倒序。
-    -   最新的 3 条记录显示 **"NEW"** 标签。
-    -   鼠标悬浮列表项时，3D 场景中的对应星球会高亮放大。
-
-### 👤 4. Profile 个人中枢重构 (v3.0)
+### 👤 2. Identity (原 Profile) 个人中枢 (v3.0)
 打造了 "The One" 专属的数字身份控制台。
--   **The Architect's Wall (架构师之墙)**：
-    -   使用 Three.js InstancedMesh 构建了包含 800+ 屏幕的环形监控墙背景。
-    -   屏幕具有随机的信号闪烁与光效，模拟 Matrix 核心机房的压迫感。
--   **全息身份卡**：
-    -   重构了个人信息展示，加入 Matrix 风格的呼吸光环和矩阵同步率 (EXP) 进度条。
-    -   文案全面汉化并科幻化 ("Information Architect" -> "系统异常点")。
--   **系统连接层**：
-    -   **Galaxy Portal**: 实时显示星系参数（纪元、恒星数），提供直接跃迁入口。
-    -   **Signal Protocol**: 模拟社交广播开关，引入 "黑暗森林" 隐喻。
--   **精致 UI 交互**：
-    -   全站卡片升级为 **Deep Glass** 风格（深色磨砂 + 高光边框）。
-    -   强化了 Hover/Active 的触感反馈（光晕、缩放、内发光）。
+-   **The Architect's Wall**：800+ 屏幕组成的环形监控墙背景，营造 Matrix 核心压迫感。
+-   **交互升级**：全站卡片升级为深色磨砂玻璃，Hover 时有光晕和触感反馈。
+-   **功能承接**：新增 Galaxy Portal (星系入口) 和 Signal Protocol (社交开关)。
 
-### 🔧 5. 工程与性能
--   **性能审计**：对 Canvas 动画进行了帧率限制 (30FPS) 和 rAF 优化，降低后台能耗。
--   **代码规范**：修复了 `FloatingDock` 的导航链接问题，消除了硬编码。
--   **内容汉化**：全面完成了 UI 界面的中文本地化与排版微调。
+### ⚙️ 3. System Settings (v1.0)
+全新的 **Neo BIOS** 风格设置页。
+-   **UI**：终端风格侧边栏，物理开关与滑块控件。
+-   **功能**：支持显示设置、系统配置及危险操作区。
+
+### 🌌 4. 视觉与交互进化
+-   **Star Field v2**：首页星空重构为 Canvas 实现，粒子数量翻倍，Hover 时 40% 的星星会连结成高亮神经网络。
+-   **Navigation v2**：全新的 **Vertical Circuit** 侧边栏，采用更具隐喻性的图标系统：
+    -   `Capture` (Infinity)
+    -   `Memories` (Orbit)
+    -   `Insights` (Spline/S-Curve)
+    -   `Identity` (Fingerprint)
+    -   `Settings` (Gear)
+
+### 🔧 5. 工程优化
+-   **性能**：Canvas 动画全面迁移至 `requestAnimationFrame`。
+-   **汉化**：全站界面完成深度汉化与文案润色。
 
 ---
 

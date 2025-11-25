@@ -4,69 +4,64 @@ import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { NAV_ITEMS } from '@/lib/constants'; // 👈 引入常量，而不是硬编码
+import { NAV_ITEMS } from '@/lib/constants';
 
-function DockItem({ item }: { item: typeof NAV_ITEMS[0] }) {
+function DockItem({ item, index }: { item: typeof NAV_ITEMS[0], index: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isHovered, setHovered] = useState(false);
 
-  // 修正 isActive 判断逻辑：精确匹配或者子路径匹配
   const isActive = item.href === '/' 
     ? pathname === '/' 
     : pathname.startsWith(item.href);
 
   return (
     <div 
-      className="relative flex items-center justify-center w-full"
+      className="relative flex items-center group"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* 🏷️ 悬浮提示文字 - 深色模式适配 */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, x: 10, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, x: 5, filter: 'blur(2px)' }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute left-full ml-6 whitespace-nowrap z-50 pointer-events-none flex items-center"
-          >
-            {/* 装饰性横线 */}
-            <motion.div 
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 16, opacity: 0.3 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="h-[1px] bg-white mr-3 origin-left"
-            />
-            
-            <span className="font-serif italic text-lg text-white/80 tracking-wide drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-              {item.label}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* 
+        🔗 电路连接线 (装饰)
+        除最后一个外，每个图标下面都有一条线连接到下一个
+      */}
+      {index < NAV_ITEMS.length - 1 && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 w-[1px] h-6 bg-white/10 -z-10 group-hover:bg-green-500/50 transition-colors duration-500" />
+      )}
 
+      {/* 🔘 图标按钮 */}
       <button
-        onClick={() => router.push(item.href)} // 修正属性名：path -> href
+        onClick={() => router.push(item.href)}
         className={cn(
-          "relative p-3 rounded-2xl transition-all duration-500 ease-out z-10",
-          "hover:scale-110 hover:bg-white/10", 
-          isActive ? "text-white" : "text-white/30 hover:text-white"
+          "relative p-3 rounded-full transition-all duration-300 z-10 border border-transparent",
+          isActive 
+            ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)] scale-110" 
+            : "text-white/40 hover:text-white hover:bg-white/10 hover:border-white/20 hover:scale-110"
         )}
       >
-        <item.icon className={cn("w-5 h-5 transition-all duration-300", isActive ? "stroke-[2.5]" : "stroke-[1.5]")} />
-        
-        {/* 选中态的光晕 - 深空极光感 */}
-        {isActive && (
-          <motion.div
-            layoutId="activeGlow"
-            className="absolute inset-0 bg-white/10 rounded-2xl shadow-[inset_0_0_12px_rgba(255,255,255,0.2),0_0_20px_rgba(255,255,255,0.1)] -z-10"
-            transition={{ duration: 0.5, type: "spring", stiffness: 300, damping: 30 }}
-          />
-        )}
+        <item.icon className={cn("w-5 h-5 transition-transform duration-300", isHovered && "rotate-12")} />
       </button>
+
+      {/* 🏷️ 滑出式标签 */}
+      <div className="absolute left-full ml-4 overflow-hidden pointer-events-none">
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -10, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="flex items-center gap-2"
+            >
+              {/* 装饰箭头 */}
+              <div className="w-2 h-[1px] bg-green-500" />
+              <span className="text-sm font-mono font-bold tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded border border-white/10 uppercase">
+                {item.label}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -77,22 +72,12 @@ export function FloatingDock() {
       initial={{ x: -60, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed left-8 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col gap-4"
+      className="fixed left-8 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col gap-6" // 增加 gap 以容纳连线
     >
-      {/* 
-        Dock 容器 - 深色磨砂玻璃
-      */}
-      <div className="
-        py-5 px-2.5 flex flex-col gap-5 items-center rounded-full
-        bg-black/20 
-        backdrop-blur-xl backdrop-saturate-150 
-        border border-white/10
-        shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_20px_40px_-12px_rgba(0,0,0,0.5)]
-      ">
-        {NAV_ITEMS.map((item) => (
-          <DockItem key={item.href} item={item} />
-        ))}
-      </div>
+      {/* 去掉了外层容器，直接展示垂直电路结构 */}
+      {NAV_ITEMS.map((item, index) => (
+        <DockItem key={item.href} item={item} index={index} />
+      ))}
     </motion.div>
   );
 }
