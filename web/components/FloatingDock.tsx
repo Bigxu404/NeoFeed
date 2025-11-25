@@ -3,23 +3,18 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, History, PieChart, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const NAV_ITEMS = [
-  { id: 'home', icon: Sparkles, label: 'Capture', path: '/' },
-  { id: 'history', icon: History, label: 'Memories', path: '/history' },
-  { id: 'stats', icon: PieChart, label: 'Insights', path: '/stats' },
-  { id: 'profile', icon: User, label: 'Profile', path: '/profile' },
-  { id: 'settings', icon: Settings, label: 'Settings', path: '/settings' },
-];
+import { NAV_ITEMS } from '@/lib/constants'; // 👈 引入常量，而不是硬编码
 
 function DockItem({ item }: { item: typeof NAV_ITEMS[0] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isHovered, setHovered] = useState(false);
 
-  const isActive = pathname === item.path;
+  // 修正 isActive 判断逻辑：精确匹配或者子路径匹配
+  const isActive = item.href === '/' 
+    ? pathname === '/' 
+    : pathname.startsWith(item.href);
 
   return (
     <div 
@@ -54,7 +49,7 @@ function DockItem({ item }: { item: typeof NAV_ITEMS[0] }) {
       </AnimatePresence>
 
       <button
-        onClick={() => router.push(item.path)}
+        onClick={() => router.push(item.href)} // 修正属性名：path -> href
         className={cn(
           "relative p-3 rounded-2xl transition-all duration-500 ease-out z-10",
           "hover:scale-110 hover:bg-white/10", 
@@ -95,10 +90,9 @@ export function FloatingDock() {
         shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_20px_40px_-12px_rgba(0,0,0,0.5)]
       ">
         {NAV_ITEMS.map((item) => (
-          <DockItem key={item.id} item={item} />
+          <DockItem key={item.href} item={item} />
         ))}
       </div>
     </motion.div>
   );
 }
-
