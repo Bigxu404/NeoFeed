@@ -170,3 +170,33 @@ export const MOCK_INSIGHT = {
     }
   ]
 };
+
+// ✨ 新增：用户个人资料 Mock
+export const MOCK_USER = {
+  username: "Mr. Anderson", // 改名
+  title: "救世主 / 系统异常点",
+  bio: "I know kung fu. Searching for the source code of reality.", // 回归经典英文
+  level: 6,
+  levelName: "觉醒者",
+  exp: 92, // 0-100
+  // ✨ 新增：星系养成参数
+  galaxy: {
+    name: "Nebula-X",
+    age: "248 个标准日",
+    starCount: 156,
+    civilizationType: "I 型文明 (行星系)",
+    mass: "420 万倍太阳质量"
+  },
+  stats: {
+    totalFeeds: 1248,
+    daysActive: 42,
+    neuralLink: 98
+  },
+  badges: [
+    { id: 1, name: "起源", icon: "🥚", unlocked: true },
+    { id: 2, name: "观星者", icon: "🔭", unlocked: true },
+    { id: 3, name: "架构师", icon: "📐", unlocked: true },
+    { id: 4, name: "救世主", icon: "🕶️", unlocked: true }, // 解锁
+    { id: 5, name: "幽灵", icon: "👻", unlocked: false },
+  ]
+};
