@@ -9,7 +9,7 @@ export function BackgroundDecorations() {
 
       {/* 2. 神经网络背景 - 降低透明度，让它隐入背景 */}
       <div className="opacity-30 mix-blend-multiply">
-        <NeuralNetwork />
+      <NeuralNetwork />
       </div>
       
       {/* 3. 有机光晕 (Organic Orbs) - 像呼吸一样微弱 */}

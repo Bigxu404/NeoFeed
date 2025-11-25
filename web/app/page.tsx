@@ -66,7 +66,7 @@ export default function Home() {
 
     setLoading(true);
     setIsAbsorbing(true); 
-    
+
     try {
         await saveItem({ content: content.trim(), enable_ai: false });
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -98,7 +98,7 @@ export default function Home() {
           </filter>
         </defs>
       </svg>
-
+      
       {/* 🔙 返回按钮 */}
       <AnimatePresence>
         {isFocused && (
@@ -113,7 +113,7 @@ export default function Home() {
                  <div className="flex items-center gap-3 text-white/30 group-hover:text-white/80 transition-colors duration-500">
                     <Infinity className="h-5 w-5" />
                     <span className="text-xs font-medium tracking-[0.3em] font-serif uppercase">Return</span>
-                 </div>
+      </div>
             </motion.div>
         )}
       </AnimatePresence>
@@ -160,7 +160,7 @@ export default function Home() {
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
           <Infinity className="h-6 w-6 text-white/80 transition-colors group-hover:text-white" />
           <span className="text-lg font-medium tracking-tight text-white/80 font-serif">NeoFeed</span>
-        </div>
+            </div>
         <Button variant="ghost" className="text-white/50 hover:text-white/90 hover:bg-white/5" onClick={() => setIsLoginOpen(true)}>
           Sign In
         </Button>
@@ -209,14 +209,14 @@ export default function Home() {
           </div>
         </div>
       </main>
-      
-      <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+
+        <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
         <DialogContent className="bg-[#0a0a0a] border-white/10 text-white backdrop-blur-xl">
-           <DialogHeader>
+            <DialogHeader>
              <DialogTitle className="text-white">Sign In</DialogTitle>
              <DialogDescription className="text-white/40">Access your second brain.</DialogDescription>
-           </DialogHeader>
-           <form onSubmit={handleLogin} className="space-y-4 pt-4">
+            </DialogHeader>
+            <form onSubmit={handleLogin} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-white/70">Username</Label>
                 <Input id="username" className="bg-white/5 border-white/10 text-white focus:border-white/30" value={username} onChange={(e) => setUsername(e.target.value)} required />
@@ -226,9 +226,9 @@ export default function Home() {
                 <Input id="password" type="password" className="bg-white/5 border-white/10 text-white focus:border-white/30" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
               <Button type="submit" className="w-full bg-white text-black hover:bg-white/90">Sign In</Button>
-           </form>
-        </DialogContent>
-      </Dialog>
+            </form>
+          </DialogContent>
+        </Dialog>
     </div>
   );
 }
