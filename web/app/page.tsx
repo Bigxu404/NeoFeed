@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Infinity, ChevronLeft } from 'lucide-react'; 
+import dynamic from 'next/dynamic';
+import { Infinity, ChevronLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,11 @@ import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { saveItem } from '@/lib/api';
 import { FloatingDock } from '@/components/FloatingDock';
-import StarField from '@/components/landing/StarField';
-import SingularityCore from '@/components/landing/SingularityCore';
 import HeroSlogan from '@/components/landing/HeroSlogan';
+
+// ✨ Dynamic import for 3D components (client-only)
+const StarField = dynamic(() => import('@/components/landing/StarField'), { ssr: false });
+const SingularityCore = dynamic(() => import('@/components/landing/SingularityCore'), { ssr: false });
 
 export default function Home() {
   const router = useRouter();
