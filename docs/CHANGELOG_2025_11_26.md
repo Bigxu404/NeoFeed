@@ -25,9 +25,9 @@
 -   **Navigation v2**：全新的 **Vertical Circuit** 侧边栏，采用更具隐喻性的图标系统：
     -   `Capture` (Infinity)
     -   `Memories` (Orbit)
-    -   `Insights` (Spline/S-Curve)
-    -   `Identity` (Fingerprint)
-    -   `Settings` (Gear)
+    -   `Insights` (Eye) - 全知之眼
+    -   `Identity` (Dna) - 数字基因
+    -   `Settings` (Settings)
 
 ### 🔧 5. 工程优化
 -   **性能**：Canvas 动画全面迁移至 `requestAnimationFrame`。
