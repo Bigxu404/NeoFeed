@@ -198,11 +198,13 @@ extend({ TerrestrialMaterial, GaseousMaterial, LavaMaterial });
 // ==========================================
 // 🌟 通用星球组件
 // ==========================================
-function Star({ item, onClick, glowTexture }: { item: GalaxyItem; onClick: (item: GalaxyItem) => void; glowTexture: THREE.Texture | null }) {
+function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; onClick: (item: GalaxyItem) => void; glowTexture: THREE.Texture | null; highlighted: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
   const [hovered, setHover] = useState(false);
+
+  const isActive = hovered || highlighted; // 🌟 合并悬浮和高亮状态
 
   useFrame((state) => {
     // ☁️ 让整个组（星球+光晕）一起浮动
@@ -215,7 +217,7 @@ function Star({ item, onClick, glowTexture }: { item: GalaxyItem; onClick: (item
       meshRef.current.rotation.y += 0.005; 
       
       // 统一的悬浮动画 (缩放)
-      const targetScale = hovered ? 1.5 : 1.0;
+      const targetScale = isActive ? 1.8 : 1.0; // 高亮时变得更大一点
       meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     }
     
@@ -310,15 +312,15 @@ function Star({ item, onClick, glowTexture }: { item: GalaxyItem; onClick: (item
             map={glowTexture} 
             color={glowColor} 
             transparent 
-            opacity={hovered ? 0.8 : 0.4} 
+            opacity={isActive ? 0.8 : 0.4} 
             blending={THREE.AdditiveBlending} 
             depthWrite={false} // 防止光晕遮挡其他物体
           />
         </sprite>
       )}
       
-      {/* 仅 Hover 时显示的粒子，提升性能 */}
-      {hovered && (
+      {/* 仅 Hover/Active 时显示的粒子，提升性能 */}
+      {isActive && (
         <Sparkles count={10} scale={item.size * 3} size={3} speed={0.4} color="#ffffff" />
       )}
     </group>
@@ -420,9 +422,10 @@ function SimpleStars() {
 interface GalaxySceneProps {
   data: GalaxyItem[];
   onItemClick: (item: GalaxyItem) => void;
+  highlightedItemId?: string | null;
 }
 
-export default function GalaxyScene({ data, onItemClick }: GalaxySceneProps) {
+export default function GalaxyScene({ data, onItemClick, highlightedItemId }: GalaxySceneProps) {
   // ✨ 生成光晕纹理 (只需生成一次，全局复用)
   const glowTexture = useMemo(() => {
     if (typeof document === 'undefined') return null;
@@ -465,7 +468,13 @@ export default function GalaxyScene({ data, onItemClick }: GalaxySceneProps) {
 
         <group>
           {data.map((item) => (
-            <Star key={item.id} item={item} onClick={onItemClick} glowTexture={glowTexture} />
+            <Star 
+              key={item.id} 
+              item={item} 
+              onClick={onItemClick} 
+              glowTexture={glowTexture} 
+              highlighted={item.id === highlightedItemId} // ✨ 传递高亮状态
+            />
           ))}
         </group>
         
