@@ -226,7 +226,7 @@ function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; o
 
   // 根据分类选择不同的星球渲染逻辑
   const renderPlanet = () => {
-    const geometryArgs: [number, number, number] = [item.size, 32, 32]; // 降低精度到 32x32
+    const geometryArgs: [number, number, number] = [item.size, 16, 16]; // 降低精度到 16x16 以提升性能
 
     switch (item.category) {
       case 'life': // 🌍 类地行星

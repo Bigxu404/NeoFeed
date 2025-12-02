@@ -3,15 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Infinity, ChevronLeft } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Infinity, ChevronLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { saveItem } from '@/lib/api';
 import { FloatingDock } from '@/components/FloatingDock';
 import HeroSlogan from '@/components/landing/HeroSlogan';
+import { createClient } from '@/lib/supabase/client';
 
 // ✨ Dynamic import for 3D components (client-only)
 const StarField = dynamic(() => import('@/components/landing/StarField'), { ssr: false });
@@ -19,12 +17,9 @@ const SingularityCore = dynamic(() => import('@/components/landing/SingularityCo
 
 export default function Home() {
   const router = useRouter();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [user, setUser] = useState<any>(null);
   
   const [loading, setLoading] = useState(false);
-
   const [isFocused, setIsFocused] = useState(false);
   const [isAbsorbing, setIsAbsorbing] = useState(false);
   
@@ -43,6 +38,13 @@ export default function Home() {
 
   const [isHoveringBlackhole, setIsHoveringBlackhole] = useState(false);
   
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
+
   const handleBack = () => {
     setIsFocused(false);
     setIsHoveringBlackhole(false);
@@ -59,24 +61,28 @@ export default function Home() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mouseX, mouseY]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoginOpen(false);
-  };
-
   const handleSave = async (content: string) => {
     if (!content.trim()) return;
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
     setLoading(true);
     setIsAbsorbing(true); 
 
     try {
-        await saveItem({ content: content.trim(), enable_ai: false });
+        await saveItem(content.trim());
         await new Promise(resolve => setTimeout(resolve, 800));
         setIsAbsorbing(false);
         handleBack();
     } catch (error) {
       console.error("Save failed:", error);
+      // 如果是 401，跳转登录
+      if (error instanceof Error && error.message.includes('Unauthorized')) {
+        router.push('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -163,10 +169,34 @@ export default function Home() {
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push('/')}>
           <Infinity className="h-6 w-6 text-white/80 transition-colors group-hover:text-white" />
           <span className="text-lg font-medium tracking-tight text-white/80 font-serif">NeoFeed</span>
-            </div>
-        <Button variant="ghost" className="text-white/50 hover:text-white/90 hover:bg-white/5" onClick={() => setIsLoginOpen(true)}>
-          Sign In
-        </Button>
+        </div>
+
+        {user ? (
+           <div className="flex items-center gap-4">
+             <div className="text-xs text-white/40 font-mono hidden md:block">
+                ID: {user.email?.split('@')[0]}
+             </div>
+             <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/10" onClick={() => router.push('/profile')}>
+                <User className="w-5 h-5 text-white/70" />
+             </Button>
+           </div>
+        ) : (
+           <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                className="text-white/50 hover:text-white hover:bg-transparent" 
+                onClick={() => router.push('/login?mode=login')}
+              >
+                Sign In
+              </Button>
+              <Button 
+                className="bg-white text-black hover:bg-white/90 rounded-full px-6" 
+                onClick={() => router.push('/login?mode=signup')}
+              >
+                Sign Up
+              </Button>
+           </div>
+        )}
       </motion.header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 pb-20 relative z-30">
@@ -197,7 +227,7 @@ export default function Home() {
              <AnimatePresence>
                {isAbsorbing && (
                  <>
-                   <motion.div
+              <motion.div
                      initial={{ scale: 0.8, opacity: 0 }}
                      animate={{ 
                        scale: [0.8, 0.5, 100], 
@@ -209,29 +239,9 @@ export default function Home() {
                  </>
                )}
              </AnimatePresence>
-          </div>
+                </div>
         </div>
       </main>
-
-        <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
-        <DialogContent className="bg-[#0a0a0a] border-white/10 text-white backdrop-blur-xl">
-            <DialogHeader>
-             <DialogTitle className="text-white">Sign In</DialogTitle>
-             <DialogDescription className="text-white/40">Access your second brain.</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleLogin} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-white/70">Username</Label>
-                <Input id="username" className="bg-white/5 border-white/10 text-white focus:border-white/30" value={username} onChange={(e) => setUsername(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white/70">Password</Label>
-                <Input id="password" type="password" className="bg-white/5 border-white/10 text-white focus:border-white/30" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              </div>
-              <Button type="submit" className="w-full bg-white text-black hover:bg-white/90">Sign In</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
     </div>
   );
 }

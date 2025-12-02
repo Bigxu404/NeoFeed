@@ -200,3 +200,5 @@ export const MOCK_USER = {
     { id: 5, name: "幽灵", icon: "👻", unlocked: false },
   ]
 };
+
+export const MOCK_GALAXY_DATA = generateGalaxyData(50);

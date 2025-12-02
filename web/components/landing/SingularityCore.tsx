@@ -23,6 +23,7 @@ interface SingularityCoreProps {
   onSave: (content: string) => void;
   moveX: MotionValue<number>;
   growthTransition: Transition; 
+  showInput?: boolean;
 }
 
 export default function SingularityCore({ 
@@ -32,7 +33,8 @@ export default function SingularityCore({
   onFocusTrigger, 
   onSave,
   moveX,
-  growthTransition 
+  growthTransition,
+  showInput = true
 }: SingularityCoreProps) {
   
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -149,7 +151,7 @@ export default function SingularityCore({
         </motion.div>
 
         {/* 🔮 胶囊型输入框 */}
-        <InputCapsule isFocused={isFocused} onSave={onSave} />
+        {showInput && <InputCapsule isFocused={isFocused} onSave={onSave} />}
 
      </motion.div>
   );

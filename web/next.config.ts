@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // env: {
+  //   // Key should be loaded from .env.local for security
+  // },
 };
 
 export default nextConfig;
