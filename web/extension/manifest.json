@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "NeoFeed Probe",
+  "version": "0.1.0",
+  "description": "Feed the Singularity. Capture content directly to your NeoFeed galaxy.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Save to NeoFeed"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://neofeed.vercel.app/*"
+  ]
+}

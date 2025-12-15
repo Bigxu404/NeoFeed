@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: #222;
+      --accent: #22c55e; /* Green-500 */
+      --accent-glow: rgba(34, 197, 94, 0.2);
+      --text: #e5e5e5;
+      --text-dim: #666;
+      --danger: #ef4444;
+    }
+
+    body {
+      width: 340px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    /* Views */
+    .view { display: none; padding: 16px; }
+    .view.active { display: block; animation: fadeIn 0.3s ease; }
+
+    /* Card Info */
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .page-url {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Inputs */
+    input, textarea {
+      width: 100%;
+      background: #050505;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    textarea { resize: none; margin-bottom: 16px; }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-glow);
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      background: var(--text);
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover { background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+      padding: 8px;
+      font-size: 10px;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+
+    /* Progress Bar */
+    .progress-container {
+      height: 2px;
+      background: var(--border);
+      width: 100%;
+      margin-bottom: 12px;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .status-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--accent);
+    }
+    
+    .status-bar-fill.error { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+    #status-text {
+      font-size: 10px;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 8px;
+      height: 14px;
+      font-family: monospace;
+    }
+
+    /* Success View */
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      margin: 20px auto;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 24px;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Utils */
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><div class="logo-icon"></div> NeoFeed</h1>
+    <div style="font-size: 10px; color: #444;">v1.0</div>
+  </header>
+
+  <!-- SETUP VIEW -->
+  <div id="setup-view" class="view">
+    <div style="text-align: center; margin: 20px 0;">
+      <p style="font-size: 12px; color: var(--text-dim);">Enter your Neural Link Key</p>
+    </div>
+    <input type="password" id="api-key-input" placeholder="sk_neofeed_..." />
+    <button id="save-key-btn" class="btn" style="margin-top: 12px;">Initialize Link</button>
+    <p style="font-size: 10px; color: #444; margin-top: 16px; text-align: center;">
+      Settings > Account > API Key
+    </p>
+  </div>
+
+  <!-- CAPTURE VIEW -->
+  <div id="capture-view" class="view">
+    <div class="info-card">
+      <div id="page-title" class="page-title">Loading...</div>
+      <div id="page-url" class="page-url">...</div>
+      <div class="stats-row">
+        <span>TARGET ACQUIRED</span>
+        <span id="content-stats">Analyzing...</span>
+      </div>
+      <div id="content-preview" style="display:none;"></div>
+    </div>
+
+    <textarea id="user-note" rows="3" placeholder="Add a note to the matrix..."></textarea>
+    
+    <div id="status-text"></div>
+    <div class="progress-container">
+      <div id="status-bar" class="status-bar-fill"></div>
+    </div>
+
+    <button id="send-btn" class="btn">Process & Upload</button>
+    <button id="reset-btn" class="btn btn-ghost">DISCONNECT</button>
+  </div>
+
+  <!-- SUCCESS VIEW -->
+  <div id="success-view" class="view" style="text-align: center;">
+    <div class="success-icon">✓</div>
+    <h2 style="font-size: 16px; margin-bottom: 8px;">Upload Complete</h2>
+    <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 24px;">
+      The knowledge has been integrated into your galaxy.
+    </p>
+    <button id="back-btn" class="btn">Capture Another</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -65,8 +65,8 @@ export default function HistoryPage() {
           <p className="text-white/30 text-xs mt-1 font-mono">
             {items.length} FRAGMENTS DISCOVERED
           </p>
-        </div>
-      </div>
+            </div>
+          </div>
 
       {/* 🖥️ 左侧：星际终端 (替代原有列表) */}
       <HistoryTerminal 
@@ -78,7 +78,7 @@ export default function HistoryPage() {
       {/* 📄 详情页模态框 (Landing Experience) */}
       <AnimatePresence>
         {selectedItem && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -102,7 +102,7 @@ export default function HistoryPage() {
                   {selectedItem.category === 'tech' ? '⚡' : selectedItem.category === 'life' ? '🌱' : '💡'}
                 </div>
                 <div className="flex-1 w-px bg-gradient-to-b from-white/20 to-transparent" />
-              </div>
+            </div>
 
               {/* 右侧内容区 */}
               <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
@@ -145,10 +145,10 @@ export default function HistoryPage() {
               >
                 ✕
               </button>
-            </div>
-          </motion.div>
+                </div>
+              </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
   );
 }

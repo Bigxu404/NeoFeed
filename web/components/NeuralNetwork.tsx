@@ -106,7 +106,7 @@ export default function NeuralNetwork() {
         const pulseGradient = ctx.createRadialGradient(pulseX, pulseY, 0, pulseX, pulseY, 4);
         pulseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
         pulseGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
+
         ctx.beginPath();
         ctx.arc(pulseX, pulseY, 4, 0, Math.PI * 2);
         ctx.fillStyle = pulseGradient;

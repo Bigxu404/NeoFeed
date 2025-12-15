@@ -58,3 +58,4 @@ export default function GlitchText({ text, className = "", as: Component = 'span
   );
 }
 
+

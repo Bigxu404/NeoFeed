@@ -1,11 +1,105 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe } from 'lucide-react';
+import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe, Copy, Check, Eye, EyeOff, Key } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { generateApiKey, getApiKey } from './actions';
 
 // 类型定义
 type TabId = 'display' | 'system' | 'account' | 'danger';
+
+// API Key 管理组件
+function ApiKeyManager() {
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    getApiKey().then(({ apiKey }) => {
+      setApiKey(apiKey);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!confirm(apiKey ? '重新生成将导致旧密钥立即失效。确定要继续吗？' : '确定要生成新的 API 密钥吗？')) return;
+    
+    setIsGenerating(true);
+    const result = await generateApiKey();
+    if (result.apiKey) {
+      setApiKey(result.apiKey);
+      setShowKey(true); // 生成后自动显示
+    } else {
+      alert('生成失败，请重试');
+    }
+    setIsGenerating(false);
+  };
+
+  const handleCopy = () => {
+    if (!apiKey) return;
+    navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-4">
+       <h3 className="text-xs font-bold text-yellow-500/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <Key size={12} /> 神经链路 Neural Link (API Key)
+      </h3>
+      
+      <div className="p-4 border border-white/10 bg-white/[0.02] rounded-lg space-y-4">
+        <p className="text-xs text-white/60 leading-relaxed">
+          使用此密钥连接 Chrome 插件、Obsidian 或其他第三方工具。
+          <br/>
+          <span className="text-red-400/80">警告：请勿将此密钥泄露给他人。</span>
+        </p>
+
+        {isLoading ? (
+          <div className="h-10 bg-white/5 animate-pulse rounded" />
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-10 bg-black/40 border border-white/10 rounded px-3 flex items-center justify-between font-mono text-sm text-white/80">
+              <span>
+                {apiKey 
+                  ? (showKey ? apiKey : `${apiKey.slice(0, 10)}...${apiKey.slice(-4)}`) 
+                  : '未生成密钥 No API Key Active'}
+              </span>
+              {apiKey && (
+                <button onClick={() => setShowKey(!showKey)} className="text-white/30 hover:text-white transition-colors">
+                  {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              )}
+            </div>
+            
+            {apiKey && (
+              <button 
+                onClick={handleCopy}
+                className="h-10 w-10 flex items-center justify-center border border-white/10 bg-white/5 hover:bg-white/10 rounded text-white/60 hover:text-white transition-all"
+                title="复制密钥"
+              >
+                {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+              </button>
+            )}
+
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="h-10 px-4 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 text-xs font-mono rounded transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw size={14} className={isGenerating ? "animate-spin" : ""} />
+              {apiKey ? '重置' : '生成'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // 模拟设置项组件：开关
 function Switch({ label, checked, onChange, description }: { label: string; checked: boolean; onChange: () => void; description?: string }) {
@@ -250,10 +344,9 @@ export default function SettingsPage() {
                       <span>导出用户数据 (JSON)</span>
                       <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
-                    <button className="w-full p-4 border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] text-left text-sm font-mono text-white/70 hover:text-white flex items-center justify-between group">
-                      <span>管理 API 密钥</span>
-                      <Terminal size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
+                    
+                    {/* 集成 API Key Manager */}
+                    <ApiKeyManager />
                   </div>
                 </div>
               )}
@@ -297,7 +390,14 @@ export default function SettingsPage() {
                         <div className="text-sm text-white/80 font-mono group-hover:text-red-400 transition-colors">断开连接</div>
                         <div className="text-[10px] text-white/30">从系统登出。</div>
                       </div>
-                      <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded">
+                      <button 
+                        onClick={async () => {
+                          const supabase = createClient();
+                          await supabase.auth.signOut();
+                          window.location.href = '/login';
+                        }}
+                        className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded"
+                      >
                         <Power size={12} />
                         登出
                       </button>

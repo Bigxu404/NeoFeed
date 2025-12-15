@@ -1,0 +1,2027 @@
+
+> web@0.1.0 dev
+> next dev -H 0.0.0.0
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/Zhuanz/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/Zhuanz/NeoFeed/web/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 1090ms
+ GET /landing 200 in 3.1s (compile: 2.0s, proxy.ts: 869ms, render: 165ms)
+ ⚠ Cross origin request detected from 10.23.196.167 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /login 200 in 1585ms (compile: 812ms, proxy.ts: 735ms, render: 38ms)
+ GET / 200 in 1473ms (compile: 481ms, proxy.ts: 977ms, render: 15ms)
+ GET /history 200 in 1240ms (compile: 610ms, proxy.ts: 587ms, render: 42ms)
+ GET / 200 in 338ms (compile: 11ms, proxy.ts: 243ms, render: 84ms)
+ GET / 200 in 332ms (compile: 7ms, proxy.ts: 309ms, render: 15ms)
+ GET /apple-touch-icon.png 404 in 593ms (compile: 523ms, render: 70ms)
+ GET /apple-touch-icon-precomposed.png 404 in 602ms (compile: 472ms, render: 130ms)
+ ✓ Compiled in 267ms
+ ✓ Compiled in 398ms
+ GET /landing 200 in 1106ms (compile: 143ms, proxy.ts: 880ms, render: 83ms)
+ GET /landing 200 in 360ms (compile: 7ms, proxy.ts: 218ms, render: 135ms)
+ ✓ Compiled in 1360ms
+ ✓ Compiled in 16ms
+ GET /landing 200 in 2.0s (compile: 153ms, proxy.ts: 1665ms, render: 226ms)
+ ✓ Compiled in 793ms
+ GET /landing 200 in 823ms (compile: 96ms, proxy.ts: 525ms, render: 202ms)
+ ✓ Compiled in 525ms
+ GET /landing 200 in 1187ms (compile: 99ms, proxy.ts: 894ms, render: 195ms)
+ ✓ Compiled in 516ms
+ ✓ Compiled in 297ms
+ ✓ Compiled in 292ms
+ ✓ Compiled in 419ms
+ ⨯ ./NeoFeed/web/components/site/FeatureGrid.tsx:52:15
+Parsing ecmascript source code failed
+[0m [90m 50 |[39m             [33m<[39m[33m/[39m[33mh2[39m[33m>[39m
+ [90m 51 |[39m             [33m<[39m[33mp[39m className[33m=[39m[32m"text-sm text-green-400/60 font-mono max-w-sm ml-auto"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 52 |[39m               [33m>[39m [33mSYSTEM[39m[33m.[39m[33mORGANIZE[39m([33mDATA[39m)[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m    |[39m               [31m[1m^[22m[39m
+ [90m 53 |[39m               [33m>[39m [33mENTROPY[39m[33m.[39m[33mREDUCE[39m()[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 54 |[39m               [33m>[39m [33mMEANING[39m[33m.[39m[33mEXTRACT[39m()
+ [90m 55 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/FeatureGrid.tsx:53:15
+Parsing ecmascript source code failed
+[0m [90m 51 |[39m             [33m<[39m[33mp[39m className[33m=[39m[32m"text-sm text-green-400/60 font-mono max-w-sm ml-auto"[39m[33m>[39m
+ [90m 52 |[39m               [33m>[39m [33mSYSTEM[39m[33m.[39m[33mORGANIZE[39m([33mDATA[39m)[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 53 |[39m               [33m>[39m [33mENTROPY[39m[33m.[39m[33mREDUCE[39m()[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m    |[39m               [31m[1m^[22m[39m
+ [90m 54 |[39m               [33m>[39m [33mMEANING[39m[33m.[39m[33mEXTRACT[39m()
+ [90m 55 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 56 |[39m          [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/FeatureGrid.tsx:54:15
+Parsing ecmascript source code failed
+[0m [90m 52 |[39m               [33m>[39m [33mSYSTEM[39m[33m.[39m[33mORGANIZE[39m([33mDATA[39m)[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 53 |[39m               [33m>[39m [33mENTROPY[39m[33m.[39m[33mREDUCE[39m()[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 54 |[39m               [33m>[39m [33mMEANING[39m[33m.[39m[33mEXTRACT[39m()
+ [90m    |[39m               [31m[1m^[22m[39m
+ [90m 55 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 56 |[39m          [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m
+ [90m 57 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/SiteHero.tsx:118:15
+Parsing ecmascript source code failed
+[0m [90m 116 |[39m            
+ [90m 117 |[39m            [33m<[39m[33mdiv[39m className[33m=[39m[32m"font-mono text-xs text-green-500/50"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/SiteHero.tsx:119:15
+Parsing ecmascript source code failed
+[0m [90m 117 |[39m            [33m<[39m[33mdiv[39m className[33m=[39m[32m"font-mono text-xs text-green-500/50"[39m[33m>[39m
+ [90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 122 |[39m         [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/SiteHero.tsx:120:15
+Parsing ecmascript source code failed
+[0m [90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 122 |[39m         [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m
+ [90m 123 |[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+ GET /landing 500 in 2.3s (compile: 918ms, proxy.ts: 1267ms, render: 99ms)
+ ⨯ ./NeoFeed/web/components/site/SiteHero.tsx:118:15
+Parsing ecmascript source code failed
+[0m [90m 116 |[39m            
+ [90m 117 |[39m            [33m<[39m[33mdiv[39m className[33m=[39m[32m"font-mono text-xs text-green-500/50"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/SiteHero.tsx:119:15
+Parsing ecmascript source code failed
+[0m [90m 117 |[39m            [33m<[39m[33mdiv[39m className[33m=[39m[32m"font-mono text-xs text-green-500/50"[39m[33m>[39m
+ [90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 122 |[39m         [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/site/SiteHero.tsx:120:15
+Parsing ecmascript source code failed
+[0m [90m 118 |[39m               [33m>[39m [33mORDER[39m [33mRESTORED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+ [90m 119 |[39m               [33m>[39m [33mENTROPY[39m [33mDELETED[39m[33m<[39m[33mbr[39m[33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 120 |[39m               [33m>[39m [33mKNOWLEDGE[39m [33mINDEXED[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 121 |[39m            [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 122 |[39m         [33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m
+ [90m 123 |[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/SiteHero.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+ GET /landing 500 in 1117ms (compile: 188ms, proxy.ts: 905ms, render: 25ms)
+ ✓ Compiled in 282ms
+ GET /landing 200 in 1229ms (compile: 322ms, proxy.ts: 418ms, render: 488ms)
+ GET /matrix-rain.png 404 in 97ms (compile: 48ms, render: 50ms)
+ ✓ Compiled in 519ms
+ GET /matrix-rain.png 404 in 115ms (compile: 30ms, render: 86ms)
+ ✓ Compiled in 136ms
+ GET /matrix-rain.png 404 in 52ms (compile: 14ms, render: 38ms)
+ ✓ Compiled in 630ms
+ ✓ Compiled in 325ms
+ GET /landing 200 in 1335ms (compile: 133ms, proxy.ts: 815ms, render: 388ms)
+ GET /matrix-rain.png 404 in 68ms (compile: 17ms, render: 51ms)
+ ✓ Compiled in 400ms
+ GET /matrix-rain.png 404 in 78ms (compile: 18ms, render: 60ms)
+ GET /landing 200 in 1718ms (compile: 103ms, proxy.ts: 1454ms, render: 162ms)
+ GET /matrix-rain.png 404 in 41ms (compile: 3ms, render: 38ms)
+ ✓ Compiled in 181ms
+ ✓ Compiled in 229ms
+ GET /matrix-rain.png 404 in 69ms (compile: 18ms, render: 52ms)
+ GET /landing 200 in 1274ms (compile: 162ms, proxy.ts: 933ms, render: 179ms)
+ GET /matrix-rain.png 404 in 30ms (compile: 12ms, render: 19ms)
+ GET /login 200 in 728ms (compile: 78ms, proxy.ts: 631ms, render: 19ms)
+ ✓ Compiled in 528ms
+ GET /matrix-rain.png 404 in 219ms (compile: 53ms, render: 166ms)
+ ✓ Compiled in 484ms
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4129:243
+    at SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4001:26)
+    at async SupabaseAuthClient._getUser (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4114:20)
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4101:20
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:3949:28 {
+  
+}
+ GET /landing 200 in 11.4s (compile: 399ms, proxy.ts: 10.5s, render: 507ms)
+ ✓ Compiled in 395ms
+ GET /matrix-rain.png 404 in 236ms (compile: 23ms, render: 213ms)
+ GET /landing 200 in 935ms (compile: 107ms, proxy.ts: 696ms, render: 132ms)
+ GET /matrix-rain.png 404 in 22ms (compile: 3ms, render: 20ms)
+ GET /landing 200 in 143ms (compile: 37ms, proxy.ts: 40ms, render: 65ms)
+ GET /matrix-rain.png 404 in 30ms (compile: 5ms, render: 25ms)
+ GET /landing 200 in 140ms (compile: 31ms, proxy.ts: 48ms, render: 61ms)
+ GET /matrix-rain.png 404 in 24ms (compile: 3ms, render: 21ms)
+ ✓ Compiled in 298ms
+ GET /landing 200 in 607ms (compile: 144ms, proxy.ts: 25ms, render: 437ms)
+ GET /landing 200 in 595ms (compile: 323ms, proxy.ts: 8ms, render: 264ms)
+ GET /matrix-rain.png 404 in 26ms (compile: 8ms, render: 18ms)
+ GET /landing 200 in 1322ms (compile: 10ms, proxy.ts: 1245ms, render: 68ms)
+ GET /matrix-rain.png 404 in 47ms (compile: 2ms, render: 44ms)
+ GET /landing 200 in 169ms (compile: 34ms, proxy.ts: 40ms, render: 96ms)
+ GET /matrix-rain.png 404 in 17ms (compile: 3ms, render: 14ms)
+ ✓ Compiled in 224ms
+ GET /matrix-rain.png 404 in 170ms (compile: 17ms, render: 154ms)
+ GET /matrix-rain.png 404 in 43ms (compile: 9ms, render: 34ms)
+ ✓ Compiled in 248ms
+ GET /landing 200 in 536ms (compile: 201ms, proxy.ts: 19ms, render: 317ms)
+ GET /matrix-rain.png 404 in 31ms (compile: 8ms, render: 24ms)
+ GET /landing 200 in 1315ms (compile: 104ms, proxy.ts: 1027ms, render: 183ms)
+ GET /matrix-rain.png 404 in 195ms (compile: 29ms, render: 166ms)
+ ✓ Compiled in 404ms
+ ✓ Compiled in 332ms
+ ⨯ ./NeoFeed/web/components/site/InsightPreviewCard.tsx:23:71
+Parsing ecmascript source code failed
+[0m [90m 21 |[39m         [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-right"[39m[33m>[39m
+ [90m 22 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-white/40 text-xs font-mono"[39m[33m>[39m[33mOct[39m [35m14[39m [33m-[39m [33mOct[39m [35m20[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 23 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-white/60 text-sm font-sans"[39m[33m>[39m[35m52[39m 碎片 [33m-[39m[33m>[39m [35m3[39m 洞察[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m    |[39m                                                                       [31m[1m^[22m[39m
+ [90m 24 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 25 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 26 |[39m[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/site/InsightPreviewCard.tsx [Client Component Browser]
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/site/InsightPreviewCard.tsx [Client Component SSR]
+    ./NeoFeed/web/components/site/FeatureGrid.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/landing/page.tsx [Server Component]
+
+
+ GET /landing 500 in 1563ms (compile: 133ms, proxy.ts: 1395ms, render: 36ms)
+ ✓ Compiled in 348ms
+ GET /landing 200 in 1471ms (compile: 336ms, proxy.ts: 812ms, render: 323ms)
+ GET /matrix-rain.png 404 in 108ms (compile: 40ms, render: 67ms)
+ ✓ Compiled in 203ms
+ ✓ Compiled in 158ms
+ ✓ Compiled in 796ms
+ GET /landing 200 in 1688ms (compile: 129ms, proxy.ts: 1389ms, render: 169ms)
+ GET /matrix-rain.png 404 in 57ms (compile: 30ms, render: 28ms)
+ GET /apple-touch-icon-precomposed.png 404 in 206ms (compile: 43ms, render: 163ms)
+ GET /apple-touch-icon.png 404 in 201ms (compile: 159ms, render: 41ms)
+ GET /landing 200 in 101ms (compile: 8ms, proxy.ts: 13ms, render: 80ms)
+ ✓ Compiled in 219ms
+ GET /landing 200 in 373ms (compile: 116ms, proxy.ts: 27ms, render: 230ms)
+ GET /matrix-rain.png 404 in 30ms (compile: 4ms, render: 26ms)
+ GET /landing 200 in 70ms (compile: 11ms, proxy.ts: 8ms, render: 50ms)
+ GET /matrix-rain.png 404 in 41ms (compile: 11ms, render: 30ms)
+ GET /landing 200 in 68ms (compile: 7ms, proxy.ts: 11ms, render: 49ms)
+ GET /matrix-rain.png 404 in 21ms (compile: 1648µs, render: 19ms)
+ GET /landing 200 in 139ms (compile: 36ms, proxy.ts: 25ms, render: 77ms)
+ GET /matrix-rain.png 404 in 30ms (compile: 9ms, render: 21ms)
+ GET /login 200 in 77ms (compile: 46ms, proxy.ts: 14ms, render: 17ms)
+ GET /auth/verify-request 200 in 1934ms (compile: 1819ms, proxy.ts: 14ms, render: 102ms)
+ POST /login 303 in 10.8s (compile: 15ms, proxy.ts: 22ms, render: 10.7s)
+ POST /login 200 in 263ms (compile: 4ms, proxy.ts: 1689µs, render: 257ms)
+ POST /auth/verify-request 200 in 308ms (compile: 31ms, proxy.ts: 8ms, render: 269ms)
+ ✓ Compiled in 462ms
+ ✓ Compiled in 61ms
+ GET /landing 200 in 1667ms (compile: 183ms, proxy.ts: 1255ms, render: 229ms)
+ GET /matrix-rain.png 404 in 60ms (compile: 42ms, render: 18ms)
+ ✓ Compiled in 331ms
+ GET /matrix-rain.png 404 in 53ms (compile: 13ms, render: 40ms)
+ GET /landing 200 in 952ms (compile: 108ms, proxy.ts: 697ms, render: 147ms)
+ GET /matrix-rain.png 404 in 31ms (compile: 5ms, render: 26ms)
+ GET /landing 200 in 970ms (compile: 30ms, proxy.ts: 872ms, render: 68ms)
+ GET /matrix-rain.png 404 in 34ms (compile: 7ms, render: 28ms)
+ GET /landing 200 in 2.0s (compile: 111ms, proxy.ts: 1682ms, render: 235ms)
+ GET /matrix-rain.png 404 in 56ms (compile: 8ms, render: 48ms)
+ GET /landing 200 in 840ms (compile: 46ms, proxy.ts: 717ms, render: 77ms)
+ GET /matrix-rain.png 404 in 38ms (compile: 10ms, render: 28ms)
+ GET /landing 200 in 1116ms (compile: 60ms, proxy.ts: 940ms, render: 115ms)
+ GET /matrix-rain.png 404 in 79ms (compile: 11ms, render: 68ms)
+ GET /landing 200 in 93ms (compile: 24ms, proxy.ts: 17ms, render: 52ms)
+ GET /matrix-rain.png 404 in 26ms (compile: 5ms, render: 21ms)
+ GET /landing 200 in 77ms (compile: 12ms, proxy.ts: 17ms, render: 48ms)
+ GET /matrix-rain.png 404 in 28ms (compile: 9ms, render: 19ms)
+ GET /landing 200 in 61ms (compile: 6ms, proxy.ts: 7ms, render: 48ms)
+ GET /matrix-rain.png 404 in 26ms (compile: 3ms, render: 22ms)
+ GET /landing 200 in 96ms (compile: 13ms, proxy.ts: 21ms, render: 61ms)
+ GET /matrix-rain.png 404 in 29ms (compile: 5ms, render: 24ms)
+ GET /landing 200 in 56ms (compile: 4ms, proxy.ts: 5ms, render: 46ms)
+ GET /matrix-rain.png 404 in 18ms (compile: 1482µs, render: 16ms)
+ GET /landing 200 in 61ms (compile: 8ms, proxy.ts: 11ms, render: 42ms)
+ GET /matrix-rain.png 404 in 20ms (compile: 3ms, render: 17ms)
+ GET /landing 200 in 63ms (compile: 9ms, proxy.ts: 12ms, render: 41ms)
+ GET /matrix-rain.png 404 in 27ms (compile: 5ms, render: 21ms)
+ GET /landing 200 in 99ms (compile: 14ms, proxy.ts: 23ms, render: 62ms)
+ GET /matrix-rain.png 404 in 23ms (compile: 3ms, render: 20ms)
+ GET /apple-touch-icon-precomposed.png 404 in 107ms (compile: 70ms, render: 37ms)
+ GET /apple-touch-icon.png 404 in 101ms (compile: 25ms, render: 76ms)
+ GET /login?mode=signup 200 in 133ms (compile: 72ms, proxy.ts: 21ms, render: 41ms)
+ GET / 200 in 150ms (compile: 101ms, proxy.ts: 19ms, render: 31ms)
+ GET /landing 200 in 109ms (compile: 31ms, proxy.ts: 15ms, render: 62ms)
+ GET /matrix-rain.png 404 in 19ms (compile: 2ms, render: 17ms)
+ GET /landing 200 in 3.6s (compile: 55ms, proxy.ts: 3.4s, render: 84ms)
+ GET /matrix-rain.png 404 in 36ms (compile: 7ms, render: 29ms)
+ GET /landing 200 in 132ms (compile: 32ms, proxy.ts: 23ms, render: 76ms)
+ GET /matrix-rain.png 404 in 50ms (compile: 6ms, render: 44ms)
+ GET /landing 200 in 823ms (compile: 37ms, proxy.ts: 723ms, render: 63ms)
+ GET /matrix-rain.png 404 in 31ms (compile: 3ms, render: 29ms)
+ GET /apple-touch-icon-precomposed.png 404 in 96ms (compile: 23ms, render: 73ms)
+ GET /apple-touch-icon.png 404 in 94ms (compile: 7ms, render: 87ms)
+ GET /apple-touch-icon-precomposed.png 404 in 45ms (compile: 3ms, render: 42ms)
+ GET /apple-touch-icon.png 404 in 46ms (compile: 17ms, render: 28ms)
+ GET /landing 200 in 1232ms (compile: 10ms, proxy.ts: 1172ms, render: 51ms)
+ GET /matrix-rain.png 404 in 186ms (compile: 23ms, render: 164ms)
+ GET /landing 200 in 93ms (compile: 12ms, proxy.ts: 31ms, render: 50ms)
+ GET /matrix-rain.png 404 in 48ms (compile: 7ms, render: 41ms)
+ GET /login 200 in 81ms (compile: 46ms, proxy.ts: 12ms, render: 23ms)
+ GET /auth/verify-request 200 in 117ms (compile: 85ms, proxy.ts: 4ms, render: 27ms)
+ POST /login 303 in 2.5s (compile: 39ms, proxy.ts: 32ms, render: 2.5s)
+ GET /login 200 in 48ms (compile: 11ms, proxy.ts: 19ms, render: 18ms)
+ GET / 200 in 43ms (compile: 18ms, proxy.ts: 7ms, render: 19ms)
+ GET /history 200 in 82ms (compile: 65ms, proxy.ts: 6ms, render: 11ms)
+ GET / 200 in 87ms (compile: 14ms, proxy.ts: 17ms, render: 55ms)
+ GET /insight 200 in 1999ms (compile: 1917ms, proxy.ts: 10ms, render: 71ms)
+ GET /insight 200 in 26ms (compile: 2ms, proxy.ts: 3ms, render: 21ms)
+ GET / 200 in 83ms (compile: 26ms, proxy.ts: 19ms, render: 38ms)
+ GET /profile 200 in 686ms (compile: 649ms, proxy.ts: 7ms, render: 30ms)
+ GET /login 200 in 18ms (compile: 4ms, proxy.ts: 6ms, render: 9ms)
+ GET /login 200 in 14ms (compile: 1323µs, proxy.ts: 1298µs, render: 11ms)
+ GET / 200 in 32ms (compile: 9ms, proxy.ts: 8ms, render: 14ms)
+ GET /settings 200 in 356ms (compile: 324ms, proxy.ts: 7ms, render: 25ms)
+ GET / 200 in 51ms (compile: 6ms, proxy.ts: 8ms, render: 37ms)
+ GET /history 200 in 47ms (compile: 7ms, proxy.ts: 19ms, render: 21ms)
+ GET / 200 in 82ms (compile: 16ms, proxy.ts: 18ms, render: 48ms)
+ GET /profile 200 in 32ms (compile: 9ms, proxy.ts: 6ms, render: 18ms)
+ GET /login 200 in 23ms (compile: 7ms, proxy.ts: 3ms, render: 13ms)
+ GET /login 200 in 14ms (compile: 1867µs, proxy.ts: 2ms, render: 10ms)
+ GET / 200 in 241ms (compile: 9ms, proxy.ts: 213ms, render: 20ms)
+ POST /login 303 in 1466ms (compile: 17ms, proxy.ts: 18ms, render: 1431ms)
+ GET /profile 200 in 542ms (compile: 8ms, proxy.ts: 515ms, render: 18ms)
+ GET / 200 in 779ms (compile: 12ms, proxy.ts: 720ms, render: 47ms)
+ GET /history 200 in 345ms (compile: 7ms, proxy.ts: 320ms, render: 18ms)
+ GET / 200 in 276ms (compile: 10ms, proxy.ts: 222ms, render: 43ms)
+ GET /profile 200 in 224ms (compile: 9ms, proxy.ts: 196ms, render: 18ms)
+ GET / 200 in 255ms (compile: 12ms, proxy.ts: 204ms, render: 39ms)
+ ✓ Compiled in 938ms
+ GET /matrix-rain.png 404 in 358ms (compile: 159ms, render: 199ms)
+ ✓ Compiled in 291ms
+ GET /matrix-rain.png 404 in 228ms (compile: 22ms, render: 206ms)
+ ✓ Compiled in 255ms
+ GET /matrix-rain.png 404 in 289ms (compile: 84ms, render: 205ms)
+ ✓ Compiled in 460ms
+ GET /matrix-rain.png 404 in 309ms (compile: 69ms, render: 240ms)
+ ✓ Compiled in 1141ms
+ GET /landing 200 in 1286ms (compile: 342ms, proxy.ts: 329ms, render: 615ms)
+ GET /matrix-rain.png 404 in 107ms (compile: 20ms, render: 87ms)
+ ✓ Compiled in 709ms
+ GET /matrix-rain.png 404 in 253ms (compile: 21ms, render: 232ms)
+ GET /login 200 in 1223ms (compile: 63ms, proxy.ts: 1106ms, render: 54ms)
+ GET /login?mode=signup 200 in 437ms (compile: 16ms, proxy.ts: 389ms, render: 32ms)
+ GET / 200 in 498ms (compile: 33ms, proxy.ts: 449ms, render: 16ms)
+ GET / 200 in 230ms (compile: 15ms, proxy.ts: 197ms, render: 18ms)
+ ✓ Compiled in 2.8s
+ ✓ Compiled in 1505ms
+ ✓ Compiled in 352ms
+ GET /login 200 in 1706ms (compile: 479ms, proxy.ts: 850ms, render: 376ms)
+ GET /login 200 in 1562ms (compile: 76ms, proxy.ts: 1125ms, render: 361ms)
+ GET / 200 in 388ms (compile: 22ms, proxy.ts: 331ms, render: 34ms)
+ GET /login?mode=signup 200 in 444ms (compile: 24ms, proxy.ts: 380ms, render: 40ms)
+ ✓ Compiled in 1284ms
+ GET /matrix-rain.png 404 in 565ms (compile: 117ms, render: 448ms)
+ GET /login 200 in 1330ms (compile: 378ms, proxy.ts: 778ms, render: 173ms)
+ GET / 200 in 395ms (compile: 11ms, proxy.ts: 344ms, render: 40ms)
+ GET /matrix-rain.png 404 in 71ms (compile: 16ms, render: 56ms)
+ GET /login?mode=signup 200 in 459ms (compile: 19ms, proxy.ts: 399ms, render: 41ms)
+ GET /login?mode=signup 200 in 365ms (compile: 11ms, proxy.ts: 331ms, render: 23ms)
+ GET /login 200 in 410ms (compile: 15ms, proxy.ts: 367ms, render: 28ms)
+ ✓ Compiled in 1379ms
+ GET /matrix-rain.png 404 in 219ms (compile: 43ms, render: 176ms)
+ ✓ Compiled in 594ms
+ GET /matrix-rain.png 404 in 430ms (compile: 49ms, render: 381ms)
+ GET /login 200 in 1628ms (compile: 565ms, proxy.ts: 668ms, render: 395ms)
+ GET /matrix-rain.png 404 in 94ms (compile: 41ms, render: 53ms)
+ GET /matrix-rain.png 404 in 21ms (compile: 3ms, render: 18ms)
+ GET / 200 in 734ms (compile: 45ms, proxy.ts: 658ms, render: 30ms)
+ ✓ Compiled in 785ms
+ GET /matrix-rain.png 404 in 195ms (compile: 55ms, render: 141ms)
+ GET /landing 200 in 1502ms (compile: 175ms, proxy.ts: 1134ms, render: 193ms)
+ GET /matrix-rain.png 404 in 59ms (compile: 7ms, render: 52ms)
+ GET /landing 200 in 283ms (compile: 6ms, proxy.ts: 234ms, render: 43ms)
+ GET /matrix-rain.png 404 in 58ms (compile: 2ms, render: 56ms)
+ GET /login?mode=signup 200 in 862ms (compile: 312ms, proxy.ts: 433ms, render: 117ms)
+ GET / 200 in 380ms (compile: 27ms, proxy.ts: 336ms, render: 17ms)
+ GET /matrix-rain.png 404 in 60ms (compile: 13ms, render: 47ms)
+ ✓ Compiled in 1043ms
+ GET /matrix-rain.png 404 in 252ms (compile: 53ms, render: 199ms)
+ ✓ Compiled in 677ms
+ GET /matrix-rain.png 404 in 151ms (compile: 103ms, render: 49ms)
+ ✓ Compiled in 399ms
+ GET /landing 200 in 1227ms (compile: 275ms, proxy.ts: 677ms, render: 275ms)
+ GET /matrix-rain.png 404 in 35ms (compile: 17ms, render: 18ms)
+ GET /landing 200 in 683ms (compile: 40ms, proxy.ts: 575ms, render: 68ms)
+ GET /matrix-rain.png 404 in 63ms (compile: 12ms, render: 51ms)
+ GET /login 200 in 924ms (compile: 460ms, proxy.ts: 205ms, render: 260ms)
+ GET /matrix-rain.png 404 in 47ms (compile: 9ms, render: 38ms)
+ GET /matrix-rain.png 404 in 22ms (compile: 4ms, render: 17ms)
+ GET /login?mode=signup 200 in 361ms (compile: 14ms, proxy.ts: 330ms, render: 18ms)
+ ✓ Compiled in 52ms
+ GET /matrix-rain.png 404 in 869ms (compile: 208ms, render: 661ms)
+ GET /login 200 in 883ms (compile: 71ms, proxy.ts: 648ms, render: 163ms)
+ GET /login 200 in 505ms (compile: 10ms, proxy.ts: 469ms, render: 26ms)
+ ✓ Compiled in 1957ms
+ GET /landing 200 in 1008ms (compile: 253ms, proxy.ts: 509ms, render: 246ms)
+ GET /matrix-rain.png 404 in 662ms (compile: 58ms, render: 605ms)
+ GET /apple-touch-icon-precomposed.png 404 in 864ms (compile: 648ms, render: 216ms)
+ GET /apple-touch-icon.png 404 in 806ms (compile: 175ms, render: 631ms)
+ GET /landing 200 in 452ms (compile: 83ms, proxy.ts: 88ms, render: 280ms)
+ GET /matrix-rain.png 404 in 158ms (compile: 18ms, render: 140ms)
+ GET /login 200 in 84ms (compile: 22ms, proxy.ts: 19ms, render: 43ms)
+ ⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/Zhuanz/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/Zhuanz/NeoFeed/web/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 957ms
+ ⚠ Cross origin request detected from 10.23.196.167 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /landing 200 in 1804ms (compile: 1577ms, proxy.ts: 38ms, render: 189ms)
+ GET /matrix-rain.png 404 in 368ms (compile: 267ms, render: 102ms)
+ GET /landing 200 in 1655ms (compile: 3ms, proxy.ts: 1612ms, render: 40ms)
+ GET /matrix-rain.png 404 in 38ms (compile: 6ms, render: 33ms)
+ ✓ Compiled in 84ms
+ ✓ Compiled in 92ms
+ ⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/Zhuanz/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/Zhuanz/NeoFeed/web/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 774ms
+ ⚠ Cross origin request detected from 10.23.196.167 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /landing 200 in 1712ms (compile: 1525ms, proxy.ts: 4ms, render: 183ms)
+ GET /landing 200 in 2.4s (compile: 1659ms, proxy.ts: 650ms, render: 125ms)
+ GET /matrix-rain.png 404 in 337ms (compile: 238ms, render: 100ms)
+ GET /matrix-rain.png 404 in 509ms (compile: 462ms, render: 47ms)
+ GET /landing 200 in 307ms (compile: 77ms, proxy.ts: 85ms, render: 145ms)
+ GET /matrix-rain.png 404 in 60ms (compile: 8ms, render: 52ms)
+ GET /login 200 in 2.6s (compile: 2.5s, proxy.ts: 27ms, render: 128ms)
+ GET / 200 in 1349ms (compile: 1259ms, proxy.ts: 17ms, render: 73ms)
+ GET /history 200 in 816ms (compile: 738ms, proxy.ts: 13ms, render: 65ms)
+ GET /insight 200 in 1013ms (compile: 920ms, proxy.ts: 11ms, render: 82ms)
+ GET /login 200 in 85ms (compile: 34ms, proxy.ts: 26ms, render: 26ms)
+ GET / 200 in 47ms (compile: 14ms, proxy.ts: 21ms, render: 13ms)
+ GET /history 200 in 28ms (compile: 7ms, proxy.ts: 6ms, render: 15ms)
+ GET / 200 in 110ms (compile: 6ms, proxy.ts: 5ms, render: 99ms)
+ GET /insight 200 in 35ms (compile: 7ms, proxy.ts: 12ms, render: 17ms)
+ GET / 200 in 64ms (compile: 9ms, proxy.ts: 12ms, render: 42ms)
+ GET /profile 200 in 452ms (compile: 422ms, proxy.ts: 8ms, render: 22ms)
+ GET /login 200 in 16ms (compile: 3ms, proxy.ts: 1394µs, render: 12ms)
+ GET /login 200 in 13ms (compile: 2ms, proxy.ts: 1911µs, render: 9ms)
+ GET / 200 in 18ms (compile: 3ms, proxy.ts: 5ms, render: 10ms)
+ GET /settings 200 in 225ms (compile: 203ms, proxy.ts: 7ms, render: 16ms)
+ GET / 200 in 75ms (compile: 21ms, proxy.ts: 18ms, render: 35ms)
+ GET /settings 200 in 20ms (compile: 5ms, proxy.ts: 3ms, render: 12ms)
+ GET / 200 in 67ms (compile: 12ms, proxy.ts: 12ms, render: 43ms)
+ GET /history 200 in 38ms (compile: 7ms, proxy.ts: 9ms, render: 22ms)
+ GET /landing 200 in 76ms (compile: 9ms, proxy.ts: 12ms, render: 56ms)
+ GET /matrix-rain.png 404 in 20ms (compile: 3ms, render: 17ms)
+ GET /login 200 in 43ms (compile: 11ms, proxy.ts: 14ms, render: 18ms)
+ GET /login 200 in 30ms (compile: 7ms, proxy.ts: 8ms, render: 15ms)
+ GET /auth/verify-request 200 in 542ms (compile: 496ms, proxy.ts: 4ms, render: 42ms)
+ POST /login 303 in 3.4s (compile: 13ms, proxy.ts: 18ms, render: 3.4s)
+ POST /login 200 in 266ms (compile: 12ms, proxy.ts: 5ms, render: 250ms)
+ POST /auth/verify-request 200 in 286ms (compile: 7ms, proxy.ts: 7ms, render: 272ms)
+ GET /login 200 in 92ms (compile: 35ms, proxy.ts: 30ms, render: 27ms)
+ GET / 200 in 47ms (compile: 14ms, proxy.ts: 18ms, render: 15ms)
+ GET /history 200 in 34ms (compile: 13ms, proxy.ts: 5ms, render: 16ms)
+ GET / 200 in 68ms (compile: 10ms, proxy.ts: 13ms, render: 44ms)
+ GET /history 200 in 31ms (compile: 5ms, proxy.ts: 10ms, render: 15ms)
+ GET / 200 in 51ms (compile: 7ms, proxy.ts: 9ms, render: 35ms)
+ GET /insight 200 in 32ms (compile: 8ms, proxy.ts: 8ms, render: 16ms)
+ ✓ Compiled in 545ms
+ GET /matrix-rain.png 404 in 262ms (compile: 111ms, render: 151ms)
+ GET /insight 200 in 1051ms (compile: 409ms, proxy.ts: 304ms, render: 338ms)
+ GET /insight 200 in 170ms (compile: 31ms, proxy.ts: 20ms, render: 119ms)
+ GET /insight 200 in 62ms (compile: 9ms, proxy.ts: 10ms, render: 42ms)
+ GET /insight 200 in 36ms (compile: 12ms, proxy.ts: 4ms, render: 21ms)
+ GET /insight 200 in 92ms (compile: 8ms, proxy.ts: 7ms, render: 77ms)
+ GET /insight 200 in 107ms (compile: 18ms, proxy.ts: 13ms, render: 76ms)
+ GET /insight 200 in 55ms (compile: 8ms, proxy.ts: 5ms, render: 42ms)
+ GET /insight 200 in 70ms (compile: 12ms, proxy.ts: 16ms, render: 41ms)
+ GET /insight 200 in 85ms (compile: 8ms, proxy.ts: 7ms, render: 70ms)
+ GET /insight 200 in 70ms (compile: 18ms, proxy.ts: 4ms, render: 48ms)
+ GET /insight 200 in 178ms (compile: 53ms, proxy.ts: 28ms, render: 97ms)
+ GET /insight 200 in 112ms (compile: 12ms, proxy.ts: 14ms, render: 86ms)
+ ✓ Compiled in 524ms
+ GET /landing 200 in 3.3s (compile: 466ms, proxy.ts: 2.4s, render: 466ms)
+ GET /insight 200 in 1127ms (compile: 936ms, proxy.ts: 11ms, render: 180ms)
+ ✓ Compiled in 36ms
+ GET /landing 200 in 751ms (compile: 104ms, proxy.ts: 573ms, render: 74ms)
+ GET /matrix-rain.png 404 in 730ms (compile: 236ms, render: 493ms)
+ GET /insight 200 in 684ms (compile: 175ms, proxy.ts: 453ms, render: 56ms)
+ GET /insight 200 in 36ms (compile: 3ms, proxy.ts: 1681µs, render: 31ms)
+ GET /insight 200 in 42ms (compile: 3ms, proxy.ts: 4ms, render: 35ms)
+ GET /insight 200 in 73ms (compile: 5ms, proxy.ts: 11ms, render: 56ms)
+ GET /landing 200 in 315ms (compile: 10ms, proxy.ts: 202ms, render: 104ms)
+ GET /insight 200 in 120ms (compile: 16ms, proxy.ts: 2ms, render: 102ms)
+ GET /insight 200 in 94ms (compile: 14ms, proxy.ts: 13ms, render: 68ms)
+ GET /insight 200 in 113ms (compile: 7ms, proxy.ts: 20ms, render: 86ms)
+ GET /landing 200 in 396ms (compile: 10ms, proxy.ts: 285ms, render: 100ms)
+ GET /insight 200 in 83ms (compile: 16ms, proxy.ts: 22ms, render: 44ms)
+ GET /insight 200 in 133ms (compile: 28ms, proxy.ts: 47ms, render: 58ms)
+ GET /insight 200 in 63ms (compile: 9ms, proxy.ts: 1842µs, render: 52ms)
+ GET /landing 200 in 253ms (compile: 11ms, proxy.ts: 221ms, render: 21ms)
+ GET /insight 200 in 29ms (compile: 2ms, proxy.ts: 7ms, render: 19ms)
+ GET /insight 200 in 32ms (compile: 9ms, proxy.ts: 1872µs, render: 22ms)
+ GET /insight 200 in 52ms (compile: 9ms, proxy.ts: 8ms, render: 35ms)
+ GET /insight 200 in 63ms (compile: 2ms, proxy.ts: 3ms, render: 58ms)
+ GET /landing 200 in 234ms (compile: 4ms, proxy.ts: 211ms, render: 18ms)
+ GET /insight 200 in 49ms (compile: 9ms, proxy.ts: 10ms, render: 30ms)
+ GET /insight 200 in 288ms (compile: 24ms, proxy.ts: 5ms, render: 260ms)
+ GET /landing 200 in 411ms (compile: 15ms, proxy.ts: 295ms, render: 101ms)
+ GET /insight 200 in 162ms (compile: 30ms, proxy.ts: 23ms, render: 109ms)
+ GET /landing 200 in 386ms (compile: 10ms, proxy.ts: 278ms, render: 97ms)
+ GET /landing 200 in 427ms (compile: 37ms, proxy.ts: 225ms, render: 165ms)
+ GET /landing 200 in 276ms (compile: 11ms, proxy.ts: 204ms, render: 61ms)
+ GET /landing 200 in 262ms (compile: 14ms, proxy.ts: 206ms, render: 42ms)
+ GET /landing 200 in 242ms (compile: 7ms, proxy.ts: 198ms, render: 38ms)
+ GET /landing 200 in 265ms (compile: 4ms, proxy.ts: 228ms, render: 32ms)
+ GET /landing 200 in 232ms (compile: 7ms, proxy.ts: 201ms, render: 25ms)
+ GET /landing 200 in 287ms (compile: 25ms, proxy.ts: 241ms, render: 21ms)
+ GET /landing 200 in 236ms (compile: 11ms, proxy.ts: 192ms, render: 33ms)
+ GET /landing 200 in 299ms (compile: 16ms, proxy.ts: 255ms, render: 28ms)
+ GET /landing 200 in 215ms (compile: 11ms, proxy.ts: 183ms, render: 21ms)
+ GET /landing 200 in 271ms (compile: 10ms, proxy.ts: 231ms, render: 30ms)
+ GET /landing 200 in 212ms (compile: 11ms, proxy.ts: 180ms, render: 21ms)
+ GET /landing 200 in 297ms (compile: 8ms, proxy.ts: 269ms, render: 20ms)
+ GET /landing 200 in 223ms (compile: 7ms, proxy.ts: 194ms, render: 22ms)
+ GET /landing 200 in 297ms (compile: 2ms, proxy.ts: 263ms, render: 31ms)
+ GET /landing 200 in 228ms (compile: 6ms, proxy.ts: 200ms, render: 22ms)
+ GET /landing 200 in 288ms (compile: 9ms, proxy.ts: 261ms, render: 17ms)
+ GET /landing 200 in 214ms (compile: 2ms, proxy.ts: 191ms, render: 21ms)
+ GET /landing 200 in 310ms (compile: 9ms, proxy.ts: 278ms, render: 23ms)
+ GET /landing 200 in 219ms (compile: 10ms, proxy.ts: 184ms, render: 25ms)
+ GET /landing 200 in 302ms (compile: 11ms, proxy.ts: 257ms, render: 33ms)
+ GET /landing 200 in 279ms (compile: 17ms, proxy.ts: 204ms, render: 58ms)
+ ✓ Compiled in 424ms
+ GET /matrix-rain.png 404 in 171ms (compile: 35ms, render: 136ms)
+ ✓ Compiled in 418ms
+ GET /matrix-rain.png 404 in 87ms (compile: 18ms, render: 68ms)
+ GET /login 200 in 1705ms (compile: 205ms, proxy.ts: 1129ms, render: 370ms)
+ GET /login 200 in 966ms (compile: 123ms, proxy.ts: 747ms, render: 96ms)
+ GET / 200 in 263ms (compile: 54ms, proxy.ts: 176ms, render: 33ms)
+ POST /login 303 in 1226ms (compile: 44ms, proxy.ts: 549ms, render: 632ms)
+ GET /history 200 in 330ms (compile: 86ms, proxy.ts: 206ms, render: 39ms)
+ GET /dashboard 200 in 1835ms (compile: 869ms, proxy.ts: 851ms, render: 114ms)
+ ✓ Compiled in 192ms
+ ✓ Compiled in 104ms
+ ✓ Compiled in 109ms
+ ✓ Compiled in 73ms
+ ✓ Compiled in 62ms
+ ✓ Compiled in 255ms
+ GET /dashboard 200 in 921ms (compile: 112ms, proxy.ts: 608ms, render: 201ms)
+ ✓ Compiled in 276ms
+ ✓ Compiled in 123ms
+ ✓ Compiled in 84ms
+ ✓ Compiled in 83ms
+ ✓ Compiled in 319ms
+ ⨯ ./NeoFeed/web/components/dashboard/DashboardHeader.tsx:8:10
+Ecmascript file had an error
+[0m [90m  6 |[39m
+ [90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  8 |[39m [36mimport[39m { [33mInfinity[39m[33m,[39m [33mHelpCircle[39m } [36mfrom[39m [32m'lucide-react'[39m[33m;[39m
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m  9 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m 10 |[39m
+ [90m 11 |[39m [36minterface[39m [33mDashboardHeaderProps[39m {[0m
+
+the name `Infinity` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/dashboard/DashboardHeader.tsx:9:8
+Ecmascript file had an error
+[0m [90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m  8 |[39m [36mimport[39m { [33mInfinity[39m[33m,[39m [33mHelpCircle[39m } [36mfrom[39m [32m'lucide-react'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m    |[39m        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 10 |[39m
+ [90m 11 |[39m [36minterface[39m [33mDashboardHeaderProps[39m {
+ [90m 12 |[39m   onShowGuide[33m?[39m[33m:[39m () [33m=>[39m [36mvoid[39m[33m;[39m[0m
+
+the name `Link` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/dashboard/DashboardHeader.tsx:7:10
+Ecmascript file had an error
+[0m [90m  5 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m  6 |[39m
+[31m[1m>[22m[39m[90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m  8 |[39m [36mimport[39m { [33mInfinity[39m[33m,[39m [33mHelpCircle[39m } [36mfrom[39m [32m'lucide-react'[39m[33m;[39m
+ [90m  9 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m 10 |[39m[0m
+
+the name `motion` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+
+ GET /dashboard 500 in 2.3s (compile: 928ms, proxy.ts: 1253ms, render: 84ms)
+ ⨯ ./NeoFeed/web/components/dashboard/DashboardHeader.tsx:9:8
+Ecmascript file had an error
+[0m [90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m  8 |[39m [36mimport[39m { [33mInfinity[39m [36mas[39m [33mInfinityIcon[39m[33m,[39m [33mHelpCircle[39m } [36mfrom[39m [32m'lucide-react'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m    |[39m        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 10 |[39m
+ [90m 11 |[39m [36minterface[39m [33mDashboardHeaderProps[39m {
+ [90m 12 |[39m   onShowGuide[33m?[39m[33m:[39m () [33m=>[39m [36mvoid[39m[33m;[39m[0m
+
+the name `Link` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+
+
+./NeoFeed/web/components/dashboard/DashboardHeader.tsx:7:10
+Ecmascript file had an error
+[0m [90m  5 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m  6 |[39m
+[31m[1m>[22m[39m[90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m  8 |[39m [36mimport[39m { [33mInfinity[39m [36mas[39m [33mInfinityIcon[39m[33m,[39m [33mHelpCircle[39m } [36mfrom[39m [32m'lucide-react'[39m[33m;[39m
+ [90m  9 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+ [90m 10 |[39m[0m
+
+the name `motion` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component Browser]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./NeoFeed/web/components/dashboard/DashboardHeader.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Client Component SSR]
+    ./NeoFeed/web/app/dashboard/page.tsx [Server Component]
+
+
+ GET /dashboard 500 in 1106ms (compile: 162ms, proxy.ts: 922ms, render: 22ms)
+ ✓ Compiled in 221ms
+ GET /insight 200 in 314ms (compile: 44ms, proxy.ts: 53ms, render: 216ms)
+ GET /dashboard 200 in 1626ms (compile: 304ms, proxy.ts: 842ms, render: 481ms)
+ ✓ Compiled in 549ms
+ ✓ Compiled in 214ms
+ ✓ Compiled in 199ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ReferenceError: AnimatePresence is not defined
+    at NeuralPrism (components/dashboard/NeuralPrism.tsx:73:8)
+  71 |
+  72 |       {/* Minimalist Info Overlay */}
+> 73 |       <AnimatePresence>
+     |        ^
+  74 |         {!isProcessing && (
+  75 |             <motion.div 
+  76 |                 initial={{ opacity: 0, y: 20 }} {
+  digest: '1817589836'
+}
+ GET /dashboard 500 in 983ms (compile: 104ms, proxy.ts: 712ms, render: 167ms)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 145ms
+ ⨯ ReferenceError: AnimatePresence is not defined
+    at NeuralPrism (components/dashboard/NeuralPrism.tsx:73:8)
+  71 |
+  72 |       {/* Minimalist Info Overlay */}
+> 73 |       <AnimatePresence>
+     |        ^
+  74 |         {!isProcessing && (
+  75 |             <motion.div 
+  76 |                 initial={{ opacity: 0, y: 20 }} {
+  digest: '1817589836'
+}
+ GET /dashboard 500 in 989ms (compile: 236ms, proxy.ts: 514ms, render: 239ms)
+ GET /history 200 in 413ms (compile: 25ms, proxy.ts: 358ms, render: 29ms)
+ ⨯ ReferenceError: AnimatePresence is not defined
+    at NeuralPrism (components/dashboard/NeuralPrism.tsx:73:8)
+  71 |
+  72 |       {/* Minimalist Info Overlay */}
+> 73 |       <AnimatePresence>
+     |        ^
+  74 |         {!isProcessing && (
+  75 |             <motion.div 
+  76 |                 initial={{ opacity: 0, y: 20 }} {
+  digest: '1817589836'
+}
+ GET /dashboard 500 in 492ms (compile: 7ms, proxy.ts: 408ms, render: 77ms)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 460ms
+ GET /dashboard 200 in 577ms (compile: 68ms, proxy.ts: 384ms, render: 124ms)
+ GET /dashboard 200 in 879ms (compile: 39ms, proxy.ts: 764ms, render: 76ms)
+ GET /dashboard 200 in 1102ms (compile: 42ms, proxy.ts: 977ms, render: 84ms)
+ ✓ Compiled in 360ms
+ ✓ Compiled in 494ms
+ ✓ Compiled in 3ms
+ GET /insight 200 in 839ms (compile: 111ms, proxy.ts: 61ms, render: 667ms)
+ GET /dashboard 200 in 1545ms (compile: 144ms, proxy.ts: 1346ms, render: 56ms)
+ ✓ Compiled in 317ms
+ GET /dashboard 200 in 1662ms (compile: 154ms, proxy.ts: 1348ms, render: 161ms)
+ GET /history 200 in 1133ms (compile: 10ms, proxy.ts: 1111ms, render: 12ms)
+ GET /dashboard 200 in 507ms (compile: 18ms, proxy.ts: 443ms, render: 46ms)
+ ✓ Compiled in 400ms
+ GET /dashboard 200 in 1073ms (compile: 93ms, proxy.ts: 870ms, render: 110ms)
+ GET /dashboard 200 in 618ms (compile: 11ms, proxy.ts: 567ms, render: 40ms)
+ ✓ Compiled in 530ms
+ GET /insight 200 in 76ms (compile: 12ms, proxy.ts: 12ms, render: 52ms)
+ GET /dashboard 200 in 669ms (compile: 98ms, proxy.ts: 536ms, render: 35ms)
+ GET /history 200 in 993ms (compile: 54ms, proxy.ts: 900ms, render: 39ms)
+ GET /dashboard 200 in 457ms (compile: 9ms, proxy.ts: 319ms, render: 128ms)
+ ✓ Compiled in 207ms
+ ✓ Compiled in 349ms
+ GET /insight 200 in 64ms (compile: 17ms, proxy.ts: 7ms, render: 40ms)
+ GET /dashboard 200 in 566ms (compile: 112ms, proxy.ts: 355ms, render: 98ms)
+ GET /history 200 in 504ms (compile: 33ms, proxy.ts: 438ms, render: 33ms)
+ ✓ Compiled in 795ms
+ ✓ Compiled in 219ms
+ GET /insight 200 in 78ms (compile: 13ms, proxy.ts: 13ms, render: 52ms)
+ GET /dashboard 200 in 1343ms (compile: 12ms, proxy.ts: 1081ms, render: 250ms)
+ ✓ Compiled in 1058ms
+ ✓ Compiled in 6ms
+ GET /dashboard 200 in 1844ms (compile: 138ms, proxy.ts: 1563ms, render: 143ms)
+ GET /dashboard/typewriter.jpg 404 in 290ms (compile: 47ms, render: 243ms)
+ GET /dashboard 200 in 1559ms (compile: 180ms, proxy.ts: 1178ms, render: 201ms)
+ GET /dashboard/typewriter.jpg 404 in 116ms (compile: 9ms, render: 107ms)
+ GET /dashboard 200 in 514ms (compile: 24ms, proxy.ts: 413ms, render: 76ms)
+ GET /dashboard/typewriter.jpg 404 in 42ms (compile: 4ms, render: 38ms)
+ GET /history 200 in 564ms (compile: 19ms, proxy.ts: 519ms, render: 26ms)
+ ✓ Compiled in 172ms
+ ✓ Compiled in 973ms
+ GET /dashboard 200 in 1417ms (compile: 145ms, proxy.ts: 1106ms, render: 165ms)
+ ✓ Compiled in 259ms
+ GET /dashboard 200 in 923ms (compile: 158ms, proxy.ts: 632ms, render: 133ms)
+ GET / 200 in 1612ms (compile: 131ms, proxy.ts: 1239ms, render: 242ms)
+ GET / 200 in 248ms (compile: 4ms, proxy.ts: 215ms, render: 29ms)
+ GET /landing 200 in 1001ms (compile: 82ms, proxy.ts: 711ms, render: 208ms)
+ GET /matrix-rain.png 404 in 611ms (compile: 250ms, render: 361ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+ GET /login 200 in 26.2s (compile: 74ms, proxy.ts: 26.0s, render: 46ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+ GET /login 200 in 25.6s (compile: 11ms, proxy.ts: 25.6s, render: 32ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+ GET /login 200 in 25.6s (compile: 62ms, proxy.ts: 25.5s, render: 32ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+ GET /login 200 in 25.6s (compile: 8ms, proxy.ts: 25.6s, render: 17ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+ GET /login 200 in 25.6s (compile: 7ms, proxy.ts: 25.5s, render: 13ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+TypeError: fetch failed
+    at async login (app/login/actions.ts:16:21)
+  14 |   }
+  15 |
+> 16 |   const { error } = await supabase.auth.signInWithPassword(data)
+     |                     ^
+  17 |
+  18 |   if (error) {
+  19 |     return { error: error.message } {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+ POST /login 200 in 26.4s (compile: 44ms, proxy.ts: 25.6s, render: 764ms)
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo ENOTFOUND hmyaiqswhuwdgtdbsmwn.supabase.co
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'hmyaiqswhuwdgtdbsmwn.supabase.co'
+  }
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+AuthRetryableFetchError: fetch failed
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 0,
+  code: undefined
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:42
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:647:11
+    at new Promise (<anonymous>)
+    at retryable (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:629:21)
+    at SupabaseAuthClient._refreshAccessToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4761:242)
+    at SupabaseAuthClient._callRefreshToken (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4917:48)
+    at SupabaseAuthClient.__loadSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4070:57)
+    at async SupabaseAuthClient._useSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4000:28)
+    at async SupabaseAuthClient._emitInitialSession (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4543:16) {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+Error: fetch failed
+    at context.fetch (/Users/Zhuanz/NeoFeed/web/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:565:23
+    at _handleRequest (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:919:24)
+    at _request (/Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:906:24)
+    at /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:4766:243
+    at async /Users/Zhuanz/NeoFeed/web/.next/dev/server/edge/chunks/e6092_@supabase_auth-js_dist_module_b41a1977._.js:635:36 {
+  
+}
+ GET /login 200 in 27.3s (compile: 28ms, proxy.ts: 27.2s, render: 59ms)
+ GET /login 200 in 857ms (compile: 9ms, proxy.ts: 820ms, render: 29ms)
+ GET / 200 in 522ms (compile: 26ms, proxy.ts: 430ms, render: 66ms)
+ POST /login 303 in 1830ms (compile: 14ms, proxy.ts: 417ms, render: 1399ms)
+ POST /landing 200 in 30.2s (compile: 23ms, proxy.ts: 28.3s, render: 1842ms)
+ GET /login 200 in 495ms (compile: 11ms, proxy.ts: 438ms, render: 46ms)
+ GET /login 200 in 486ms (compile: 14ms, proxy.ts: 450ms, render: 23ms)
+ GET / 200 in 686ms (compile: 30ms, proxy.ts: 532ms, render: 124ms)
+ POST /login 303 in 14.8s (compile: 3ms, proxy.ts: 13.5s, render: 1287ms)
+ POST /landing 200 in 41s (compile: 25ms, proxy.ts: 25.6s, render: 14.9s)
+ GET / 200 in 262ms (compile: 4ms, proxy.ts: 231ms, render: 26ms)
+ POST /login 303 in 1017ms (compile: 9ms, proxy.ts: 408ms, render: 600ms)
+ POST / 200 in 1972ms (compile: 36ms, proxy.ts: 901ms, render: 1036ms)
+ GET /history 200 in 1226ms (compile: 68ms, proxy.ts: 1121ms, render: 37ms)
+ GET / 200 in 1361ms (compile: 15ms, proxy.ts: 1295ms, render: 51ms)
+ GET /insight 200 in 864ms (compile: 23ms, proxy.ts: 824ms, render: 17ms)
+ GET / 200 in 1411ms (compile: 23ms, proxy.ts: 1340ms, render: 48ms)
+ GET /profile 200 in 1310ms (compile: 278ms, proxy.ts: 971ms, render: 61ms)
+ GET / 200 in 2.9s (compile: 114ms, proxy.ts: 2.3s, render: 514ms)
+ GET /apple-touch-icon-precomposed.png 404 in 177ms (compile: 94ms, render: 83ms)
+ GET /apple-touch-icon.png 404 in 37ms (compile: 1515µs, render: 35ms)
+ GET / 200 in 3.2s (compile: 84ms, proxy.ts: 2.9s, render: 140ms)
+ GET /apple-touch-icon-precomposed.png 404 in 85ms (compile: 29ms, render: 56ms)
+ GET /apple-touch-icon.png 404 in 61ms (compile: 16ms, render: 45ms)
+ GET /history 200 in 236ms (compile: 16ms, proxy.ts: 196ms, render: 25ms)
+ GET / 200 in 266ms (compile: 11ms, proxy.ts: 213ms, render: 42ms)
+ GET /settings 200 in 493ms (compile: 226ms, proxy.ts: 212ms, render: 54ms)
+ GET / 200 in 852ms (compile: 20ms, proxy.ts: 789ms, render: 42ms)
+ GET /profile 200 in 282ms (compile: 11ms, proxy.ts: 245ms, render: 26ms)
+ ✓ Compiled in 4.2s
+ GET / 200 in 653ms (compile: 64ms, proxy.ts: 550ms, render: 40ms)
+ GET /profile 200 in 1367ms (compile: 6ms, proxy.ts: 1341ms, render: 20ms)
+ ✓ Compiled in 648ms
+ GET /profile 200 in 676ms (compile: 18ms, proxy.ts: 607ms, render: 51ms)
+ GET / 200 in 1323ms (compile: 8ms, proxy.ts: 1298ms, render: 17ms)
+   Reload env: .env.local
+ GET /profile 200 in 2.2s (compile: 683ms, proxy.ts: 1263ms, render: 299ms)
+ ✓ Compiled in 1364ms
+ GET /profile 200 in 512ms (compile: 20ms, proxy.ts: 444ms, render: 49ms)
+ GET /profile 200 in 301ms (compile: 3ms, proxy.ts: 266ms, render: 32ms)
+ GET / 200 in 2.4s (compile: 141ms, proxy.ts: 1722ms, render: 562ms)
+ GET /settings 200 in 1768ms (compile: 1262ms, proxy.ts: 281ms, render: 225ms)
+ POST /settings 200 in 1584ms (compile: 15ms, proxy.ts: 551ms, render: 1017ms)
+ POST /settings 200 in 674ms (compile: 5ms, proxy.ts: 200ms, render: 468ms)
+ POST /settings 200 in 765ms (compile: 11ms, proxy.ts: 240ms, render: 514ms)
+🔑 SILICONFLOW_API_KEY: Missing!
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 1351ms (compile: 1296ms, proxy.ts: 26ms, render: 29ms)
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 184ms (compile: 121ms, proxy.ts: 46ms, render: 17ms)
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 156ms (compile: 101ms, proxy.ts: 14ms, render: 41ms)
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 56ms (compile: 40ms, proxy.ts: 8ms, render: 8ms)
+🔑 SILICONFLOW_API_KEY: Missing!
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 407ms (compile: 359ms, proxy.ts: 32ms, render: 15ms)
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 94ms (compile: 61ms, proxy.ts: 23ms, render: 10ms)
+ ⨯ Error: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+    at module evaluation (lib/ai.ts:6:16)
+    at module evaluation (app/api/process-feed/route.ts:3:1)
+    at Object.<anonymous> (.next/dev/server/app/api/process-feed/route.js:9:3)
+  4 | console.log('🔑 SILICONFLOW_API_KEY:', process.env.SILICONFLOW_API_KEY ? 'Loaded (starts with ' + process.env.SILICONFLOW_API_KEY.slice(0, 5) + '...)' : 'Missing!');
+  5 |
+> 6 | const openai = new OpenAI({
+    |                ^
+  7 |   apiKey: process.env.SILICONFLOW_API_KEY, // 使用硅基流动 Key
+  8 |   baseURL: 'https://api.siliconflow.cn/v1', // 硅基流动 API 地址
+  9 | }); {
+  page: '/api/process-feed'
+}
+ POST /api/process-feed 500 in 111ms (compile: 82ms, proxy.ts: 19ms, render: 10ms)
+🔑 AI Module Loaded
+🚀 [API] /api/process-feed hit!
+📦 [API] Body parsed. Content length: 121
+🔑 [API] Checking Authorization header: Present
+🛡️ [API] Initializing Admin Client...
+🔍 [API] Querying profile for key...
+✅ [API] User identified via API Key: 457ec9c2-a874-40e8-96c8-75287311c707
+🤖 [API] Analyzing with AI...
+❌ AI Error: SILICONFLOW_API_KEY is missing
+🧠 [API] Analysis done. Title: [杰克·凯鲁亚克 - 维基百科，自由的百...
+💾 [API] Saving to Supabase...
+✅ [API] Save successful: 03e5bc39-0706-4f18-be76-2616c5cee4b6
+ POST /api/process-feed 200 in 2.2s (compile: 355ms, proxy.ts: 66ms, render: 1786ms)
