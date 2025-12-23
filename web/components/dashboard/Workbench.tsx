@@ -150,18 +150,18 @@ export default function Workbench() {
           <BentoGrid className="gap-4">
         
                 {/* 1. Input Prism (Left Large) */}
-                <BentoCard colSpan={3} rowSpan={4} className="relative bg-gradient-to-br from-neutral-900/80 to-black min-h-[400px]">
-                  <div className="flex flex-col h-full justify-between">
+                <BentoCard colSpan={3} rowSpan={4} className="relative bg-gradient-to-br from-neutral-900/80 to-black">
+                  <div className="flex flex-col h-full justify-between py-2">
                     <div>
                         <div className="flex items-center gap-2 mb-4">
                             <Zap className="w-4 h-4 text-yellow-500" />
-                            <span className="text-xs font-bold tracking-widest uppercase text-white/40">输入棱镜 Input Prism</span>
+                            <span className="text-[10px] font-bold tracking-widest uppercase text-white/40">输入棱镜 Input Prism</span>
                         </div>
                         <h2 className="text-4xl font-light leading-tight mb-4 text-white/90">捕获 <span className="font-serif italic text-white/50">万物</span></h2>
-                        <p className="text-base text-white/40 max-w-md leading-relaxed">将整个互联网作为你的数据源。粘贴 URL，记录灵感，或初始化自动化代理任务。</p>
+                        <p className="text-sm text-white/40 max-w-md leading-relaxed">将整个互联网作为你的数据源。粘贴 URL，记录灵感，或初始化自动化代理任务。</p>
                     </div>
 
-                    <div className="relative mt-12 group">
+                    <div className="relative group">
                         {status === 'scanning' && <motion.div layoutId="scanner" className="absolute left-0 right-0 top-0 h-full bg-cyan-500/10 z-0" initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }} />}
                         {isProcessing && <div className="absolute top-0 left-0 right-0 h-1 bg-white/5 overflow-hidden rounded-t-xl z-20"><motion.div className="h-full bg-cyan-500" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} /></div>}
                         <div className={cn("absolute -inset-0.5 rounded-xl opacity-20 group-hover:opacity-40 blur transition duration-500", status === 'error' ? "bg-red-500" : status === 'success' ? "bg-green-500" : "bg-gradient-to-r from-cyan-500 to-purple-500")} />
@@ -177,7 +177,7 @@ export default function Workbench() {
 
                 {/* 2. Profile Card (Right Row 1-2) */}
                 <BentoCard colSpan={1} rowSpan={2} className="bg-neutral-900/30">
-                    <div className="flex flex-col h-full justify-between">
+                    <div className="flex flex-col h-full justify-between py-1">
                         <div className="flex items-start gap-3">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-black border border-white/20 flex items-center justify-center shrink-0">
                                 {profile?.avatar_url ? (
@@ -191,15 +191,15 @@ export default function Workbench() {
                                 <p className="text-[9px] text-white/40 truncate font-mono">{profile?.email || 'neo@matrix.org'}</p>
                             </div>
                         </div>
-                        <p className="text-[11px] text-white/50 font-serif italic py-2 leading-relaxed line-clamp-2">
+                        <p className="text-[11px] text-white/50 font-serif italic py-1 leading-relaxed line-clamp-2">
                             "Seeking truth in the data stream."
                         </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center">
+                        <div className="grid grid-cols-2 gap-2 mt-auto">
+                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center justify-center">
                                 <span className="text-[8px] text-white/30 uppercase">活跃天数</span>
                                 <span className="text-sm font-bold text-white font-mono">{profile?.active_days || 0}</span>
                             </div>
-                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center">
+                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center justify-center">
                                 <span className="text-[8px] text-white/30 uppercase">成就</span>
                                 <div className="flex gap-1"><Zap className="w-3 h-3 text-yellow-500" /></div>
                             </div>
@@ -208,21 +208,37 @@ export default function Workbench() {
                 </BentoCard>
 
                 {/* 3. Quick Stats (Right Row 3) */}
-                <BentoCard colSpan={1} rowSpan={1} className="flex flex-row items-center justify-between px-4 py-2">
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-bold font-serif text-white">{feeds.length}</span>
-                        <span className="text-[9px] uppercase tracking-widest text-white/40">已收集项目</span>
+                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
+                    <div className="flex flex-row h-full items-center justify-between px-2">
+                        <div className="flex flex-col">
+                            <span className="text-2xl font-bold font-serif text-white">{feeds.length}</span>
+                            <span className="text-[9px] uppercase tracking-widest text-white/40">已收集项目</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                            <Settings className="w-4 h-4 text-white/20" />
+                        </div>
                     </div>
-                    <Settings className="w-4 h-4 text-white/20" />
                 </BentoCard>
 
                 {/* 4. System Status (Right Row 4) */}
-                <BentoCard colSpan={1} rowSpan={1} className="flex flex-row items-center justify-between px-4 py-2">
-                    <div className="flex flex-col gap-1">
-                         <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" /><span className="text-[9px] uppercase text-white/60">系统正常</span></div>
-                         <div className="flex items-center gap-2"><Globe className="w-2.5 h-2.5 text-blue-500" /><span className="text-[9px] uppercase text-white/60">网络已连接</span></div>
+                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
+                    <div className="flex flex-row h-full items-center justify-between px-2">
+                        <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-2">
+                                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[9px] uppercase text-white/60">系统正常</span>
+                             </div>
+                             <div className="flex items-center gap-2">
+                                <Globe className="w-2.5 h-2.5 text-blue-500" />
+                                <span className="text-[9px] uppercase text-white/60">网络已连接</span>
+                             </div>
+                        </div>
+                        <div className="h-8 w-px bg-white/10 mx-2" />
+                        <div className="text-right">
+                            <div className="text-[8px] text-white/30 font-mono">CPU: 12%</div>
+                            <div className="text-[8px] text-white/30 font-mono">MEM: 34%</div>
+                        </div>
                     </div>
-                    <div className="text-right"><div className="text-[8px] text-white/30 font-mono">CPU: 12%</div><div className="text-[8px] text-white/30 font-mono">MEM: 34%</div></div>
                 </BentoCard>
 
                 {/* 5. Insight Stream (Bottom Wide) */}
