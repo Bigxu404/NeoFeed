@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { generateGalaxyData, GalaxyItem } from '@/lib/mockData';
+import { GalaxyItem } from '@/lib/mockData'; // Interface reuse
+import { mapFeedsToGalaxy } from '@/lib/galaxyMapping'; // New mapping logic
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 import HistoryTerminal from '@/components/history/HistoryTerminal';
 
 // 动态导入 GalaxyScene，禁用 SSR
@@ -27,37 +28,136 @@ export default function HistoryPage() {
   const [selectedItem, setSelectedItem] = useState<GalaxyItem | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // 1. Galaxy Data Caching
   useEffect(() => {
-    setItems(generateGalaxyData(150));
-    setIsLoaded(true);
+    const fetchGalaxyData = async () => {
+      // 1.1 Try Local Cache First
+      const cached = localStorage.getItem('galaxy_cache');
+      if (cached) {
+        try {
+          const { data, timestamp } = JSON.parse(cached);
+          // Cache expires in 5 minutes (300000ms) to save user bandwidth
+          if (Date.now() - timestamp < 300000) {
+            console.log("🌌 [Galaxy] Loaded from cache");
+            setItems(mapFeedsToGalaxy(data));
+            setIsLoaded(true);
+            setLoading(false);
+            return; // Skip network request if cache is fresh
+          }
+        } catch (e) {
+          localStorage.removeItem('galaxy_cache');
+        }
+      }
+
+      // 1.2 Fetch from Network
+      try {
+        const res = await fetch('/api/galaxy');
+        if (!res.ok) throw new Error('Failed to fetch galaxy data');
+        const { data } = await res.json();
+        
+        // Save to cache
+        localStorage.setItem('galaxy_cache', JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
+
+        const galaxyItems = mapFeedsToGalaxy(data || []);
+        setItems(galaxyItems);
+      } catch (error) {
+        console.error("Galaxy Fetch Error:", error);
+      } finally {
+        setLoading(false);
+        setIsLoaded(true);
+      }
+    };
+
+    fetchGalaxyData();
   }, []);
 
+  // 2. Feed Content Lazy Loading & Caching (REMOVED: Logic moved to handleItemClick)
+  
   // 处理详情页关闭
   const closeDetail = () => setSelectedItem(null);
+
+  const fetchFeedContent = async (id: string): Promise<string | null> => {
+    // 1. Try Cache (LocalStorage)
+    const cacheKey = `neofeed_content_${id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      console.log(`⚡️ [Cache] Hit for ${id}`);
+      return cached;
+    }
+
+    // 2. Fetch API
+    try {
+      console.log(`🌐 [Network] Fetching full content for ${id}...`);
+      const res = await fetch(`/api/feed/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch content');
+      
+      const { content } = await res.json();
+      
+      // 3. Save to Cache
+      if (content) {
+        localStorage.setItem(cacheKey, content);
+      }
+      return content;
+    } catch (e) {
+      console.error("Failed to fetch feed content", e);
+      return null;
+    }
+  };
+
+  const handleItemClick = async (item: GalaxyItem | null) => {
+    if (!item) {
+      setSelectedItem(null);
+      return;
+    }
+    
+    // Set item immediately (show summary/loading state)
+    setSelectedItem({
+      ...item,
+      content: "Loading full neural record..." // Placeholder
+    });
+
+    // Async fetch full content
+    const fullContent = await fetchFeedContent(item.id);
+    
+    if (fullContent) {
+      setSelectedItem(prev => prev?.id === item.id ? { ...prev, content: fullContent } : prev);
+    }
+  };
 
   return (
     <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans">
       
       {/* 🌌 3D 背景层 (始终存在) */}
       <div className="absolute inset-0 z-0">
-         {isLoaded && (
+         {isLoaded && items.length > 0 ? (
            <GalaxyScene 
              data={items} 
-             onItemClick={setSelectedItem} 
-             highlightedItemId={hoveredItemId} // ✨ 传入悬浮 ID
+             onItemClick={handleItemClick}  // Use new handler
+             highlightedItemId={hoveredItemId}
            />
-         )}
+         ) : isLoaded && items.length === 0 ? (
+            <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
+                <div className="text-center">
+                    <p className="mb-2">VOID DETECTED.</p>
+                    <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
+                </div>
+            </div>
+         ) : null}
       </div>
 
       {/* 🟢 顶部导航 */}
       <div className="absolute top-0 left-0 right-0 p-6 z-10 flex justify-between items-start pointer-events-none">
         <button 
           className="pointer-events-auto text-white/50 hover:text-white flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/5 hover:bg-white/10 transition-all group"
-          onClick={() => window.location.href = '/'}
+          onClick={() => window.location.href = '/dashboard'}
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">返回</span>
+          <span className="text-sm font-medium">Back to Workbench</span>
         </button>
 
         <div className="text-right pointer-events-auto">
@@ -65,8 +165,8 @@ export default function HistoryPage() {
           <p className="text-white/30 text-xs mt-1 font-mono">
             {items.length} FRAGMENTS DISCOVERED
           </p>
-            </div>
-          </div>
+        </div>
+      </div>
 
       {/* 🖥️ 左侧：星际终端 (替代原有列表) */}
       <HistoryTerminal 
@@ -78,7 +178,7 @@ export default function HistoryPage() {
       {/* 📄 详情页模态框 (Landing Experience) */}
       <AnimatePresence>
         {selectedItem && (
-          <motion.div
+          <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -102,7 +202,7 @@ export default function HistoryPage() {
                   {selectedItem.category === 'tech' ? '⚡' : selectedItem.category === 'life' ? '🌱' : '💡'}
                 </div>
                 <div className="flex-1 w-px bg-gradient-to-b from-white/20 to-transparent" />
-            </div>
+              </div>
 
               {/* 右侧内容区 */}
               <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
@@ -145,10 +245,10 @@ export default function HistoryPage() {
               >
                 ✕
               </button>
-                </div>
-              </motion.div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
-      </div>
+    </div>
   );
 }

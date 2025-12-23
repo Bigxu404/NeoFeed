@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe, Copy, Check, Eye, EyeOff, Key } from 'lucide-react';
+import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe, Copy, Check, Eye, EyeOff, Key, Cpu } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { generateApiKey, getApiKey } from './actions';
-
-// 类型定义
-type TabId = 'display' | 'system' | 'account' | 'danger';
+import AIConfiguration from '@/components/settings/AIConfiguration'; // Import new component
 
 // API Key 管理组件
 function ApiKeyManager() {
@@ -47,7 +45,7 @@ function ApiKeyManager() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-6">
        <h3 className="text-xs font-bold text-yellow-500/80 uppercase tracking-wider mb-4 flex items-center gap-2">
         <Key size={12} /> 神经链路 Neural Link (API Key)
       </h3>
@@ -101,6 +99,8 @@ function ApiKeyManager() {
   );
 }
 
+// 类型定义
+type TabId = 'display' | 'system' | 'intelligence' | 'account' | 'danger';
 // 模拟设置项组件：开关
 function Switch({ label, checked, onChange, description }: { label: string; checked: boolean; onChange: () => void; description?: string }) {
   return (
@@ -172,6 +172,7 @@ export default function SettingsPage() {
   const tabs = [
     { id: 'display', label: '显示设置', icon: Monitor, desc: '视觉效果参数 Visual Parameters' },
     { id: 'system', label: '系统配置', icon: HardDrive, desc: '核心功能设定 Core Configuration' },
+    { id: 'intelligence', label: '神经核心', icon: Cpu, desc: 'AI 模型与逻辑配置 AI Model & Logic' },
     { id: 'account', label: '账户安全', icon: Shield, desc: '身份与密钥 Identity & Security' },
     { id: 'danger', label: '危险区域', icon: AlertTriangle, desc: '不可逆操作 Irreversible Actions', danger: true },
   ];
@@ -187,11 +188,11 @@ export default function SettingsPage() {
       <div className="relative z-10 p-6 md:p-8 border-b border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => window.location.href = '/'}
-            className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/5 hover:bg-white/5 hover:border-green-500/30"
+            onClick={() => window.location.href = '/dashboard'}
+            className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded border border-white/5 hover:bg-white/5 hover:border-green-500/30"
           >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="text-xs font-medium tracking-wide">返回</span>
+            <ChevronLeft className="w-4 h-4" />
+            <span className="text-xs font-mono">返回</span>
           </button>
           <h1 className="text-lg font-mono font-bold tracking-wider text-white/90 flex items-center gap-2">
             <Terminal size={18} className="text-green-500" />
@@ -323,6 +324,11 @@ export default function SettingsPage() {
                 </div>
               )}
 
+              {/* INTELLIGENCE SETTINGS */}
+              {activeTab === 'intelligence' && (
+                <AIConfiguration />
+              )}
+
               {/* ACCOUNT SETTINGS */}
               {activeTab === 'account' && (
                 <div className="space-y-6">
@@ -390,20 +396,13 @@ export default function SettingsPage() {
                         <div className="text-sm text-white/80 font-mono group-hover:text-red-400 transition-colors">断开连接</div>
                         <div className="text-[10px] text-white/30">从系统登出。</div>
                       </div>
-                      <button 
-                        onClick={async () => {
-                          const supabase = createClient();
-                          await supabase.auth.signOut();
-                          window.location.href = '/login';
-                        }}
-                        className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded"
-                      >
+                      <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded">
                         <Power size={12} />
                         登出
                       </button>
                     </div>
-          </div>
-          </div>
+                  </div>
+                </div>
               )}
 
             </motion.div>
