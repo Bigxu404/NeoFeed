@@ -3,10 +3,11 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  // 必须明确声明为 Promise，否则 Vercel (Next.js 15+) TypeScript 检查会失败
+  { params }: { params: Promise<{ id: string }> } 
 ) {
-  // Await params if running on newer Next.js (15+), though here we treat as Promise just in case
-  const { id } = await Promise.resolve(params);
+  // 必须 await 
+  const { id } = await params;
 
   try {
     const supabase = await createClient();
