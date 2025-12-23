@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       category: analysis.category || 'other',
       emotion: analysis.emotion,
       reading_time: analysis.reading_time,
-      status: 'done'
+      status: analysis.status || 'done'
     };
 
     const { data, error } = await supabaseClient

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { updateAiConfig, getAiConfig, AIConfig } from '@/app/settings/actions';
-import { Loader2, Save, Cpu, MessageSquare, Key, Mail } from 'lucide-react';
+import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -23,6 +23,7 @@ const DEFAULT_PROMPT = `你是 NeoFeed 的首席情报分析师。
 export default function AIConfiguration() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false); // 🚀 Success state
   const [config, setConfig] = useState<AIConfig>({
     provider: 'siliconflow',
     model: 'deepseek-ai/DeepSeek-V3',
@@ -44,12 +45,14 @@ export default function AIConfiguration() {
 
   const handleSave = async () => {
     setSaving(true);
+    setSaved(false);
     const res = await updateAiConfig(config);
     setSaving(false);
     if (res.error) {
-      alert('Failed to save settings');
+      alert('Failed to save settings: ' + res.error);
     } else {
-      // Show success feedback
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     }
   };
 
@@ -147,10 +150,13 @@ export default function AIConfiguration() {
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm font-medium"
+            className={cn(
+                "flex items-center gap-2 px-6 py-2 rounded-lg transition-all disabled:opacity-50 text-sm font-medium",
+                saved ? "bg-green-500 text-white" : "bg-white text-black hover:bg-gray-200"
+            )}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            保存配置
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+            {saved ? '配置已保存' : '保存配置'}
           </button>
       </div>
     </div>

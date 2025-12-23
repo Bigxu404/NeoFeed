@@ -53,5 +53,9 @@ export default function Home() {
     );
   }
 
-  return <div className="min-h-screen bg-[#050505]" />;
+  return (
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white/20 font-mono text-xs">
+      INITIALIZING_NEO_LINK...
+    </div>
+  );
 }

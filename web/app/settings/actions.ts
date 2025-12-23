@@ -99,3 +99,71 @@ export async function updateAiConfig(config: AIConfig) {
   revalidatePath('/settings');
   return { success: true };
 }
+
+export async function updateProfile(data: { full_name?: string }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const { error } = await supabase
+    .from('profiles')
+    .update(data)
+    .eq('id', user.id);
+
+  if (error) {
+    console.error('Error updating profile:', error);
+    return { error: error.message }; // 返回具体的错误信息
+  }
+
+  revalidatePath('/settings');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile');
+  return { success: true };
+}
+
+export async function uploadAvatar(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const file = formData.get('file') as File;
+  if (!file) return { error: 'No file' };
+
+  const fileExt = file.name.split('.').pop();
+  const filePath = `${user.id}/${Math.random()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      upsert: true, // 允许覆盖
+      contentType: file.type
+    });
+
+  if (uploadError) {
+    console.error('Error uploading avatar:', uploadError);
+    if (uploadError.message === 'Bucket not found') {
+      return { error: '存储空间 avatars 未创建，请联系管理员或在 Supabase 后台创建' };
+    }
+    return { error: `上传失败: ${uploadError.message}` };
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ avatar_url: publicUrl })
+    .eq('id', user.id);
+
+  if (updateError) {
+    return { error: 'Failed to update profile with new avatar' };
+  }
+
+  revalidatePath('/settings');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile');
+  return { success: true, url: publicUrl };
+}

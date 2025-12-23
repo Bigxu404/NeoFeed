@@ -3,7 +3,24 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Sparkles, Globe, Lightbulb, ChevronRight } from 'lucide-react';
-import { MOCK_INSIGHT } from '@/lib/mockData';
+
+const DEFAULT_SPARKS = [
+    {
+      type: "Existential / 存在主义",
+      content: "🤔 如果你必须把你所有的记忆都存入一个 1GB 的硬盘，你会选择保留哪三段视频？其余的删除后，你还是你吗？",
+      author: "Digital Sartre"
+    },
+    {
+      type: "Stoic / 斯多葛",
+      content: "🏛️ 你无法控制网络上每天产生多少垃圾信息，但你可以控制你的‘注意力阀门’。今天，你是否为不值得的事情浪费了带宽？",
+      author: "Marcus Aurelius v2.0"
+    },
+    {
+      type: "Cybernetic / 赛博哲学",
+      content: "🤖 当你的第二大脑 (NeoFeed) 比你的第一大脑记得更清楚时，谁才是真正的主人？是你喂养了它，还是它在定义你？",
+      author: "The Ghost in the Shell"
+    }
+];
 
 // 📟 打字机效果组件 (增加绿色光晕)
 export function TypingEffect({ text, speed = 30 }: { text: string; speed?: number }) {
@@ -66,11 +83,10 @@ export function DailyDiscovery() {
 
 // 💡 右侧：每日猜想 (随机抽取一条)
 export function DailySpark() {
-    // 随机选一条语录
-    const [spark, setSpark] = useState(MOCK_INSIGHT.sparks[0]);
+    const [spark, setSpark] = useState(DEFAULT_SPARKS[0]);
 
     useEffect(() => {
-        const random = MOCK_INSIGHT.sparks[Math.floor(Math.random() * MOCK_INSIGHT.sparks.length)];
+        const random = DEFAULT_SPARKS[Math.floor(Math.random() * DEFAULT_SPARKS.length)];
         setSpark(random);
     }, []);
 
@@ -109,26 +125,28 @@ export function DailySpark() {
 }
 
 // 🔋 能量柱组件 (极简版)
-export function EnergyBars({ categories }: { categories: { tech: number; life: number; idea: number } }) {
-    const items = [
-        { label: 'TECH', value: categories.tech, color: 'bg-orange-500', shadow: 'shadow-orange-500/50' },
-        { label: 'LIFE', value: categories.life, color: 'bg-green-500', shadow: 'shadow-green-500/50' },
-        { label: 'IDEA', value: categories.idea, color: 'bg-purple-500', shadow: 'shadow-purple-500/50' }, 
-    ];
+export function EnergyBars({ categories }: { categories: { label: string; value: number }[] }) {
+    const colorMap: Record<string, string> = {
+        'TECH': 'bg-orange-500',
+        'LIFE': 'bg-green-500',
+        'IDEA': 'bg-purple-500',
+        'ART': 'bg-pink-500',
+        'OTHER': 'bg-blue-500',
+    };
 
     return (
-        <div className="flex items-center gap-8 w-full">
-            {items.map((item) => (
+        <div className="flex items-center gap-6 w-full">
+            {categories.map((item) => (
                 <div key={item.label} className="flex-1 flex flex-col gap-2">
                     <div className="flex justify-between items-end">
                         <span className="text-[10px] font-bold text-white/30 tracking-wider">{item.label}</span>
-                        <span className="text-[10px] font-mono text-white/50">{item.value}%</span>
+                        <span className="text-[10px] font-mono text-white/50">{item.value}</span>
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                          <motion.div 
-                            className={`h-full ${item.color} ${item.shadow} shadow-[0_0_10px_currentColor]`}
+                            className={`h-full ${colorMap[item.label] || 'bg-white/20'}`}
                             initial={{ width: 0 }}
-                            animate={{ width: `${item.value}%` }}
+                            animate={{ width: `${Math.min(100, (item.value / 10) * 100)}%` }} // 简单缩放：假设 10 条为满
                             transition={{ duration: 1.2, delay: 0.5, ease: "circOut" }}
                         />
                     </div>

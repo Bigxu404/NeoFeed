@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, memo } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { OrbitControls, Stars, Sparkles, Float, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { GalaxyItem } from '@/lib/mockData';
+import { GalaxyItem } from '@/types';
 import { EffectComposer, Bloom, ChromaticAberration } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 
@@ -194,15 +194,15 @@ declare module '@react-three/fiber' {
 extend({ TerrestrialMaterial, GaseousMaterial, LavaMaterial });
 
 // ==========================================
-// 🌟 通用星球组件
+// 🌟 通用星球组件 (Memoized to prevent re-renders)
 // ==========================================
-function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; onClick: (item: GalaxyItem) => void; glowTexture: THREE.Texture | null; highlighted: boolean }) {
+const Star = memo(function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; onClick: (item: GalaxyItem) => void; glowTexture: THREE.Texture | null; highlighted: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
   const [hovered, setHover] = useState(false);
 
-  const isActive = hovered || highlighted; // 🌟 合并悬浮和高亮状态
+  const isActive = hovered || highlighted; 
 
   useFrame((state) => {
     // ☁️ 让整个组（星球+光晕）一起浮动
@@ -323,7 +323,7 @@ function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; o
       )}
     </group>
   );
-}
+});
 
 // 中心恒星 (原黑洞改造)
 function CentralSingularity({ glowTexture }: { glowTexture: THREE.Texture | null }) {

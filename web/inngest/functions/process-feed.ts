@@ -62,7 +62,7 @@ export const processFeed = inngest.createFunction(
         category: analysis.category,
         emotion: analysis.emotion,
         reading_time: analysis.reading_time,
-        status: "done",
+        status: analysis.status || "done",
         source_type: "manual_url",
       };
 

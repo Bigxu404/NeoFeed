@@ -1,6 +1,35 @@
-const API_ENDPOINT = 'http://localhost:3000/api/process-feed';
+// 🚀 Dynamic API Endpoint Discovery
+const PRODUCTION_URL = 'https://neofeed.cn';
+const LOCAL_URL = 'http://localhost:3000';
+let API_ENDPOINT = `${LOCAL_URL}/api/process-feed`;
+
+async function discoverEndpoint() {
+  try {
+    // 1. Try local first (for development)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 500); // 500ms timeout
+    
+    const res = await fetch(`${LOCAL_URL}/api/process-feed`, { 
+      method: 'OPTIONS', // Check if endpoint exists/is reachable
+      signal: controller.signal 
+    });
+    
+    if (res.ok || res.status === 401 || res.status === 405) {
+      console.log("📍 Using Local Development API");
+      API_ENDPOINT = `${LOCAL_URL}/api/process-feed`;
+    } else {
+      throw new Error("Local down");
+    }
+  } catch (e) {
+    console.log("🌐 Using Production API");
+    API_ENDPOINT = `${PRODUCTION_URL}/api/process-feed`;
+  }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Discover endpoint immediately on load
+  await discoverEndpoint();
+
   // --- UI Elements ---
   const views = {
     setup: document.getElementById('setup-view'),

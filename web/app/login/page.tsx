@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [nickname, setNickname] = useState('') // 🚀 New nickname state
 
   useEffect(() => {
     const initialMode = searchParams.get('mode')
@@ -28,7 +29,8 @@ export default function LoginPage() {
     const emailValid = email.includes('@') && email.includes('.')
     const passwordValid = password.length >= 6
     if (mode === 'login') return emailValid && passwordValid
-    return emailValid && passwordValid && password === confirmPassword
+    const nicknameValid = nickname.trim().length > 0 // 🚀 Nickname required for signup
+    return emailValid && passwordValid && password === confirmPassword && nicknameValid
   })()
 
   async function handleSubmit(formData: FormData) {
@@ -103,6 +105,21 @@ export default function LoginPage() {
             />
           </div>
           
+          {mode === 'signup' && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-2 overflow-hidden"
+            >
+              <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Nickname</label>
+              <input 
+                name="nickname" type="text" required placeholder="Neo"
+                value={nickname} onChange={(e) => setNickname(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/5 transition-all"
+              />
+            </motion.div>
+          )}
+
           <div className="space-y-2">
             <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Password</label>
             <input 

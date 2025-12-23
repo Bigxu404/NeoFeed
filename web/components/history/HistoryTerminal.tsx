@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react';
-import { GalaxyItem } from '@/lib/mockData';
+import { GalaxyItem } from '@/types';
 import { Search, SlidersHorizontal, Tag, Calendar, ChevronRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

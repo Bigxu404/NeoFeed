@@ -11,11 +11,12 @@ export interface AIAnalysisResult {
   category: 'tech' | 'life' | 'idea' | 'art' | 'other';
   emotion: string;
   reading_time: number;
+  status?: 'done' | 'failed';
 }
 
 // Helper to normalize category
 function normalizeCategory(cat: string): AIAnalysisResult['category'] {
-  const validCategories = ['tech', 'life', 'idea', 'art'];
+  const validCategories = ['tech', 'life', 'idea', 'art', 'other'];
   const lowerCat = cat?.toLowerCase()?.trim() || 'other';
   
   if (validCategories.includes(lowerCat)) {
@@ -117,6 +118,7 @@ export async function analyzeContent(content: string, url: string | null, title:
       category: normalizeCategory(rawResult.category),
       emotion: rawResult.emotion || 'neutral',
       reading_time: typeof rawResult.reading_time === 'number' ? rawResult.reading_time : 60,
+      status: 'done'
     };
 
     return result;
@@ -125,12 +127,13 @@ export async function analyzeContent(content: string, url: string | null, title:
     // Fallback
     return {
       title: title || "Content Saved",
-      summary: "AI processing encountered an error, but your content is saved safely.",
+      summary: "AI processing encountered an error, but your content is saved safely. [System: failed_analysis]",
       takeaways: [],
       tags: ["error", "raw"],
       category: "other",
       emotion: "neutral",
       reading_time: 60,
+      status: 'failed'
     };
   }
 }

@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { GalaxyItem } from '@/lib/mockData'; // Interface reuse
-import { mapFeedsToGalaxy } from '@/lib/galaxyMapping'; // New mapping logic
+import { GalaxyItem } from '@/types';
+import { mapFeedsToGalaxy } from '@/lib/galaxyMapping';
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import HistoryTerminal from '@/components/history/HistoryTerminal';
+import { useFeedContent } from '@/hooks/useFeedContent';
 
 // 动态导入 GalaxyScene，禁用 SSR
 const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), { 
@@ -30,124 +31,83 @@ export default function HistoryPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 1. Galaxy Data Caching
+  const { content: fullContent, loading: contentLoading } = useFeedContent(selectedItem?.id || null, selectedItem?.summary);
+
   useEffect(() => {
     const fetchGalaxyData = async () => {
-      // 1.1 Try Local Cache First
+      console.log("🚀 [Galaxy] Initializing fetch...");
+      
+      // 1. Try Local Cache First
       const cached = localStorage.getItem('galaxy_cache');
       if (cached) {
         try {
           const { data, timestamp } = JSON.parse(cached);
-          // Cache expires in 5 minutes (300000ms) to save user bandwidth
           if (Date.now() - timestamp < 300000) {
-            console.log("🌌 [Galaxy] Loaded from cache");
+            console.log("🌌 [Galaxy] Loaded from cache", data.length);
             setItems(mapFeedsToGalaxy(data));
             setIsLoaded(true);
             setLoading(false);
-            return; // Skip network request if cache is fresh
           }
         } catch (e) {
           localStorage.removeItem('galaxy_cache');
         }
       }
 
-      // 1.2 Fetch from Network
+      // 2. Network Fetch
       try {
         const res = await fetch('/api/galaxy');
-        if (!res.ok) throw new Error('Failed to fetch galaxy data');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const { data } = await res.json();
         
-        // Save to cache
+        console.log(`✅ [Galaxy] Received ${data?.length || 0} items from network`);
+        
         localStorage.setItem('galaxy_cache', JSON.stringify({
           data,
           timestamp: Date.now()
         }));
 
-        const galaxyItems = mapFeedsToGalaxy(data || []);
-        setItems(galaxyItems);
-      } catch (error) {
-        console.error("Galaxy Fetch Error:", error);
+        setItems(mapFeedsToGalaxy(data || []));
+      } catch (e) {
+        console.error("❌ [Galaxy] Fetch error:", e);
       } finally {
         setLoading(false);
         setIsLoaded(true);
       }
     };
-
     fetchGalaxyData();
   }, []);
 
-  // 2. Feed Content Lazy Loading & Caching (REMOVED: Logic moved to handleItemClick)
-  
   // 处理详情页关闭
   const closeDetail = () => setSelectedItem(null);
-
-  const fetchFeedContent = async (id: string): Promise<string | null> => {
-    // 1. Try Cache (LocalStorage)
-    const cacheKey = `neofeed_content_${id}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      console.log(`⚡️ [Cache] Hit for ${id}`);
-      return cached;
-    }
-
-    // 2. Fetch API
-    try {
-      console.log(`🌐 [Network] Fetching full content for ${id}...`);
-      const res = await fetch(`/api/feed/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch content');
-      
-      const { content } = await res.json();
-      
-      // 3. Save to Cache
-      if (content) {
-        localStorage.setItem(cacheKey, content);
-      }
-      return content;
-    } catch (e) {
-      console.error("Failed to fetch feed content", e);
-      return null;
-    }
-  };
-
-  const handleItemClick = async (item: GalaxyItem | null) => {
-    if (!item) {
-      setSelectedItem(null);
-      return;
-    }
-    
-    // Set item immediately (show summary/loading state)
-    setSelectedItem({
-      ...item,
-      content: "Loading full neural record..." // Placeholder
-    });
-
-    // Async fetch full content
-    const fullContent = await fetchFeedContent(item.id);
-    
-    if (fullContent) {
-      setSelectedItem(prev => prev?.id === item.id ? { ...prev, content: fullContent } : prev);
-    }
-  };
 
   return (
     <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans">
       
       {/* 🌌 3D 背景层 (始终存在) */}
       <div className="absolute inset-0 z-0">
-         {isLoaded && items.length > 0 ? (
+         {loading ? (
+            <div className="w-full h-full flex items-center justify-center bg-black">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
+                <div className="text-white/30 text-sm font-mono animate-pulse">
+                  NEURAL GALAXY LOADING...
+                </div>
+              </div>
+            </div>
+         ) : items.length > 0 ? (
            <GalaxyScene 
              data={items} 
-             onItemClick={handleItemClick}  // Use new handler
+             onItemClick={setSelectedItem} 
              highlightedItemId={hoveredItemId}
            />
-         ) : isLoaded && items.length === 0 ? (
+         ) : (
             <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
                 <div className="text-center">
                     <p className="mb-2">VOID DETECTED.</p>
                     <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
                 </div>
             </div>
-         ) : null}
+         )}
       </div>
 
       {/* 🟢 顶部导航 */}
@@ -227,7 +187,9 @@ export default function HistoryPage() {
 
                 {/* 正文内容 */}
                 <div className="prose prose-invert prose-lg max-w-none text-white/70 font-light leading-relaxed">
-                  <p className="whitespace-pre-wrap">{selectedItem.content}</p>
+                  <p className="whitespace-pre-wrap">
+                    {contentLoading ? "Loading full neural record..." : fullContent}
+                  </p>
                   <p>
                     (这里模拟了一篇长文的阅读体验。真正的星际探索才刚刚开始...)
                   </p>

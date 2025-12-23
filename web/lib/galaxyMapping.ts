@@ -1,10 +1,5 @@
 import * as THREE from 'three';
-import { GalaxyItem } from './mockData';
-
-// 扩展 GalaxyItem 接口以适应真实数据
-export interface RealGalaxyItem extends GalaxyItem {
-  originalFeedId: string;
-}
+import { GalaxyItem } from '@/types';
 
 export function mapFeedsToGalaxy(feeds: any[]): GalaxyItem[] {
   const items: GalaxyItem[] = [];

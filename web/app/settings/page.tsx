@@ -6,7 +6,8 @@ import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, Refre
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { generateApiKey, getApiKey } from './actions';
-import AIConfiguration from '@/components/settings/AIConfiguration'; // Import new component
+import AIConfiguration from '@/components/settings/AIConfiguration';
+import ProfileSettings from '@/components/settings/ProfileSettings'; // Import new component
 
 // API Key 管理组件
 function ApiKeyManager() {
@@ -153,6 +154,7 @@ function Slider({ label, value, min = 0, max = 100, onChange, unit = '%' }: { la
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('display');
+  const router = useRouter();
 
   // 模拟状态
   const [settings, setSettings] = useState({
@@ -164,6 +166,12 @@ export default function SettingsPage() {
     language: 'ZH-CN',
     autoSave: true
   });
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace('/landing');
+  };
 
   const updateSetting = (key: keyof typeof settings, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -331,22 +339,17 @@ export default function SettingsPage() {
 
               {/* ACCOUNT SETTINGS */}
               {activeTab === 'account' && (
-                <div className="space-y-6">
-                  <div className="p-6 rounded border border-white/10 bg-white/[0.02] flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-green-900/20 border border-green-500/30 flex items-center justify-center text-green-500 font-serif italic text-xl">
-                      A
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Mr. Anderson</div>
-                      <div className="text-xs font-mono text-white/40">neo@matrix.org</div>
-                    </div>
-                    <button className="ml-auto px-3 py-1 text-xs border border-white/10 hover:bg-white/5 rounded text-white/60 hover:text-white transition-colors">
-                      编辑
-                    </button>
-                  </div>
+                <div className="space-y-10">
+                  {/* 1. 个人资料编辑 */}
+                  <ProfileSettings />
 
-                  <div className="space-y-2">
-                    <button className="w-full p-4 border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] text-left text-sm font-mono text-white/70 hover:text-white flex items-center justify-between group">
+                  {/* 2. 导出与安全 */}
+                  <div className="space-y-6 pt-10 border-t border-white/5">
+                    <h3 className="text-xs font-bold text-blue-500/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Shield size={12} /> 数据与访问 Data & Access
+                    </h3>
+                    
+                    <button className="w-full p-4 border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] text-left text-sm font-mono text-white/70 hover:text-white flex items-center justify-between group rounded-lg">
                       <span>导出用户数据 (JSON)</span>
                       <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
@@ -396,7 +399,10 @@ export default function SettingsPage() {
                         <div className="text-sm text-white/80 font-mono group-hover:text-red-400 transition-colors">断开连接</div>
                         <div className="text-[10px] text-white/30">从系统登出。</div>
                       </div>
-                      <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded">
+                      <button 
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-xs text-white/50 hover:bg-white hover:text-black transition-all rounded"
+                      >
                         <Power size={12} />
                         登出
                       </button>
