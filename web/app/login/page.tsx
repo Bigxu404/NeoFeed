@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { login, signup } from './actions'
 import { Loader2, Infinity, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [nickname, setNickname] = useState('') // 🚀 New nickname state
+  const [nickname, setNickname] = useState('')
 
   useEffect(() => {
     const initialMode = searchParams.get('mode')
@@ -29,7 +29,7 @@ export default function LoginPage() {
     const emailValid = email.includes('@') && email.includes('.')
     const passwordValid = password.length >= 6
     if (mode === 'login') return emailValid && passwordValid
-    const nicknameValid = nickname.trim().length > 0 // 🚀 Nickname required for signup
+    const nicknameValid = nickname.trim().length > 0
     return emailValid && passwordValid && password === confirmPassword && nicknameValid
   })()
 
@@ -59,11 +59,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#050505] flex items-center justify-center relative overflow-hidden font-sans">
-      {/* Background: Subtle Gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,30,30,0.1)_0%,transparent_100%)]" />
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.svg')]" />
       
-      {/* Back Button */}
       <Link 
         href="/"
         className="absolute top-8 left-8 flex items-center gap-2 text-white/40 hover:text-white transition-colors z-20 group"
@@ -79,7 +77,6 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md p-8 relative z-10"
       >
-        {/* Header */}
         <div className="flex flex-col items-center mb-12">
           <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_-5px_rgba(255,255,255,0.1)]">
              <Infinity className="w-6 h-6 text-white/80" />
@@ -88,13 +85,10 @@ export default function LoginPage() {
             {isLogin ? 'Access The Source' : 'Initialize User'}
           </h1>
           <p className="text-white/40 text-sm text-center max-w-xs">
-            {isLogin 
-              ? 'Welcome back, Operator.' 
-              : 'Begin your journey into the galaxy.'}
+            {isLogin ? 'Welcome back, Operator.' : 'Begin your journey into the galaxy.'}
           </p>
         </div>
 
-        {/* Form */}
         <form action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Email</label>
@@ -150,7 +144,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* STANDARD DESIGN BUTTON */}
           <button 
             type="submit" 
             disabled={isLoading || !isValid}
@@ -164,7 +157,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Toggle Mode */}
         <div className="mt-8 text-center flex flex-col items-center gap-4">
           <p className="text-xs text-white/30 uppercase tracking-widest">Or</p>
           <button 
@@ -174,12 +166,18 @@ export default function LoginPage() {
             }}
             className="text-sm text-white/50 hover:text-white transition-colors border-b border-white/10 hover:border-white/50 pb-0.5"
           >
-            {isLogin 
-              ? "Create an account" 
-              : "Log in to existing account"}
+            {isLogin ? "Create an account" : "Log in to existing account"}
           </button>
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-white/20" /></div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
