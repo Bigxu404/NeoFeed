@@ -22,17 +22,20 @@ export async function POST(request: Request) {
     console.log(`📡 [Ingest API] Sending event to Inngest for URL: ${url}`);
     
     try {
-      await inngest.send({
+      const result = await inngest.send({
         name: "feed/process.url",
         data: {
           url: url,
           userId: user.id,
         },
       });
-      console.log(`✅ [Ingest API] Event successfully sent to Inngest`);
+      console.log(`✅ [Ingest API] Event successfully sent:`, result);
     } catch (inngestError: any) {
-      console.error(`❌ [Ingest API] Failed to send event to Inngest:`, inngestError);
-      throw inngestError;
+      console.error(`❌ [Ingest API] Inngest communication error:`, inngestError);
+      return NextResponse.json({ 
+        error: "后台任务系统通信失败", 
+        details: inngestError.message 
+      }, { status: 500 });
     }
 
     // 3. Immediate Response

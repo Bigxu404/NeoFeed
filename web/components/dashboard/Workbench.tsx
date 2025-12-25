@@ -58,13 +58,20 @@ export default function Workbench() {
       setStatus('analyzing');
       setProgress(45);
 
+      console.log("📡 [Workbench] Triggering ingest for URL:", url);
       const res = await fetch('/api/ingest-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
 
-      if (!res.ok) throw new Error('Ingest trigger failed');
+      const resData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(resData.error || 'Ingest trigger failed');
+      }
+
+      console.log("✅ [Workbench] Ingest queued, starting poll...");
 
       let attempts = 0;
       const poll = async () => {
