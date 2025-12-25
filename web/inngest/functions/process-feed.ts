@@ -1,7 +1,5 @@
 import { inngest } from "@/inngest/client";
 import { createAdminClient } from "@/lib/supabase/server";
-import { JSDOM } from "jsdom";
-import { Readability } from "@mozilla/readability";
 import { analyzeContent } from "@/lib/ai";
 
 export const processFeed = inngest.createFunction(
@@ -13,7 +11,6 @@ export const processFeed = inngest.createFunction(
     console.log(`🚀 [Inngest] Starting process for URL: ${url} (User: ${userId})`);
 
     // 1. 初始化数据库记录 (Processing 状态)
-    // 这样做可以让用户立即在界面上看到“处理中”的状态
     const feedId = await step.run("init-db-record", async () => {
       const supabase = createAdminClient();
       const { data, error } = await supabase
@@ -36,9 +33,14 @@ export const processFeed = inngest.createFunction(
     });
 
     try {
-      // 2. 抓取 URL 内容
+      // 2. 抓取 URL 内容 (动态加载重型库以提高部署稳定性)
       const rawData = await step.run("scrape-url", async () => {
         console.log(`🕵️ [Inngest] Fetching: ${url}`);
+        
+        // 动态导入 jsdom 和 readability
+        const { JSDOM } = await import("jsdom");
+        const { Readability } = await import("@mozilla/readability");
+
         const response = await fetch(url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0",

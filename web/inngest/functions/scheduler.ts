@@ -22,7 +22,7 @@ export const weeklyReportScheduler = inngest.createFunction(
 
     // 2. Fan-out: Trigger generation for each user
     const events = profiles.map((profile) => ({
-      name: "report/generate.weekly",
+      name: "report/generate.weekly" as const,
       data: {
         userId: profile.id,
         dateStr: new Date().toISOString()
@@ -30,7 +30,7 @@ export const weeklyReportScheduler = inngest.createFunction(
     }));
 
     if (events.length > 0) {
-      await step.sendEvent("fan-out-reports", events);
+      await step.send("fan-out-reports", events);
     }
 
     return { scheduled: events.length };
