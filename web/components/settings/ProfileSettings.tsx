@@ -8,12 +8,17 @@ import { Loader2, Camera, User, Check, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ProfileSettings() {
-  const { profile, updateCache } = useProfile(); // 🚀 获取全局状态
+  const { profile, loading, updateCache } = useProfile(); // 🚀 修复：增加 loading 解构
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
   const [nickname, setNickname] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 修复：定义头像点击处理函数
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
 
   // 初始化昵称
   useEffect(() => {

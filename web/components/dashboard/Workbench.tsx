@@ -127,13 +127,17 @@ export default function Workbench() {
 
         <div className="flex items-center gap-6">
             <h1 className="text-2xl tracking-tight text-white font-serif italic">NeoFeed</h1>
-            <div className="relative group cursor-pointer" onClick={() => setShowUserMenu(!showUserMenu)}>
-                <div className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-black border border-white/20 flex items-center justify-center">
-                        <span className="text-xs font-serif italic text-white">N</span>
-                    </div>
-                    <LogOut className="w-4 h-4 text-white/30 group-hover:text-red-400 transition-colors" />
-                </div>
+                    <div className="relative group cursor-pointer" onClick={() => setShowUserMenu(!showUserMenu)}>
+                        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-black border border-white/20 flex items-center justify-center overflow-hidden">
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-xs font-serif italic text-white">{profile?.full_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'N'}</span>
+                                )}
+                            </div>
+                            <LogOut className="w-4 h-4 text-white/30 group-hover:text-red-400 transition-colors" />
+                        </div>
                 {showUserMenu && (
                     <div className="absolute top-full right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-xl p-2 shadow-2xl z-50">
                         <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
@@ -183,7 +187,7 @@ export default function Workbench() {
                                 {profile?.avatar_url ? (
                                     <img src={profile.avatar_url} className="w-full h-full rounded-full object-cover" />
                                 ) : (
-                                    <span className="text-sm font-serif italic text-white">{profile?.full_name?.charAt(0) || 'N'}</span>
+                                    <span className="text-sm font-serif italic text-white">{profile?.full_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'N'}</span>
                                 )}
                             </div>
                             <div className="min-w-0 flex-1">

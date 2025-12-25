@@ -19,15 +19,21 @@ export async function POST(request: Request) {
     }
 
     // 2. Trigger Inngest Event (Async Processing)
-    await inngest.send({
-      name: "feed/process.url",
-      data: {
-        url: url,
-        userId: user.id,
-      },
-    });
-
-    console.log(`🚀 [Ingest] Queued URL: ${url} for user ${user.id}`);
+    console.log(`📡 [Ingest API] Sending event to Inngest for URL: ${url}`);
+    
+    try {
+      await inngest.send({
+        name: "feed/process.url",
+        data: {
+          url: url,
+          userId: user.id,
+        },
+      });
+      console.log(`✅ [Ingest API] Event successfully sent to Inngest`);
+    } catch (inngestError: any) {
+      console.error(`❌ [Ingest API] Failed to send event to Inngest:`, inngestError);
+      throw inngestError;
+    }
 
     // 3. Immediate Response
     return NextResponse.json({ 

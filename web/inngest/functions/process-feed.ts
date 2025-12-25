@@ -1,5 +1,4 @@
 import { inngest } from "@/inngest/client";
-import { createClient } from "@/lib/supabase/client"; // Use server client in real scenario, but here we might need to adjust imports
 import { createAdminClient } from "@/lib/supabase/server";
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
@@ -11,72 +10,114 @@ export const processFeed = inngest.createFunction(
   async ({ event, step }) => {
     const { url, userId } = event.data;
 
-    // 1. Scrape URL
-    const rawData = await step.run("scrape-url", async () => {
-      console.log(`🕵️ [Inngest] Fetching: ${url}`);
-      const response = await fetch(url, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0",
-        },
-      });
+    console.log(`🚀 [Inngest] Starting process for URL: ${url} (User: ${userId})`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch URL: ${response.statusText}`);
-      }
-
-      const html = await response.text();
-      const dom = new JSDOM(html, { url });
-      const reader = new Readability(dom.window.document);
-      const article = reader.parse();
-
-      if (!article || !article.textContent) {
-        throw new Error("Failed to parse content with Readability");
-      }
-
-      return {
-        title: article.title,
-        content: article.textContent,
-        rawHtml: html, // Optional: store if needed, but heavy
-      };
-    });
-
-    // 2. Analyze Content (AI)
-    const analysis = await step.run("analyze-content", async () => {
-      console.log(`🧠 [Inngest] Analyzing: ${rawData.title}`);
-      return await analyzeContent(rawData.content, url, rawData.title);
-    });
-
-    // 3. Save to Supabase
-    const savedFeed = await step.run("save-to-db", async () => {
-      const supabase = createAdminClient(); // Use admin client to bypass RLS if needed, or normal client
-      
-      const insertData = {
-        user_id: userId,
-        url: url,
-        title: analysis.title || rawData.title,
-        content_raw: rawData.content,
-        summary: analysis.summary,
-        takeaways: analysis.takeaways,
-        tags: analysis.tags,
-        category: analysis.category,
-        emotion: analysis.emotion,
-        reading_time: analysis.reading_time,
-        status: analysis.status || "done",
-        source_type: "manual_url",
-      };
-
+    // 1. 初始化数据库记录 (Processing 状态)
+    // 这样做可以让用户立即在界面上看到“处理中”的状态
+    const feedId = await step.run("init-db-record", async () => {
+      const supabase = createAdminClient();
       const { data, error } = await supabase
         .from("feeds")
-        .insert([insertData])
-        .select()
+        .insert([{
+          user_id: userId,
+          url: url,
+          title: "正在抓取内容...",
+          status: "processing",
+          source_type: "manual_url"
+        }])
+        .select("id")
         .single();
 
-      if (error) throw new Error(error.message);
-      return data;
+      if (error) {
+        console.error("❌ [Inngest] Failed to init record:", error);
+        throw new Error(error.message);
+      }
+      return data.id;
     });
 
-    return { success: true, feedId: savedFeed.id };
+    try {
+      // 2. 抓取 URL 内容
+      const rawData = await step.run("scrape-url", async () => {
+        console.log(`🕵️ [Inngest] Fetching: ${url}`);
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
+        }
+
+        const html = await response.text();
+        const dom = new JSDOM(html, { url });
+        const reader = new Readability(dom.window.document);
+        const article = reader.parse();
+
+        // Fallback: 如果 Readability 解析失败，尝试从 DOM 中提取文字
+        if (!article || !article.textContent) {
+          console.warn("⚠️ [Inngest] Readability failed, falling back to basic extraction.");
+          const title = dom.window.document.title || "Untitled";
+          const bodyText = dom.window.document.body.textContent || "";
+          return {
+            title: title,
+            content: bodyText.slice(0, 15000), // 增加截取长度
+          };
+        }
+
+        return {
+          title: article.title,
+          content: article.textContent,
+        };
+      });
+
+      // 3. AI 分析
+      const analysis = await step.run("analyze-content", async () => {
+        console.log(`🧠 [Inngest] Analyzing content with AI...`);
+        return await analyzeContent(rawData.content, url, rawData.title);
+      });
+
+      // 4. 更新数据库记录
+      await step.run("update-db-record", async () => {
+        const supabase = createAdminClient();
+        const { error } = await supabase
+          .from("feeds")
+          .update({
+            title: analysis.title || rawData.title,
+            content_raw: rawData.content,
+            summary: analysis.summary,
+            takeaways: analysis.takeaways,
+            tags: analysis.tags,
+            category: analysis.category,
+            emotion: analysis.emotion,
+            reading_time: analysis.reading_time,
+            status: "done",
+          })
+          .eq("id", feedId);
+
+        if (error) throw new Error(error.message);
+      });
+
+      console.log(`✅ [Inngest] Successfully processed URL: ${url}`);
+      return { success: true, feedId };
+
+    } catch (err: any) {
+      console.error(`💥 [Inngest] Error processing URL: ${err.message}`);
+      
+      // 更新状态为失败
+      await step.run("mark-as-failed", async () => {
+        const supabase = createAdminClient();
+        await supabase
+          .from("feeds")
+          .update({ 
+            status: "failed",
+            summary: `处理失败: ${err.message}` 
+          })
+          .eq("id", feedId);
+      });
+
+      throw err; // 抛出错误以触发 Inngest 的重试机制
+    }
   }
 );
 
