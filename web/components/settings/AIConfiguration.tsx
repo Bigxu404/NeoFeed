@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { updateAiConfig, getAiConfig, AIConfig } from '@/app/settings/actions';
-import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check } from 'lucide-react';
+import { updateAiConfig, getAiConfig, AIConfig, testAiConfig } from '@/app/settings/actions';
+import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -23,7 +23,9 @@ const DEFAULT_PROMPT = `你是 NeoFeed 的首席情报分析师。
 export default function AIConfiguration() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false); // 🚀 Success state
+  const [testing, setTesting] = useState(false); // 🚀 Testing state
+  const [saved, setSaved] = useState(false); 
+  const [testResult, setTestResult] = useState<{ success: boolean, msg: string } | null>(null);
   const [config, setConfig] = useState<AIConfig>({
     provider: 'siliconflow',
     model: 'deepseek-ai/DeepSeek-V3',
@@ -54,6 +56,19 @@ export default function AIConfiguration() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     }
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    const res = await testAiConfig(config);
+    setTesting(false);
+    if (res.success) {
+      setTestResult({ success: true, msg: res.message || '连接成功' });
+    } else {
+      setTestResult({ success: false, msg: res.error || '测试失败' });
+    }
+    setTimeout(() => setTestResult(null), 5000);
   };
 
   if (loading) return <div className="p-8 text-center text-white/30"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;
@@ -146,18 +161,39 @@ export default function AIConfiguration() {
       </div>
 
       {/* Save Button */}
-      <div className="pt-4 border-t border-white/5 flex justify-end">
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className={cn(
-                "flex items-center gap-2 px-6 py-2 rounded-lg transition-all disabled:opacity-50 text-sm font-medium",
-                saved ? "bg-green-500 text-white" : "bg-white text-black hover:bg-gray-200"
+      <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+          <div className="flex-1 pr-4">
+            {testResult && (
+              <p className={cn(
+                "text-xs font-mono animate-in fade-in slide-in-from-left-2 duration-300",
+                testResult.success ? "text-green-400" : "text-red-400"
+              )}>
+                {testResult.success ? "✓ 系统握手成功: " : "✗ 连接失败: "}
+                {testResult.msg}
+              </p>
             )}
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-            {saved ? '配置已保存' : '保存配置'}
-          </button>
+          </div>
+          <div className="flex gap-3">
+            <button 
+              onClick={handleTest}
+              disabled={testing || !config.apiKey}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 transition-colors disabled:opacity-30 text-sm font-medium"
+            >
+              {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4 text-cyan-400" />}
+              测试连接
+            </button>
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className={cn(
+                  "flex items-center gap-2 px-6 py-2 rounded-lg transition-all disabled:opacity-50 text-sm font-medium",
+                  saved ? "bg-green-500 text-white" : "bg-white text-black hover:bg-gray-200"
+              )}
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+              {saved ? '配置已保存' : '保存配置'}
+            </button>
+          </div>
       </div>
     </div>
   );

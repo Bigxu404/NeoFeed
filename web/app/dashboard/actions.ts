@@ -102,7 +102,7 @@ export async function deleteFeed(feedId: string) {
     .from('feeds')
     .delete()
     .eq('id', feedId)
-    .eq('user_id', user.id); // 安全检查：只能删除自己的
+    .eq('user_id', user.id); 
 
   if (error) {
     console.error('Error deleting feed:', error);
@@ -110,6 +110,60 @@ export async function deleteFeed(feedId: string) {
   }
 
   return { success: true };
+}
+
+export async function summarizeFeed(feedId: string) {
+  const { createAdminClient } = await import('@/lib/supabase/server');
+  const { analyzeContent } = await import('@/lib/ai');
+  
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Unauthorized' };
+
+  // 1. Get the feed content and user config
+  const adminClient = createAdminClient();
+  const [{ data: feed }, { data: profile }] = await Promise.all([
+    adminClient.from('feeds').select('*').eq('id', feedId).eq('user_id', user.id).single(),
+    adminClient.from('profiles').select('ai_config').eq('id', user.id).single()
+  ]);
+
+  if (!feed || !feed.content_raw) {
+    return { error: '未找到原始内容，无法总结。' };
+  }
+
+  try {
+    // 2. Run AI Analysis
+    const analysis = await analyzeContent(
+      feed.content_raw, 
+      feed.url, 
+      feed.title, 
+      profile?.ai_config as any
+    );
+
+    // 3. Update DB
+    const { data: updatedFeed, error: updateError } = await adminClient
+      .from('feeds')
+      .update({
+        title: analysis.title || feed.title,
+        summary: analysis.summary,
+        takeaways: analysis.takeaways,
+        tags: analysis.tags,
+        category: analysis.category,
+        emotion: analysis.emotion,
+        reading_time: analysis.reading_time,
+        status: 'done'
+      })
+      .eq('id', feedId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    return { success: true, data: updatedFeed };
+  } catch (err: any) {
+    console.error('Manual summary failed:', err);
+    return { error: err.message || 'AI 总结失败' };
+  }
 }
 
 export async function processUrl(url: string) {

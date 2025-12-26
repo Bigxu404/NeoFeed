@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { BentoGrid, BentoCard } from '@/components/dashboard/BentoGrid';
 import FeedDetailSheet from '@/components/dashboard/FeedDetailSheet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, Radio, Zap, ArrowRight, Activity, Loader2, CheckCircle2, AlertCircle, LogOut, LayoutGrid, Clock, Settings, BookOpen, Menu, User, Trash2 } from 'lucide-react';
+import { Globe, Radio, Zap, ArrowRight, Activity, Loader2, CheckCircle2, AlertCircle, LogOut, LayoutGrid, Clock, Settings, BookOpen, Menu, User, Trash2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getFeeds, FeedItem, deleteFeed } from '@/app/dashboard/actions'; // Added deleteFeed
+import { getFeeds, FeedItem, deleteFeed, summarizeFeed } from '@/app/dashboard/actions'; // Added summarizeFeed
 import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
 import ScrambleText from '@/components/ui/ScrambleText';
 import { createClient } from '@/lib/supabase/client';
@@ -124,6 +124,22 @@ export default function Workbench() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.replace('/landing');
+  };
+
+  const handleSummarize = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    
+    // 更新本地状态为处理中
+    setFeeds(prev => prev.map(f => f.id === id ? { ...f, status: 'processing' } : f));
+
+    const res = await summarizeFeed(id);
+    if (res.error) {
+      alert(`总结失败: ${res.error}`);
+      fetchFeedsData(); // 恢复状态
+    } else if (res.data) {
+      // 更新本地列表
+      setFeeds(prev => prev.map(f => f.id === id ? res.data : f));
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -343,14 +359,25 @@ export default function Workbench() {
                                                     ))}
                                                 </div>
 
-                                                {/* Delete Button - Show on all items when hovering */}
-                                                <button 
-                                                    onClick={(e) => handleDelete(e, item.id)}
-                                                    className="absolute bottom-3 right-3 p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all z-20"
-                                                    title="删除条目"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
+                                                {/* Action Buttons - Show on hovering */}
+                                                <div className="absolute bottom-3 right-3 flex items-center gap-1 z-20">
+                                                    {!isProcessing && (
+                                                        <button 
+                                                            onClick={(e) => handleSummarize(e, item.id)}
+                                                            className="p-2 rounded-lg bg-cyan-500/0 hover:bg-cyan-500/20 text-white/0 group-hover/card:text-cyan-400/60 hover:text-cyan-400 transition-all"
+                                                            title="AI 重新总结"
+                                                        >
+                                                            <Sparkles className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                    <button 
+                                                        onClick={(e) => handleDelete(e, item.id)}
+                                                        className="p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all"
+                                                        title="删除条目"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         );
                                     })}

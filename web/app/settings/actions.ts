@@ -167,3 +167,20 @@ export async function uploadAvatar(formData: FormData) {
   revalidatePath('/profile');
   return { success: true, url: publicUrl };
 }
+
+export async function testAiConfig(config: AIConfig) {
+  const { analyzeContent } = await import('@/lib/ai');
+  
+  try {
+    const testContent = "这是一条测试消息，用于验证 AI 配置是否正确生效。请简要回答 '连接成功'。";
+    const result = await analyzeContent(testContent, "test-url", "Test Connection", config);
+    
+    if (result.tags.includes('error') || result.summary.includes('AI Key Missing')) {
+      return { error: result.summary };
+    }
+    
+    return { success: true, message: result.summary };
+  } catch (err: any) {
+    return { error: err.message || '连接测试失败' };
+  }
+}
