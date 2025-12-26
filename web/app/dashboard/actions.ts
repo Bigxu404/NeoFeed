@@ -92,6 +92,26 @@ export async function getLatestWeeklyReport() {
   return { data: data || null, error: null };
 }
 
+export async function deleteFeed(feedId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const { error } = await supabase
+    .from('feeds')
+    .delete()
+    .eq('id', feedId)
+    .eq('user_id', user.id); // 安全检查：只能删除自己的
+
+  if (error) {
+    console.error('Error deleting feed:', error);
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
 export async function processUrl(url: string) {
     // Placeholder for next step
     console.log("Processing URL:", url);

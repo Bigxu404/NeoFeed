@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { BentoGrid, BentoCard } from '@/components/dashboard/BentoGrid';
 import FeedDetailSheet from '@/components/dashboard/FeedDetailSheet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, Radio, Zap, ArrowRight, Activity, Loader2, CheckCircle2, AlertCircle, LogOut, LayoutGrid, Clock, Settings, BookOpen, Menu, User } from 'lucide-react';
+import { Globe, Radio, Zap, ArrowRight, Activity, Loader2, CheckCircle2, AlertCircle, LogOut, LayoutGrid, Clock, Settings, BookOpen, Menu, User, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getFeeds, FeedItem } from '@/app/dashboard/actions'; // Removed getUserProfile
+import { getFeeds, FeedItem, deleteFeed } from '@/app/dashboard/actions'; // Added deleteFeed
 import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
 import ScrambleText from '@/components/ui/ScrambleText';
 import { createClient } from '@/lib/supabase/client';
@@ -124,6 +124,20 @@ export default function Workbench() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.replace('/landing');
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // 阻止触发打开详情页
+    if (!confirm('确定要删除这个信号吗？')) return;
+
+    // 乐观更新：立刻从本地列表中移除
+    setFeeds(prev => prev.filter(f => f.id !== id));
+
+    const res = await deleteFeed(id);
+    if (res.error) {
+      alert(`删除失败: ${res.error}`);
+      fetchFeedsData(); // 失败时重新拉取数据以恢复
+    }
   };
 
   if (profileLoading || feedsLoading) {
@@ -328,6 +342,17 @@ export default function Workbench() {
                                                         <span key={tag} className="px-1.5 py-0.5 rounded-md bg-white/5 text-[8px] text-white/40 uppercase">#{tag}</span>
                                                     ))}
                                                 </div>
+
+                                                {/* Delete Button - Only show on non-processing items when hovering */}
+                                                {!isProcessing && (
+                                                    <button 
+                                                        onClick={(e) => handleDelete(e, item.id)}
+                                                        className="absolute bottom-3 right-3 p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all z-20"
+                                                        title="删除条目"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
                                             </div>
                                         );
                                     })}
