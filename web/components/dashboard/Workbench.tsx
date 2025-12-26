@@ -68,7 +68,8 @@ export default function Workbench() {
       const resData = await res.json();
 
       if (!res.ok) {
-        throw new Error(resData.error || 'Ingest trigger failed');
+        const errorMsg = resData.details ? `${resData.error}: ${resData.details}` : (resData.error || 'Ingest trigger failed');
+        throw new Error(errorMsg);
       }
 
       // 2. 🚀 [New] 乐观更新：瞬间把新卡片加进列表

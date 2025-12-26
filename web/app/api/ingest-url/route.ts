@@ -36,7 +36,11 @@ export async function POST(request: Request) {
 
     if (dbError) {
       console.error('❌ [Ingest API] Database Error:', dbError);
-      return NextResponse.json({ error: 'Failed to initialize record' }, { status: 500 });
+      return NextResponse.json({ 
+        error: 'Failed to initialize record', 
+        details: dbError.message,
+        hint: dbError.hint 
+      }, { status: 500 });
     }
 
     // 3. Trigger Inngest Event (Pass the existing feedId)
