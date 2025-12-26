@@ -6,12 +6,12 @@ export const processFeed = inngest.createFunction(
   { id: "process-feed-url" },
   { event: "feed/process.url" },
   async ({ event, step }) => {
-    const { url, userId } = event.data;
+    const { url, userId, feedId: providedFeedId } = event.data;
 
-    console.log(`🚀 [Inngest] Starting process for URL: ${url} (User: ${userId})`);
+    console.log(`🚀 [Inngest] Starting process for URL: ${url} (User: ${userId}, FeedID: ${providedFeedId})`);
 
-    // 1. 初始化数据库记录 (Processing 状态)
-    const feedId = await step.run("init-db-record", async () => {
+    // 如果 API 没有提供 ID（兼容旧调用），则在此初始化
+    const feedId = providedFeedId || await step.run("init-db-record", async () => {
       const supabase = createAdminClient();
       const { data, error } = await supabase
         .from("feeds")
@@ -19,8 +19,8 @@ export const processFeed = inngest.createFunction(
           user_id: userId,
           url: url,
           title: "正在抓取内容...",
-          content_raw: "", // 🚀 修复：提供空字符串以满足 NOT NULL 约束
-          summary: "正在生成摘要...", // 🚀 修复：提供占位符
+          content_raw: "", 
+          summary: "正在初始化神经网络...",
           status: "processing",
           source_type: "manual_url"
         }])

@@ -23,6 +23,7 @@ interface FeedDetailSheetProps {
 export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps) {
   // Use our new hook to lazy load content
   const { content, loading } = useFeedContent(feed?.id || null, feed?.summary);
+  const isProcessing = feed?.status === 'processing';
 
   return (
     <AnimatePresence>
@@ -51,18 +52,22 @@ export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps)
                  <div className="flex items-center gap-2 mb-3">
                     <span className={cn(
                         "px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border",
+                        isProcessing ? "border-white/10 text-white/20 bg-white/5" :
                         feed.category === 'tech' ? "border-orange-500/30 text-orange-400 bg-orange-500/10" :
                         feed.category === 'life' ? "border-green-500/30 text-green-400 bg-green-500/10" :
                         "border-white/20 text-white/40 bg-white/5"
                     )}>
-                        {feed.category || 'OTHER'}
+                        {isProcessing ? 'Synchronizing' : (feed.category || 'OTHER')}
                     </span>
                     <span className="text-white/30 text-xs font-mono flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(feed.created_at).toLocaleDateString()}
+                        {isProcessing ? "WAITING..." : new Date(feed.created_at).toLocaleDateString()}
                     </span>
                  </div>
-                 <h2 className="text-xl md:text-2xl font-bold text-white leading-tight">
+                 <h2 className={cn(
+                    "text-xl md:text-2xl font-bold leading-tight",
+                    isProcessing ? "text-white/40 italic" : "text-white"
+                 )}>
                     {feed.title}
                  </h2>
               </div>
@@ -77,7 +82,7 @@ export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps)
             {/* Content Scroll Area */}
             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                 {/* Meta Actions */}
-                {feed.url && (
+                {feed.url && !isProcessing && (
                     <a 
                         href={feed.url} 
                         target="_blank" 
@@ -92,13 +97,18 @@ export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps)
                 {/* Main Content */}
                 <div className="prose prose-invert prose-sm md:prose-base max-w-none">
                     {/* Summary Block */}
-                    {loading ? (
-                         <div className="space-y-4 animate-pulse">
-                            <div className="h-4 bg-white/10 rounded w-3/4"></div>
-                            <div className="h-4 bg-white/10 rounded w-full"></div>
-                            <div className="h-4 bg-white/10 rounded w-5/6"></div>
-                            <div className="pt-4 text-xs text-white/30 font-mono text-center">
-                                RETRIEVING NEURAL RECORD...
+                    {loading || isProcessing ? (
+                         <div className="space-y-6">
+                            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                                <Loader2 className="w-8 h-8 animate-spin text-cyan-500/50" />
+                                <div className="text-xs text-white/30 font-mono tracking-[0.2em] animate-pulse">
+                                    {isProcessing ? "NEURAL LINK ESTABLISHING..." : "RETRIEVING RECORD..."}
+                                </div>
+                            </div>
+                            <div className="space-y-3 opacity-20">
+                                <div className="h-2 bg-white/50 rounded w-full"></div>
+                                <div className="h-2 bg-white/50 rounded w-5/6"></div>
+                                <div className="h-2 bg-white/50 rounded w-4/6"></div>
                             </div>
                          </div>
                     ) : (

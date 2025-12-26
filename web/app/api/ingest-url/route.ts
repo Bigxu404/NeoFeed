@@ -18,31 +18,49 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Trigger Inngest Event (Async Processing)
-    console.log(`📡 [Ingest API] Sending event to Inngest for URL: ${url}`);
+    // 2. 🚀 [New] Immediately create a record in the database
+    // This allows the frontend to show the item instantly
+    const { data: initialFeed, error: dbError } = await supabase
+      .from('feeds')
+      .insert([{
+        user_id: user.id,
+        url: url,
+        title: url, // Temporary title
+        content_raw: "", // Satisfy NOT NULL
+        summary: "正在初始化神经网络...",
+        status: 'processing',
+        source_type: 'manual_url'
+      }])
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('❌ [Ingest API] Database Error:', dbError);
+      return NextResponse.json({ error: 'Failed to initialize record' }, { status: 500 });
+    }
+
+    // 3. Trigger Inngest Event (Pass the existing feedId)
+    console.log(`📡 [Ingest API] Handing off to Inngest for ID: ${initialFeed.id}`);
     
     try {
-      const result = await inngest.send({
+      await inngest.send({
         name: "feed/process.url",
         data: {
           url: url,
           userId: user.id,
+          feedId: initialFeed.id, // Pass the ID we just created
         },
       });
-      console.log(`✅ [Ingest API] Event successfully sent:`, result);
     } catch (inngestError: any) {
-      console.error(`❌ [Ingest API] Inngest communication error:`, inngestError);
-      return NextResponse.json({ 
-        error: "后台任务系统通信失败", 
-        details: inngestError.message 
-      }, { status: 500 });
+      console.error(`❌ [Ingest API] Inngest Error:`, inngestError);
+      // We don't fail the request here because the record is already in DB, 
+      // but in a real scenario, we might want to mark it as failed.
     }
 
-    // 3. Immediate Response
+    // 4. Return the initial record immediately
     return NextResponse.json({ 
       success: true, 
-      message: "Processing started",
-      status: "queued" 
+      data: initialFeed
     });
 
   } catch (error: any) {

@@ -49,20 +49,20 @@ export default function Workbench() {
 
   const handleIngest = async () => {
     if (!url.trim()) return;
+    
+    // 1. UI 即时响应
+    const originalUrl = url;
+    setUrl(''); // 瞬间清空输入框
     setStatus('scanning');
-    setProgress(20);
+    setProgress(30);
     setIsProcessing(true);
 
     try {
-      await new Promise(r => setTimeout(r, 1000)); 
-      setStatus('analyzing');
-      setProgress(45);
-
-      console.log("📡 [Workbench] Triggering ingest for URL:", url);
+      console.log("📡 [Workbench] Triggering ingest for URL:", originalUrl);
       const res = await fetch('/api/ingest-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url: originalUrl })
       });
 
       const resData = await res.json();
@@ -71,31 +71,50 @@ export default function Workbench() {
         throw new Error(resData.error || 'Ingest trigger failed');
       }
 
-      console.log("✅ [Workbench] Ingest queued, starting poll...");
+      // 2. 🚀 [New] 乐观更新：瞬间把新卡片加进列表
+      const initialFeed = resData.data;
+      if (initialFeed) {
+        setFeeds(prev => [initialFeed, ...prev]);
+      }
 
-      let attempts = 0;
-      const poll = async () => {
-        if (attempts >= 20) throw new Error('Timeout');
-        attempts++;
-        setProgress(Math.min(90, 45 + (attempts * 2)));
-        const { data } = await getFeeds();
-        const match = data?.find(f => f.url === url || (f.url && url.includes(f.url)));
-        if (match && match.status === 'done') return true;
-        if (match && match.status === 'failed') throw new Error('AI Analysis failed');
-        await new Promise(r => setTimeout(r, 3000));
-        return poll();
-      };
-
-      await poll();
+      // 3. 瞬间显示完成动画
       setProgress(100);
       setStatus('success');
-      setUrl('');
-      await fetchFeedsData(); // Refresh list
-      setTimeout(() => { setStatus('idle'); setProgress(0); setIsProcessing(false); }, 3000);
-    } catch (e) {
+      
+      // 4. 延迟重置处理状态，允许输入下一个
+      setTimeout(() => { 
+        setStatus('idle'); 
+        setProgress(0); 
+        setIsProcessing(false); 
+      }, 1500);
+
+      // 5. 静默轮询：直到这个特定的 Feed 状态变为 done
+      if (initialFeed) {
+        let attempts = 0;
+        const pollItem = async () => {
+          if (attempts >= 15) return; // 最多轮询 15 次 (约 45s)
+          attempts++;
+          
+          const { data: latestFeeds } = await getFeeds();
+          const updatedItem = latestFeeds?.find(f => f.id === initialFeed.id);
+          
+          if (updatedItem && updatedItem.status === 'done') {
+            // 更新本地列表中的该项
+            setFeeds(prev => prev.map(f => f.id === initialFeed.id ? updatedItem : f));
+            return;
+          }
+          
+          setTimeout(pollItem, 3000); // 每 3 秒查一次
+        };
+        setTimeout(pollItem, 3000);
+      }
+
+    } catch (e: any) {
       console.error(e);
+      alert(`捕获失败: ${e.message}`);
       setStatus('error');
       setProgress(0);
+      setUrl(originalUrl); // 失败时恢复 URL
       setTimeout(() => { setStatus('idle'); setIsProcessing(false); }, 3000);
     }
   };
@@ -262,17 +281,55 @@ export default function Workbench() {
                     </div>
                     {feedsLoading ? <div className="flex h-40 items-center justify-center text-white/30"><Loader2 className="animate-spin w-6 h-6" /></div> : (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {feeds.length === 0 ? <div className="col-span-3 text-center text-white/30 py-10 font-mono text-xs">虚空中暂无信号。</div> : feeds.map((item) => (
-                                <div key={item.id} onClick={() => setSelectedFeed(item)} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group/card flex flex-col h-full">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="w-7 h-7 rounded bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-[10px] font-bold uppercase">{item.category?.slice(0, 2) || 'AI'}</div>
-                                        <span className="text-[9px] text-white/30 font-mono">{new Date(item.created_at).toLocaleDateString()}</span>
-                                    </div>
-                                    <h3 className="text-sm font-medium leading-snug mb-2 group-hover/card:text-cyan-400 transition-colors line-clamp-2"><ScrambleText text={item.title || 'Untitled Signal'} /></h3>
-                                    <p className="text-xs text-white/40 line-clamp-2 mb-3 flex-1">{item.summary || '等待分析...'}</p>
-                                    <div className="flex flex-wrap gap-1 mt-auto">{item.tags?.slice(0, 2).map((tag) => <span key={tag} className="px-1.5 py-0.5 rounded-md bg-white/5 text-[8px] text-white/40 uppercase">#{tag}</span>)}</div>
-                                </div>
-                            ))}
+                                    {feeds.length === 0 ? <div className="col-span-3 text-center text-white/30 py-10 font-mono text-xs">虚空中暂无信号。</div> : feeds.map((item) => {
+                                        const isProcessing = item.status === 'processing';
+                                        return (
+                                            <div key={item.id} onClick={() => setSelectedFeed(item)} 
+                                                className={cn(
+                                                    "p-4 rounded-xl border transition-all cursor-pointer group/card flex flex-col h-full relative overflow-hidden",
+                                                    isProcessing 
+                                                        ? "bg-white/[0.02] border-white/5 cursor-wait" 
+                                                        : "bg-white/5 border-white/5 hover:bg-white/10"
+                                                )}>
+                                                {/* Processing 扫描线效果 */}
+                                                {isProcessing && (
+                                                    <motion.div 
+                                                        className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-1/2 w-full z-0"
+                                                        animate={{ y: ['-100%', '200%'] }}
+                                                        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                                                    />
+                                                )}
+
+                                                <div className="flex items-start justify-between mb-3 relative z-10">
+                                                    <div className={cn(
+                                                        "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold uppercase",
+                                                        isProcessing ? "bg-white/5 text-white/20" : "bg-gradient-to-br from-gray-800 to-black text-white"
+                                                    )}>
+                                                        {isProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : (item.category?.slice(0, 2) || 'AI')}
+                                                    </div>
+                                                    <span className="text-[9px] text-white/30 font-mono">
+                                                        {isProcessing ? "SYNCHRONIZING..." : new Date(item.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <h3 className={cn(
+                                                    "text-sm font-medium leading-snug mb-2 transition-colors line-clamp-2 relative z-10",
+                                                    isProcessing ? "text-white/40" : "group-hover/card:text-cyan-400"
+                                                )}>
+                                                    <ScrambleText text={item.title || 'Untitled Signal'} />
+                                                </h3>
+                                                <p className="text-xs text-white/40 line-clamp-2 mb-3 flex-1 relative z-10">
+                                                    {item.summary || (isProcessing ? '正在链接神经网络，提取核心洞察...' : '等待分析...')}
+                                                </p>
+                                                <div className="flex flex-wrap gap-1 mt-auto relative z-10">
+                                                    {isProcessing ? (
+                                                        <div className="h-4 w-16 bg-white/5 rounded animate-pulse" />
+                                                    ) : item.tags?.slice(0, 2).map((tag) => (
+                                                        <span key={tag} className="px-1.5 py-0.5 rounded-md bg-white/5 text-[8px] text-white/40 uppercase">#{tag}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                         </div>
                     )}
                 </BentoCard>
