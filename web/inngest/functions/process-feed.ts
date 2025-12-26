@@ -35,12 +35,12 @@ export const processFeed = inngest.createFunction(
     });
 
     try {
-      // 2. 抓取 URL 内容 (动态加载重型库以提高部署稳定性)
+      // 2. 抓取 URL 内容 (动态加载轻量级 linkedom 以提高部署稳定性)
       const rawData = await step.run("scrape-url", async () => {
         console.log(`🕵️ [Inngest] Fetching: ${url}`);
         
-        // 动态导入 jsdom 和 readability
-        const { JSDOM } = await import("jsdom");
+        // 动态导入 linkedom 和 readability
+        const { parseHTML } = await import("linkedom");
         const { Readability } = await import("@mozilla/readability");
 
         const response = await fetch(url, {
@@ -54,18 +54,20 @@ export const processFeed = inngest.createFunction(
         }
 
         const html = await response.text();
-        const dom = new JSDOM(html, { url });
-        const reader = new Readability(dom.window.document);
+        
+        // 使用 linkedom 解析 HTML
+        const { document } = parseHTML(html);
+        const reader = new Readability(document as any);
         const article = reader.parse();
 
         // Fallback: 如果 Readability 解析失败，尝试从 DOM 中提取文字
         if (!article || !article.textContent) {
           console.warn("⚠️ [Inngest] Readability failed, falling back to basic extraction.");
-          const title = dom.window.document.title || "Untitled";
-          const bodyText = dom.window.document.body.textContent || "";
+          const title = document.title || "Untitled";
+          const bodyText = document.body.textContent || "";
           return {
             title: title,
-            content: bodyText.slice(0, 15000), // 增加截取长度
+            content: bodyText.slice(0, 15000), 
           };
         }
 
