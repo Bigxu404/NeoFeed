@@ -19,6 +19,8 @@ export const processFeed = inngest.createFunction(
           user_id: userId,
           url: url,
           title: "正在抓取内容...",
+          content_raw: "", // 🚀 修复：提供空字符串以满足 NOT NULL 约束
+          summary: "正在生成摘要...", // 🚀 修复：提供占位符
           status: "processing",
           source_type: "manual_url"
         }])
