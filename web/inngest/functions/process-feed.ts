@@ -21,8 +21,8 @@ export const processFeed = inngest.createFunction(
           title: "正在抓取内容...",
           content_raw: "", 
           summary: "正在初始化神经网络...",
-          status: "processing",
-          source_type: "manual" // 🚀 修复：一并更新此处
+          status: "processing"
+          // source_type: "manual"
         }])
         .select("id")
         .single();

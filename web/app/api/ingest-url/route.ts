@@ -31,8 +31,8 @@ export async function POST(request: Request) {
         title: url, 
         content_raw: "", 
         summary: "正在初始化神经网络...",
-        status: 'processing',
-        source_type: 'manual' // 🚀 修复：改为更通用的 'manual'
+        status: 'processing'
+        // Omit source_type to avoid check constraint violation
       }])
       .select()
       .single();
