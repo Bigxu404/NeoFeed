@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Tag, ExternalLink } from 'lucide-react';
+import { X, Calendar, Tag, ExternalLink, Loader2 } from 'lucide-react';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ interface FeedItem {
   tags?: string[];
   category?: string;
   created_at: string;
+  status?: string; // 🚀 Added status
 }
 
 interface FeedDetailSheetProps {
