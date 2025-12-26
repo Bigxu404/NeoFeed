@@ -343,16 +343,14 @@ export default function Workbench() {
                                                     ))}
                                                 </div>
 
-                                                {/* Delete Button - Only show on non-processing items when hovering */}
-                                                {!isProcessing && (
-                                                    <button 
-                                                        onClick={(e) => handleDelete(e, item.id)}
-                                                        className="absolute bottom-3 right-3 p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all z-20"
-                                                        title="删除条目"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
-                                                )}
+                                                {/* Delete Button - Show on all items when hovering */}
+                                                <button 
+                                                    onClick={(e) => handleDelete(e, item.id)}
+                                                    className="absolute bottom-3 right-3 p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all z-20"
+                                                    title="删除条目"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
                                             </div>
                                         );
                                     })}

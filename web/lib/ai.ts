@@ -25,14 +25,37 @@ function normalizeCategory(cat: string): AIAnalysisResult['category'] {
   return 'other';
 }
 
-export async function analyzeContent(content: string, url: string | null, title: string | null): Promise<AIAnalysisResult> {
-  const apiKey = process.env.SILICONFLOW_API_KEY;
+export async function analyzeContent(
+  content: string, 
+  url: string | null, 
+  title: string | null,
+  userConfig?: {
+    provider?: string;
+    model?: string;
+    apiKey?: string;
+  }
+): Promise<AIAnalysisResult> {
+  // 1. Determine which API Key and Base URL to use
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let baseURL = 'https://api.siliconflow.cn/v1';
+  let model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"; // Default
+
+  // If user provided a specific provider, adjust settings
+  if (userConfig?.provider === 'openai') {
+    baseURL = 'https://api.openai.com/v1';
+    model = userConfig.model || 'gpt-4o-mini';
+  } else if (userConfig?.provider === 'deepseek') {
+    baseURL = 'https://api.deepseek.com';
+    model = userConfig.model || 'deepseek-chat';
+  } else if (userConfig?.provider === 'siliconflow') {
+    if (userConfig.model) model = userConfig.model;
+  }
   
   if (!apiKey) {
-    console.error('❌ AI Error: SILICONFLOW_API_KEY is missing');
+    console.error('❌ AI Error: No API Key available (Global or User-defined)');
     return {
       title: title || content.slice(0, 20) + "...",
-      summary: "AI Key Missing. Content saved but not analyzed.",
+      summary: "AI Key Missing. Please configure your own API Key in Settings -> Intelligence.",
       takeaways: [],
       tags: ["error", "no-key"],
       category: "other",
@@ -41,10 +64,10 @@ export async function analyzeContent(content: string, url: string | null, title:
     };
   }
 
-  // Lazy Initialization
+  // Lazy Initialization with dynamic config
   const openai = new OpenAI({
     apiKey: apiKey,
-    baseURL: 'https://api.siliconflow.cn/v1',
+    baseURL: baseURL,
   });
 
   // Optimized System Prompt for Quality and Noise Reduction

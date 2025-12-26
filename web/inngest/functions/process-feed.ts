@@ -79,8 +79,22 @@ export const processFeed = inngest.createFunction(
 
       // 3. AI 分析
       const analysis = await step.run("analyze-content", async () => {
-        console.log(`🧠 [Inngest] Analyzing content with AI...`);
-        return await analyzeContent(rawData.content, url, rawData.title);
+        console.log(`🧠 [Inngest] Fetching user AI config...`);
+        
+        const supabase = createAdminClient();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('ai_config')
+          .eq('id', userId)
+          .single();
+
+        console.log(`🧠 [Inngest] Analyzing content with AI (using user config if available)...`);
+        return await analyzeContent(
+          rawData.content, 
+          url, 
+          rawData.title, 
+          profile?.ai_config as any
+        );
       });
 
       // 4. 更新数据库记录
