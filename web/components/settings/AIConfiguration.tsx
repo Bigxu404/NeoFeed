@@ -62,7 +62,7 @@ export default function AIConfiguration() {
     <div className="space-y-8">
       <div>
         <h3 className="text-lg font-medium text-white mb-1">神经核心配置</h3>
-        <p className="text-sm text-white/40">自定义每周洞察报告背后的“大脑”。</p>
+        <p className="text-sm text-white/40">自定义内容抓取总结与每周洞察报告背后的“大脑”。</p>
       </div>
 
       {/* Provider & Model */}
@@ -95,39 +95,39 @@ export default function AIConfiguration() {
         </div>
       </div>
 
-      {/* API Key */}
-      <div className="space-y-2">
-          <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
-              <Key className="w-3 h-3" /> 自定义 API Key (可选)
-          </label>
-          <input 
-              type="password" 
-              value={config.apiKey}
-              onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
-              placeholder="留空则使用系统默认 Key"
-              className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
-          />
-          <p className="text-[10px] text-white/30">
-            如果提供，将使用此 Key 生成您的报告。您的密钥会被安全存储。
-          </p>
-      </div>
+              {/* API Key */}
+              <div className="space-y-2">
+                  <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+                      <Key className="w-3 h-3" /> 自定义 API Key (可选)
+                  </label>
+                  <input 
+                      type="password" 
+                      value={config.apiKey}
+                      onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
+                      placeholder="留空则使用系统默认 Key"
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+                  />
+                  <p className="text-[10px] text-white/30">
+                    此 Key 将用于所有的 AI 任务（内容总结、周报生成等）。您的密钥会被安全存储。
+                  </p>
+              </div>
 
-      {/* Notification Email */}
-      <div className="space-y-2">
-          <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
-              <Mail className="w-3 h-3" /> 通知邮箱
-          </label>
-          <input 
-              type="email" 
-              value={config.notificationEmail || ''}
-              onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
-              placeholder="neo@matrix.org"
-              className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
-          />
-          <p className="text-[10px] text-white/30">
-            在每周一早上接收您的每周洞察报告。
-          </p>
-      </div>
+              {/* Notification Email */}
+              <div className="space-y-2">
+                  <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+                      <Mail className="w-3 h-3" /> 通知邮箱
+                  </label>
+                  <input 
+                      type="email" 
+                      value={config.notificationEmail || ''}
+                      onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
+                      placeholder="neo@matrix.org"
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+                  />
+                  <p className="text-[10px] text-white/30">
+                    在每周一早上接收您的“每周洞察报告”。
+                  </p>
+              </div>
 
       {/* System Prompt */}
       <div className="space-y-2">
