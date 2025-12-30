@@ -10,7 +10,7 @@ import { getFeeds, FeedItem, deleteFeed, summarizeFeed } from '@/app/dashboard/a
 import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
 import ScrambleText from '@/components/ui/ScrambleText';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const NavItems = [
     { icon: LayoutGrid, label: '工作台', path: '/dashboard' },
@@ -24,13 +24,15 @@ export default function Workbench() {
   const [url, setUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [feeds, setFeeds] = useState<FeedItem[]>([]);
-  const { profile, loading: profileLoading } = useProfile(); // 🚀 从全局缓存获取
+  const { profile, loading: profileLoading, clearCache } = useProfile(); // 🚀 增加 clearCache
   const [feedsLoading, setFeedsLoading] = useState(true);
   const [status, setStatus] = useState<'idle' | 'scanning' | 'analyzing' | 'success' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [selectedFeed, setSelectedFeed] = useState<FeedItem | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false); // 🚀 欢迎提示状态
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const fetchFeedsData = async () => {
     try {
@@ -46,6 +48,21 @@ export default function Workbench() {
   useEffect(() => {
     fetchFeedsData();
   }, []);
+
+  useEffect(() => {
+    // 检查是否有 verified 参数
+    if (searchParams.get('verified') === 'true') {
+      setShowWelcome(true);
+      // 5秒后自动关闭
+      const timer = setTimeout(() => setShowWelcome(false), 5000);
+      
+      // 清理 URL 参数，避免刷新页面再次弹出
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const handleIngest = async () => {
     if (!url.trim()) return;
@@ -123,6 +140,7 @@ export default function Workbench() {
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    clearCache(); // 🚀 登出时清除本地 Profile 缓存
     router.replace('/landing');
   };
 
@@ -387,6 +405,21 @@ export default function Workbench() {
           </BentoGrid>
       </div>
       <FeedDetailSheet feed={selectedFeed} onClose={() => setSelectedFeed(null)} />
+
+      {/* 🚀 Welcome Notification */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-green-500 text-black rounded-full font-bold shadow-2xl flex items-center gap-2"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            认证成功！欢迎来到 NeoFeed 核心矩阵。
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

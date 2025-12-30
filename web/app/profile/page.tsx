@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
           {/* Info */}
           <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-light tracking-wide mb-2 text-white">{profile?.full_name || 'Anonymous Walker'}</h1>
+            <h1 className="text-3xl md:text-4xl font-light tracking-wide mb-2 text-white">{profile?.full_name || 'Neo Walker'}</h1>
             <div className="flex items-center gap-3 text-xs font-mono text-green-500/60 mb-4">
               <span className="uppercase tracking-wider border border-green-500/20 px-2 py-0.5 rounded bg-green-500/5">{profile?.email}</span>
               <span>//</span>

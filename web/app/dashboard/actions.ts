@@ -63,6 +63,7 @@ export async function getUserProfile() {
   return { 
     data: {
       ...data,
+      full_name: data.full_name || user.user_metadata?.full_name || null, // 优先使用 profile 表，其次使用 auth 元数据
       active_days: diffDays,
       email: user.email // Ensure email is from auth user
     }, 

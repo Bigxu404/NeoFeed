@@ -1,5 +1,9 @@
 'use client'
 
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2 } from 'lucide-react';
 import SiteHeader from '@/components/site/SiteHeader';
 import SiteHero from '@/components/site/SiteHero';
 import FeatureGrid from '@/components/site/FeatureGrid';
@@ -7,7 +11,23 @@ import FlowStream from '@/components/site/FlowStream';
 import FinalCTA from '@/components/site/FinalCTA';
 import AboutSection from '@/components/site/AboutSection';
 
-export default function LandingPage() {
+function LandingContent() {
+  const searchParams = useSearchParams();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      setShowWelcome(true);
+      const timer = setTimeout(() => setShowWelcome(false), 5000);
+      
+      // 清理 URL 参数
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 selection:text-black overflow-x-hidden">
       
@@ -26,6 +46,28 @@ export default function LandingPage() {
         <FinalCTA />
         <AboutSection />
       </main>
+
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-green-500 text-black rounded-full font-bold shadow-2xl flex items-center gap-2"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            认证成功！欢迎回来。
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505]" />}>
+      <LandingContent />
+    </Suspense>
   );
 }

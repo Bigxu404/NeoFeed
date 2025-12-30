@@ -15,17 +15,21 @@ export default function Home() {
         const supabase = createClient();
         const { data: { session }, error: authError } = await supabase.auth.getSession();
         
+        // 获取当前 URL 参数，看是否有 verified=true
+        const params = new URLSearchParams(window.location.search);
+        const isVerified = params.get('verified') === 'true';
+        const redirectSuffix = isVerified ? '?verified=true' : '';
+
         if (authError) {
           console.error("Auth Session Error:", authError);
-          // 如果是 Auth 错误，通常也意味着未登录，安全起见跳到 landing
-          router.replace('/landing');
+          router.replace('/landing' + redirectSuffix);
           return;
         }
         
         if (session) {
-          router.replace('/dashboard');
+          router.replace('/dashboard' + redirectSuffix);
         } else {
-          router.replace('/landing');
+          router.replace('/landing' + redirectSuffix);
         }
       } catch (err: any) {
         console.error("Critical Auth Check Failed:", err);

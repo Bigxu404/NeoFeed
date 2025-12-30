@@ -59,12 +59,17 @@ export function useProfile() {
 
   // 提供一个手动更新缓存的方法，用于 nickname/avatar 修改后
   const updateCache = (newData: any) => {
-    const updated = { ...profile, ...newData };
+    const updated = { ...(memoryCache || profile), ...newData };
     setProfile(updated);
     memoryCache = updated;
     localStorage.setItem('neofeed_profile', JSON.stringify(updated));
   };
 
-  return { profile, loading, error, refreshProfile, updateCache };
+  const clearCache = () => {
+    memoryCache = null;
+    localStorage.removeItem('neofeed_profile');
+  };
+
+  return { profile, loading, error, refreshProfile, updateCache, clearCache };
 }
 
