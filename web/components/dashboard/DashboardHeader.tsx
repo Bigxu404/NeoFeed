@@ -37,19 +37,23 @@ export default function DashboardHeader({ profile, clearCache, isOffline, autoHi
     };
 
     return (
-        <header 
+        <div 
+            className="relative w-full max-w-7xl mx-auto px-4 z-50 shrink-0"
             onMouseEnter={() => autoHide && setIsHovered(true)}
             onMouseLeave={() => autoHide && setIsHovered(false)}
-            className={cn(
-                "flex flex-col md:flex-row justify-between items-center mb-8 gap-4 w-full max-w-7xl mx-auto px-4 z-50 shrink-0 transition-all duration-500 ease-in-out",
-                // 🚀 自动隐藏逻辑：PC端开启且未悬浮时，向上平移并降低透明度
-                autoHide && !isHovered ? "md:-translate-y-8 md:opacity-0" : "md:translate-y-0 md:opacity-100"
-            )}
         >
-            {/* 🚀 悬浮感应区（仅自动隐藏模式下在 PC 端显示） */}
+            {/* 🚀 悬浮感应区（固定在顶部，不随 header 移动） */}
             {autoHide && (
-                <div className="absolute top-0 left-0 w-full h-16 md:block hidden -z-10" />
+                <div className="fixed top-0 left-0 w-full h-20 md:block hidden z-[-1]" />
             )}
+
+            <header 
+                className={cn(
+                    "flex flex-col md:flex-row justify-between items-center gap-4 w-full transition-all duration-500 ease-in-out relative z-10",
+                    // 🚀 自动隐藏逻辑：PC端开启且未悬浮时，向上平移并降低透明度
+                    autoHide && !isHovered ? "md:-translate-y-12 md:opacity-0 md:pointer-events-none" : "md:translate-y-0 md:opacity-100 md:pointer-events-auto"
+                )}
+            >
             <div className="flex items-center gap-4">
                 <nav className="flex items-center gap-1 px-2 py-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
                     {NavItems.map((item, idx) => {

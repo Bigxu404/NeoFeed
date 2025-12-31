@@ -1,7 +1,8 @@
 'use client';
 
 import useSWR from 'swr';
-import { getFeeds, getFeedsCount, FeedItem } from '@/app/dashboard/actions';
+import { getFeeds, getFeedsCount } from '@/app/dashboard/actions';
+import type { FeedItem } from '@/app/dashboard/actions';
 import { useEffect, useState } from 'react';
 
 const FEEDS_KEY = 'api/feeds';
