@@ -90,7 +90,8 @@ export default function HistoryPage() {
   return (
     <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans flex flex-col">
       
-      <div className="relative z-50 pt-8">
+      {/* 🚀 统一 Header (移动端固顶) */}
+      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:pt-8">
         <ErrorBoundary name="HistoryHeader">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
         </ErrorBoundary>
@@ -98,9 +99,9 @@ export default function HistoryPage() {
 
       {/* 🛡️ 全局错误捕获，防止整个页面崩溃 */}
       <ErrorBoundary name="HistoryContent">
-        <div className="flex-1 relative min-h-0 overflow-hidden">
+        <div className="flex-1 relative min-h-0 overflow-hidden flex flex-col md:block">
           {/* 🌌 3D 背景层 (始终存在) */}
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 z-0 touch-none">
             {loading ? (
                 <div className="w-full h-full flex items-center justify-center bg-black">
                   <div className="flex flex-col items-center gap-4">
@@ -128,14 +129,16 @@ export default function HistoryPage() {
             )}
           </div>
 
-          {/* 🖥️ 左侧：星际终端 */}
-          <ErrorBoundary name="HistoryTerminal">
-            <HistoryTerminal 
-              items={items} 
-              onItemHover={setHoveredItemId}
-              onItemClick={setSelectedItem}
-            />
-          </ErrorBoundary>
+          {/* 🖥️ 星际终端 - 移动端调整布局 */}
+          <div className="absolute bottom-4 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-10 w-auto md:w-[450px]">
+            <ErrorBoundary name="HistoryTerminal">
+              <HistoryTerminal 
+                items={items} 
+                onItemHover={setHoveredItemId}
+                onItemClick={setSelectedItem}
+              />
+            </ErrorBoundary>
+          </div>
         </div>
       </ErrorBoundary>
 

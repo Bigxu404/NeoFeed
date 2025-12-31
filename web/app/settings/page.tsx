@@ -205,24 +205,24 @@ export default function SettingsPage() {
       <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
       <div className="fixed inset-0 bg-[linear-gradient(rgba(18,18,18,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] pointer-events-none opacity-20" />
 
-      {/* 🚀 统一 Header */}
-      <div className="relative z-50 pt-8 border-b border-white/5 pb-4 bg-black/20 backdrop-blur-md">
+      {/* 🚀 统一 Header (移动端固顶) */}
+      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:pt-8">
         <ErrorBoundary name="SettingsHeader">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
         </ErrorBoundary>
       </div>
 
       {/* Main Layout */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full relative z-10 min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full relative z-10 min-h-0 overflow-y-auto md:overflow-hidden">
         
-        {/* Sidebar Navigation */}
-        <div className="w-full md:w-64 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible shrink-0">
+        {/* Sidebar Navigation - 移动端改为横向滚动，桌面端保持侧边栏 */}
+        <div className="w-full md:w-64 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar shrink-0 md:pt-8">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabId)}
               className={`
-                flex items-center gap-3 p-3 w-full text-left transition-all border border-transparent whitespace-nowrap md:whitespace-normal rounded-lg
+                flex items-center gap-3 p-3 px-4 md:w-full text-left transition-all border border-transparent whitespace-nowrap rounded-xl md:rounded-lg
                 ${activeTab === tab.id 
                   ? 'bg-white/[0.08] border-white/10 text-green-400' 
                   : 'text-white/40 hover:text-white hover:bg-white/[0.03]'}
@@ -232,7 +232,7 @@ export default function SettingsPage() {
             >
               <tab.icon size={16} className={activeTab === tab.id ? 'animate-pulse' : ''} />
               <div className="flex flex-col">
-                <span className="text-xs font-bold tracking-wider font-mono">{tab.label}</span>
+                <span className="text-[10px] md:text-xs font-bold tracking-wider font-mono">{tab.label}</span>
                 <span className="text-[9px] opacity-50 font-mono hidden md:block">{tab.desc}</span>
               </div>
               {activeTab === tab.id && (
@@ -243,7 +243,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 md:p-12 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 p-4 md:p-12 overflow-y-auto custom-scrollbar pb-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -251,12 +251,12 @@ export default function SettingsPage() {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
               transition={{ duration: 0.3 }}
-              className="max-w-2xl space-y-8"
+              className="max-w-2xl mx-auto md:mx-0 space-y-6 md:space-y-8"
             >
               {/* Tab Title */}
-              <div className="border-b border-white/10 pb-4 mb-8">
-                <h2 className="text-2xl font-light text-white">{tabs.find(t => t.id === activeTab)?.label}</h2>
-                <p className="text-xs font-mono text-white/40 mt-1 uppercase tracking-widest">
+              <div className="border-b border-white/10 pb-4 mb-6 md:mb-8">
+                <h2 className="text-xl md:text-2xl font-light text-white">{tabs.find(t => t.id === activeTab)?.label}</h2>
+                <p className="text-[10px] font-mono text-white/40 mt-1 uppercase tracking-widest">
                   // {tabs.find(t => t.id === activeTab)?.desc}
                 </p>
               </div>

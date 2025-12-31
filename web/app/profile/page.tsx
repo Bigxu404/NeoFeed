@@ -68,56 +68,56 @@ export default function ProfilePage() {
       {/* 背景噪点纹理 */}
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-0" />
       
-      {/* 🚀 统一 Header */}
-      <div className="relative z-50 pt-8">
+      {/* 🚀 统一 Header (移动端固顶) */}
+      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:pt-8">
         <ErrorBoundary name="ProfileHeader">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
         </ErrorBoundary>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 pb-20 mt-12 overflow-y-auto custom-scrollbar flex-1 w-full">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-12 pb-20 mt-8 md:mt-12 overflow-y-auto custom-scrollbar flex-1 w-full">
         
         {/* 1. Identity Card (身份卡) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12 p-8 rounded-3xl bg-black/40 backdrop-blur-xl backdrop-saturate-150 border border-white/10 shadow-2xl"
+          className="flex flex-col md:flex-row items-center md:items-center gap-6 md:gap-8 mb-8 md:mb-12 p-6 md:p-8 rounded-3xl bg-black/40 backdrop-blur-xl backdrop-saturate-150 border border-white/10 shadow-2xl text-center md:text-left"
         >
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-24 h-24 rounded-full bg-black border border-green-500/20 flex items-center justify-center overflow-hidden relative group shadow-[0_0_30px_rgba(34,197,94,0.1)]">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black border border-green-500/20 flex items-center justify-center overflow-hidden relative group shadow-[0_0_30px_rgba(34,197,94,0.1)]">
                {profile?.avatar_url ? (
                  <img src={profile.avatar_url} className="w-full h-full object-cover" />
                ) : (
-                 <span className="text-3xl font-serif italic text-green-500/80 group-hover:scale-110 transition-transform">
+                 <span className="text-2xl md:text-3xl font-serif italic text-green-500/80 group-hover:scale-110 transition-transform">
                    {profile?.full_name?.charAt(0) || 'N'}
                  </span>
                )}
                <div className="absolute inset-0 rounded-full border border-green-500/30 animate-spin-slow opacity-50 group-hover:opacity-100 transition-opacity" style={{ animationDuration: '8s' }} />
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-green-900/80 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30 backdrop-blur-sm">
+            <div className="absolute -bottom-1 -right-1 bg-green-900/80 text-green-400 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30 backdrop-blur-sm">
               LV {Math.floor(stats.total / 10) + 1}
             </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-light tracking-wide mb-2 text-white">{profile?.full_name || 'Neo Walker'}</h1>
-            <div className="flex items-center gap-3 text-xs font-mono text-green-500/60 mb-4">
-              <span className="uppercase tracking-wider border border-green-500/20 px-2 py-0.5 rounded bg-green-500/5">{profile?.email}</span>
-              <span>//</span>
+          <div className="flex-1 w-full overflow-hidden">
+            <h1 className="text-2xl md:text-4xl font-light tracking-wide mb-2 text-white truncate">{profile?.full_name || 'Neo Walker'}</h1>
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 md:gap-3 text-[10px] md:text-xs font-mono text-green-500/60 mb-4">
+              <span className="uppercase tracking-wider border border-green-500/20 px-2 py-0.5 rounded bg-green-500/5 max-w-[200px] truncate">{profile?.email}</span>
+              <span className="hidden md:inline">//</span>
               <span>觉醒者</span>
             </div>
-            <p className="text-white/50 text-sm font-light max-w-md leading-relaxed font-serif italic">
+            <p className="text-white/50 text-xs md:text-sm font-light max-w-md mx-auto md:mx-0 leading-relaxed font-serif italic">
               "Seeking truth in the data stream."
             </p>
           </div>
 
           {/* EXP Bar */}
-          <div className="w-full md:w-48 flex flex-col gap-2">
-             <div className="flex justify-between text-[10px] text-white/30 font-mono">
+          <div className="w-full md:w-48 flex flex-col gap-2 mt-4 md:mt-0">
+             <div className="flex justify-between text-[9px] md:text-[10px] text-white/30 font-mono">
                 <span>矩阵同步率</span>
                 <span>{Math.min(100, stats.total)}%</span>
              </div>

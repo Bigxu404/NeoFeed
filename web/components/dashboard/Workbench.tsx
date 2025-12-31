@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { BentoGrid } from '@/components/dashboard/BentoGrid';
+import { BentoGrid, BentoCard } from '@/components/dashboard/BentoGrid';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import InputPrism from '@/components/dashboard/InputPrism';
 import ProfileCard from '@/components/dashboard/ProfileCard';
@@ -197,50 +197,71 @@ export default function Workbench() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans selection:bg-white/20 relative flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative flex flex-col overflow-x-hidden">
       
-      <ErrorBoundary name="Header">
-        <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} />
-      </ErrorBoundary>
+      {/* 🚀 移动端 Header 处理 */}
+      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:p-8">
+        <ErrorBoundary name="Header">
+          <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} />
+        </ErrorBoundary>
+      </div>
 
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4">
-          <BentoGrid className="gap-4">
-                <ErrorBoundary name="InputPrism">
-                  <InputPrism 
-                      url={url} 
-                      setUrl={setUrl} 
-                      status={status} 
-                      progress={progress} 
-                      isProcessing={isProcessing} 
-                      onIngest={handleIngest} 
-                  />
-                </ErrorBoundary>
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 pb-12">
+          <BentoGrid className="gap-4 md:gap-6 grid-cols-1 md:grid-cols-4 auto-rows-auto md:auto-rows-[120px]">
+                {/* 1. 捕获棱镜 (Mobile: Full Width, Desktop: col-3) */}
+                <BentoCard colSpan={1} rowSpan={1} className="md:col-span-3 md:row-span-4 overflow-visible">
+                  <ErrorBoundary name="InputPrism">
+                    <InputPrism 
+                        url={url} 
+                        setUrl={setUrl} 
+                        status={status} 
+                        progress={progress} 
+                        isProcessing={isProcessing} 
+                        onIngest={handleIngest} 
+                    />
+                  </ErrorBoundary>
+                </BentoCard>
 
-                <ErrorBoundary name="ProfileCard">
-                  <ProfileCard profile={profile} loading={profileLoading} />
-                </ErrorBoundary>
+                {/* 2. 个人资料 (Mobile: Hidden, Desktop: col-1) */}
+                <BentoCard colSpan={1} rowSpan={2} className="hidden md:block">
+                  <ErrorBoundary name="ProfileCard">
+                    <ProfileCard profile={profile} loading={profileLoading} />
+                  </ErrorBoundary>
+                </BentoCard>
 
-                <ErrorBoundary name="QuickStats">
-                  <QuickStatsCard count={feedsCount} loading={feedsLoading} />
-                </ErrorBoundary>
+                {/* 3. 快速统计 */}
+                <BentoCard colSpan={1} rowSpan={1}>
+                  <ErrorBoundary name="QuickStats">
+                    <QuickStatsCard count={feedsCount} loading={feedsLoading} />
+                  </ErrorBoundary>
+                </BentoCard>
 
-                <ErrorBoundary name="SystemStatus">
-                  <SystemStatusCard />
-                </ErrorBoundary>
+                {/* 4. 系统状态 */}
+                <BentoCard colSpan={1} rowSpan={1}>
+                  <ErrorBoundary name="SystemStatus">
+                    <SystemStatusCard />
+                  </ErrorBoundary>
+                </BentoCard>
 
-                <ErrorBoundary name="DiscoveryStream">
-                  <DiscoveryStream onFeed={(targetUrl) => handleIngest(targetUrl)} />
-                </ErrorBoundary>
+                {/* 5. 发现流 (New!) */}
+                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:row-span-3">
+                  <ErrorBoundary name="DiscoveryStream">
+                    <DiscoveryStream onFeed={(targetUrl) => handleIngest(targetUrl)} />
+                  </ErrorBoundary>
+                </BentoCard>
 
-                <ErrorBoundary name="InsightStream">
-                  <InsightStream 
-                      feeds={feeds} 
-                      feedsLoading={feedsLoading} 
-                      onSelectFeed={setSelectedFeed} 
-                      onSummarize={handleSummarize} 
-                      onDelete={handleDelete} 
-                  />
-                </ErrorBoundary>
+                {/* 6. 洞察流 (Mobile: Full Width, Desktop: col-3) */}
+                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:col-span-3 md:row-span-3">
+                  <ErrorBoundary name="InsightStream">
+                    <InsightStream 
+                        feeds={feeds} 
+                        feedsLoading={feedsLoading} 
+                        onSelectFeed={setSelectedFeed} 
+                        onSummarize={handleSummarize} 
+                        onDelete={handleDelete} 
+                    />
+                  </ErrorBoundary>
+                </BentoCard>
           </BentoGrid>
       </div>
 

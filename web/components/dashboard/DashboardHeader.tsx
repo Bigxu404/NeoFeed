@@ -9,11 +9,11 @@ import { createClient } from '@/lib/supabase/client';
 import { UserProfile } from '@/types/index';
 
 const NavItems = [
-    { icon: LayoutGrid, label: '工作台', path: '/dashboard' },
-    { icon: Clock, label: '知识星系', path: '/history' },
-    { icon: Activity, label: '洞察中心', path: '/insight' },
-    { icon: User, label: '个人矩阵', path: '/profile' },
-    { icon: Settings, label: '系统设置', path: '/settings' },
+    { icon: LayoutGrid, label: '工作台', shortLabel: '首页', path: '/dashboard' },
+    { icon: Clock, label: '知识星系', shortLabel: '星系', path: '/history' },
+    { icon: Activity, label: '洞察中心', shortLabel: '洞察', path: '/insight' },
+    { icon: User, label: '个人矩阵', shortLabel: '个人', path: '/profile' },
+    { icon: Settings, label: '系统设置', shortLabel: '设置', path: '/settings' },
 ];
 
 interface DashboardHeaderProps {
@@ -49,13 +49,16 @@ export default function DashboardHeader({ profile, clearCache, isOffline, autoHi
 
             <header 
                 className={cn(
-                    "flex flex-col md:flex-row justify-between items-center gap-4 w-full transition-all duration-500 ease-in-out relative z-10",
-                    // 🚀 自动隐藏逻辑：PC端开启且未悬浮时，向上平移并降低透明度
+                    "flex flex-row justify-between items-center w-full transition-all duration-500 ease-in-out relative z-10 gap-2",
+                    // 🚀 自动隐藏逻辑
                     autoHide && !isHovered ? "md:-translate-y-12 md:opacity-0 md:pointer-events-none" : "md:translate-y-0 md:opacity-100 md:pointer-events-auto"
                 )}
             >
-            <div className="flex items-center gap-4">
-                <nav className="flex items-center gap-1 px-2 py-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
+            <div className="flex items-center gap-2 md:gap-4 flex-1">
+                {/* 🚀 Logo 在移动端更小或隐藏文案 */}
+                <h1 className="text-xl md:text-2xl tracking-tight text-white font-serif italic shrink-0">N.</h1>
+                
+                <nav className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-x-auto no-scrollbar">
                     {NavItems.map((item, idx) => {
                         const isActive = pathname === item.path;
                         return (
@@ -63,48 +66,49 @@ export default function DashboardHeader({ profile, clearCache, isOffline, autoHi
                                 key={idx} 
                                 onClick={() => !isActive && router.push(item.path)}
                                 className={cn(
-                                    "relative flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300", 
+                                    "relative flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full transition-all duration-300 shrink-0", 
                                     isActive ? "bg-white text-black font-medium" : "text-white/60 hover:text-white hover:bg-white/10"
                                 )}
                             >
-                                <item.icon className={cn("w-4 h-4", isActive ? "text-black" : "text-current")} strokeWidth={2} />
-                                <span className="text-xs tracking-wide">{item.label}</span>
+                                <item.icon className={cn("w-3.5 h-3.5 md:w-4 md:h-4", isActive ? "text-black" : "text-current")} strokeWidth={2} />
+                                <span className="text-[10px] md:text-xs tracking-wide">
+                                    <span className="md:hidden">{item.shortLabel}</span>
+                                    <span className="hidden md:inline">{item.label}</span>
+                                </span>
                             </button>
                         );
                     })}
                 </nav>
-
-                {/* 🚀 离线标识 */}
-                {isOffline && (
-                    <motion.div 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-yellow-500"
-                    >
-                        <WifiOff className="w-3.5 h-3.5" />
-                        <span className="text-[10px] font-bold tracking-widest uppercase">离线模式</span>
-                    </motion.div>
-                )}
             </div>
 
-            <div className="flex items-center gap-6">
-                <h1 className="text-2xl tracking-tight text-white font-serif italic">NeoFeed</h1>
+            <div className="flex items-center gap-2 md:gap-6 shrink-0">
+                {/* 🚀 离线标识 (移动端仅显示图标) */}
+                {isOffline && (
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-yellow-500"
+                    >
+                        <WifiOff className="w-3.5 h-3.5" />
+                    </motion.div>
+                )}
+
                 <div className="relative group cursor-pointer" onClick={() => setShowUserMenu(!showUserMenu)}>
-                    <div className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-black border border-white/20 flex items-center justify-center overflow-hidden">
+                    <div className="flex items-center gap-2 md:gap-3 p-1 md:px-3 md:py-1.5 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-neutral-700 to-black border border-white/20 flex items-center justify-center overflow-hidden">
                             {profile?.avatar_url ? (
                                 <img src={profile.avatar_url} className="w-full h-full object-cover" alt="avatar" />
                             ) : (
-                                <span className="text-xs font-serif italic text-white">
+                                <span className="text-[10px] md:text-xs font-serif italic text-white">
                                     {profile?.full_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'N'}
                                 </span>
                             )}
                         </div>
-                        <LogOut className="w-4 h-4 text-white/30 group-hover:text-red-400 transition-colors" />
+                        <LogOut className="hidden md:block w-4 h-4 text-white/30 group-hover:text-red-400 transition-colors" />
                     </div>
                     {showUserMenu && (
-                        <div className="absolute top-full right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-xl p-2 shadow-2xl z-50">
-                            <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                        <div className="absolute top-full right-0 mt-2 w-32 md:w-48 bg-[#0a0a0a] border border-white/10 rounded-xl p-2 shadow-2xl z-50">
+                            <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-[10px] md:text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                 <LogOut className="w-3 h-3" /> 断开连接
                             </button>
                         </div>

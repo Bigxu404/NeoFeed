@@ -40,7 +40,7 @@ function LandingContent() {
 
       <SiteHeader />
       
-      <main className="relative z-10 flex flex-col">
+      <main className="relative z-10 flex flex-col pt-20 md:pt-0">
         <SiteHero />
         <CaptureBento />
         <UnderstandBento />
