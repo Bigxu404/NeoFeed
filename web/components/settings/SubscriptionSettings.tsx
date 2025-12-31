@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rss, Plus, Trash2, Globe, Tag, Loader2, AlertCircle } from 'lucide-react';
 import { getSubscriptions, addSubscription, deleteSubscription } from '@/app/dashboard/discovery-actions';

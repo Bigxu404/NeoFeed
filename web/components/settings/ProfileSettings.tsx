@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
 import { updateProfile, uploadAvatar } from '@/app/settings/actions';

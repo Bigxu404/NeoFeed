@@ -1,12 +1,12 @@
 'use client';
 
+import React, { memo, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Radio, Loader2, Sparkles, Trash2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BentoCard } from './BentoGrid';
 import ScrambleText from '@/components/ui/ScrambleText';
-import { FeedItem } from '@/app/dashboard/actions';
-import { memo, useState, useMemo } from 'react';
+import type { FeedItem } from '@/app/dashboard/actions';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 const FeedSkeleton = () => (
@@ -117,6 +117,14 @@ const FeedCard = memo(({
 });
 
 FeedCard.displayName = 'FeedCard';
+
+interface InsightStreamProps {
+    feeds: FeedItem[];
+    feedsLoading: boolean;
+    onSelectFeed: (item: FeedItem) => void;
+    onSummarize: (e: React.MouseEvent, id: string) => void;
+    onDelete: (e: React.MouseEvent, id: string) => void;
+}
 
 export default function InsightStream({ 
     feeds, 

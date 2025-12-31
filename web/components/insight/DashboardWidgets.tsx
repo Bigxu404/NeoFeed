@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Sparkles, Globe, Lightbulb, ChevronRight, RefreshCw, Plus, ExternalLink } from 'lucide-react';
 import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
 import { Skeleton } from '@/components/ui/Skeleton';

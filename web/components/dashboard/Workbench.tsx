@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BentoGrid } from '@/components/dashboard/BentoGrid';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import InputPrism from '@/components/dashboard/InputPrism';

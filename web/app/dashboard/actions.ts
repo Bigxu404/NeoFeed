@@ -82,32 +82,54 @@ export async function getUserProfile() {
 
   if (!user) return { data: null, error: 'Unauthorized' };
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching profile:', error);
-    return { data: null, error: error.message };
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching profile:', error);
+      return { data: null, error: error.message };
+    }
+
+    // 如果 profile 不存在，返回基于 auth user 的默认数据
+    if (!data) {
+      return {
+        data: {
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || 'Neo Walker',
+          avatar_url: null,
+          active_days: 1,
+          api_key: null,
+          ai_config: null,
+          notification_email: user.email
+        },
+        error: null
+      };
+    }
+
+    // Calculate active days based on created_at
+    const createdDate = new Date(data.created_at || user.created_at);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return { 
+      data: {
+        ...data,
+        full_name: data.full_name || user.user_metadata?.full_name || 'Neo Walker',
+        active_days: diffDays,
+        email: user.email || data.email
+      }, 
+      error: null 
+    };
+  } catch (err: any) {
+    console.error('getUserProfile Critical Error:', err);
+    return { data: null, error: err.message };
   }
-
-  // Calculate active days based on created_at
-  const createdDate = new Date(data.created_at);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  return { 
-    data: {
-      ...data,
-      full_name: data.full_name || user.user_metadata?.full_name || null, // 优先使用 profile 表，其次使用 auth 元数据
-      active_days: diffDays,
-      email: user.email // Ensure email is from auth user
-    }, 
-    error: null 
-  };
 }
 
 export async function getLatestWeeklyReport() {
