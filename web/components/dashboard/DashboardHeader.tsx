@@ -112,5 +112,6 @@ export default function DashboardHeader({ profile, clearCache, isOffline, autoHi
                 </div>
             </div>
         </header>
+    </div>
     );
 }
