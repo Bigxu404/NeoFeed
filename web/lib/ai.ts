@@ -35,7 +35,96 @@ export async function analyzeContent(
     apiKey?: string;
   }
 ): Promise<AIAnalysisResult> {
-  // ... (keeping existing analyzeContent code)
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let baseURL = 'https://api.siliconflow.cn/v1';
+  let model = "deepseek-ai/DeepSeek-V3"; 
+
+  // 优先级：用户配置 > 环境变量
+  if (userConfig?.provider === 'openai') {
+    baseURL = 'https://api.openai.com/v1';
+    model = userConfig.model || 'gpt-4o-mini';
+  } else if (userConfig?.provider === 'deepseek') {
+    baseURL = 'https://api.deepseek.com';
+    model = userConfig.model || 'deepseek-chat';
+  } else if (userConfig?.provider === 'siliconflow') {
+    if (userConfig.model) model = userConfig.model;
+  }
+
+  if (!apiKey) {
+    console.warn('⚠️ No AI API Key found, using fallback analysis');
+    return {
+      title: title || 'Untitled Feed',
+      summary: content.slice(0, 200),
+      takeaways: [],
+      tags: ['uncategorized'],
+      category: 'other',
+      emotion: 'neutral',
+      reading_time: Math.ceil(content.length / 500),
+      status: 'failed'
+    };
+  }
+
+  const openai = new OpenAI({ apiKey, baseURL });
+
+  const systemPrompt = `
+    你是一个资深的信息分析专家，擅长从长文本中提取核心价值。
+    请分析用户提供的网页内容、标题和 URL，并返回结构化的 JSON 数据。
+    
+    输出要求：
+    1. title: 一个更具吸引力或概括性的标题（如果原标题不佳）。
+    2. summary: 一段约 200 字的精华摘要，说明该内容的核心论点。
+    3. takeaways: 3-5 条关键洞察或可执行的建议。
+    4. tags: 3-5 个相关的标签。
+    5. category: 必须是 'tech', 'life', 'idea', 'art', 'other' 之一。
+    6. emotion: 简短描述内容的基调（如：积极、批判、冷静、启发）。
+    7. reading_time: 预计阅读时间（分钟）。
+
+    注意：必须严格输出 JSON 格式。
+  `;
+
+  const userPrompt = `
+    URL: ${url || 'N/A'}
+    Title: ${title || 'N/A'}
+    Content: ${content.slice(0, 15000)}
+  `;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      model: model,
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    });
+
+    const resultStr = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{}';
+    const parsed = JSON.parse(resultStr);
+
+    return {
+      title: parsed.title || title || 'Untitled',
+      summary: parsed.summary || 'No summary available.',
+      takeaways: Array.isArray(parsed.takeaways) ? parsed.takeaways : [],
+      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      category: normalizeCategory(parsed.category),
+      emotion: parsed.emotion || 'neutral',
+      reading_time: parsed.reading_time || Math.ceil(content.length / 500),
+      status: 'done'
+    };
+  } catch (error) {
+    console.error("AI Analysis Failed:", error);
+    return {
+      title: title || 'Analysis Failed',
+      summary: 'AI 分析过程中出现错误。',
+      takeaways: [],
+      tags: ['error'],
+      category: 'other',
+      emotion: 'neutral',
+      reading_time: 0,
+      status: 'failed'
+    };
+  }
 }
 
 export async function filterDiscoveryItems(

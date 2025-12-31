@@ -361,6 +361,39 @@ export default function SettingsPage() {
                     
                     {/* 集成 API Key Manager */}
                     <ApiKeyManager />
+
+                    {/* 🚀 Mobile Shortcuts Guide */}
+                    <div className="mt-10 pt-10 border-t border-white/5 space-y-6">
+                      <h3 className="text-xs font-bold text-green-500/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Monitor size={12} /> 移动端采集 Mobile Capture
+                      </h3>
+                      
+                      <div className="p-4 border border-white/10 bg-white/[0.02] rounded-lg space-y-4">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                            <Monitor className="text-blue-400" size={20} />
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-sm font-medium text-white/90">iOS 快捷指令 (Shortcuts)</h4>
+                            <p className="text-xs text-white/40 leading-relaxed">
+                              在 iPhone 上使用“分享”菜单一键收藏网页。
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-black/40 rounded border border-white/5 p-3 space-y-3">
+                          <p className="text-[10px] font-mono text-white/30 uppercase">配置指南 Setup Recipe:</p>
+                          <ol className="text-xs text-white/60 space-y-2 list-decimal list-inside font-mono">
+                            <li>打开 iOS “快捷指令” App，创建新指令。</li>
+                            <li>添加 “获取 URL 内容” (Get Contents of URL) 操作。</li>
+                            <li>URL 设为: <code className="text-blue-400 bg-blue-400/10 px-1">https://neofeed.cn/api/process-feed</code></li>
+                            <li>方法设为 <code className="text-yellow-400">POST</code>。</li>
+                            <li>头部添加 <code className="text-yellow-400">Authorization</code>: <code className="text-green-400">Bearer YOUR_API_KEY</code></li>
+                            <li>请求体选择 JSON，添加 Key <code className="text-yellow-400">url</code>，值选 “快捷指令输入”。</li>
+                          </ol>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

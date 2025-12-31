@@ -28,19 +28,31 @@ export async function signup(formData: FormData) {
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.toLowerCase().trim()
   const password = formData.get('password') as string
-  const nickname = formData.get('nickname') as string
+  const nickname = (formData.get('nickname') as string)?.trim()
 
-  // 1. 检查邮箱是否已注册
-  const { data: existingProfile } = await adminClient
+  // 1. 🚀 深度检查邮箱是否已注册
+  // 同时检查 profiles 表和 auth 系统表，确保无死角
+  let userInAuth = false;
+  try {
+    const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers()
+    if (!listError && users) {
+      userInAuth = users.some(u => u.email?.toLowerCase() === email)
+    }
+  } catch (e) {
+    console.error('Admin listUsers failed:', e)
+  }
+
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('id')
     .eq('email', email)
-    .single()
+    .maybeSingle()
 
-  if (existingProfile) {
-    return { error: '此邮箱已注册，请直接登录。' }
+  if (userInAuth || profile) {
+    console.log(`[Signup] Blocked existing user: ${email}`)
+    return { error: '该邮箱已被占用，请直接登录。' }
   }
 
   // 2. 执行注册
