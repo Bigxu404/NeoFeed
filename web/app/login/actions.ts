@@ -24,12 +24,26 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  const { createAdminClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const nickname = formData.get('nickname') as string
 
+  // 1. 检查邮箱是否已注册
+  const { data: existingProfile } = await adminClient
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .single()
+
+  if (existingProfile) {
+    return { error: '此邮箱已注册，请直接登录。' }
+  }
+
+  // 2. 执行注册
   const { data: authData, error } = await supabase.auth.signUp({
     email,
     password,
@@ -44,11 +58,6 @@ export async function signup(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
-
-  // Handle case where user might already have a profile or trigger hasn't run
-  // But usually we rely on the DB trigger to create the profile.
-  // If we want to be sure, we could update the profile here if session exists.
-  // However, signUp with email confirmation doesn't return a session immediately.
 
   // Redirect to verification page instead of home
   redirect('/auth/verify-request')
