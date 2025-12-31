@@ -6,8 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 import SiteHeader from '@/components/site/SiteHeader';
 import SiteHero from '@/components/site/SiteHero';
-import FeatureGrid from '@/components/site/FeatureGrid';
-import FlowStream from '@/components/site/FlowStream';
+import CaptureBento from '@/components/site/CaptureBento';
+import UnderstandBento from '@/components/site/UnderstandBento';
+import ConnectBento from '@/components/site/ConnectBento';
 import FinalCTA from '@/components/site/FinalCTA';
 import AboutSection from '@/components/site/AboutSection';
 
@@ -41,8 +42,9 @@ function LandingContent() {
       
       <main className="relative z-10 flex flex-col">
         <SiteHero />
-        <FlowStream />
-        <FeatureGrid />
+        <CaptureBento />
+        <UnderstandBento />
+        <ConnectBento />
         <FinalCTA />
         <AboutSection />
       </main>

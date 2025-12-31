@@ -18,6 +18,7 @@ import { useFeeds } from '@/hooks/useFeeds';
 import { useSearchParams } from 'next/navigation';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { toast } from 'sonner';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Workbench() {
   const [url, setUrl] = useState('');
@@ -38,6 +39,40 @@ export default function Workbench() {
   const [selectedFeed, setSelectedFeed] = useState<FeedItem | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const searchParams = useSearchParams();
+  const supabase = React.useMemo(() => createClient(), []);
+
+  // 🚀 实时监听来自移动端或其他设备的信号注入
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    // 监听 feeds 表的新增
+    const channel = supabase
+      .channel('feeds-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'feeds',
+          filter: `user_id=eq.${profile.id}`
+        },
+        (payload) => {
+          const newItem = payload.new as any;
+          // 触发刷新并提示
+          refreshFeeds();
+          
+          toast.success('🚀 发现新信号', {
+            description: '来自移动端的同步请求已链入，正在解析...',
+            duration: 5000,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, refreshFeeds, supabase]);
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
