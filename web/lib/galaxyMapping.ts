@@ -23,6 +23,8 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
   };
 
   feeds.forEach((feed, i) => {
+    if (!feed) return; // 🛡️ 防御空数据
+
     const minRadius = 6; 
     const maxRadius = 50;
     const normalizedIndex = count > 1 ? i / (count - 1) : 0;
@@ -42,6 +44,21 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
     const color = colors[category as keyof typeof colors] || colors.other;
     const size = 0.3 + Math.random() * 0.4;
 
+    // 🛡️ 极其鲁棒的日期处理
+    let dateStr = '2025-01-01';
+    let timestamp = Date.now();
+    try {
+      if (feed.created_at) {
+        const d = new Date(feed.created_at);
+        if (!isNaN(d.getTime())) {
+          dateStr = d.toISOString().split('T')[0];
+          timestamp = d.getTime();
+        }
+      }
+    } catch (e) {
+      console.warn("Invalid date for feed:", feed.id);
+    }
+
     items.push({
       id: feed.id,
       position: [x, y, z],
@@ -50,9 +67,9 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
       category: category,
       summary: feed.title || feed.summary || 'Untitled Star',
       content: feed.content_raw || feed.summary || 'No content.',
-      tags: feed.tags || [],
-      date: new Date(feed.created_at).toISOString().split('T')[0],
-      timestamp: new Date(feed.created_at).getTime()
+      tags: Array.isArray(feed.tags) ? feed.tags : [],
+      date: dateStr,
+      timestamp: timestamp
     });
   });
 

@@ -90,46 +90,54 @@ export default function HistoryPage() {
   return (
     <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans flex flex-col">
       
-      {/* 🚀 统一 Header */}
       <div className="relative z-50 pt-8">
         <ErrorBoundary name="HistoryHeader">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
         </ErrorBoundary>
       </div>
 
-      {/* 🌌 3D 背景层 (始终存在) */}
-      <div className="absolute inset-0 z-0">
-         {loading ? (
-            <div className="w-full h-full flex items-center justify-center bg-black">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
-                <div className="text-white/30 text-[10px] font-mono tracking-widest animate-pulse">
-                  NEURAL GALAXY LOADING...
+      {/* 🛡️ 全局错误捕获，防止整个页面崩溃 */}
+      <ErrorBoundary name="HistoryContent">
+        <div className="flex-1 relative min-h-0 overflow-hidden">
+          {/* 🌌 3D 背景层 (始终存在) */}
+          <div className="absolute inset-0 z-0">
+            {loading ? (
+                <div className="w-full h-full flex items-center justify-center bg-black">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
+                    <div className="text-white/30 text-[10px] font-mono tracking-widest animate-pulse">
+                      NEURAL GALAXY LOADING...
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-         ) : items.length > 0 ? (
-           <GalaxyScene 
-             data={items} 
-             onItemClick={setSelectedItem} 
-             highlightedItemId={hoveredItemId}
-           />
-         ) : (
-            <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
-                <div className="text-center">
-                    <p className="mb-2">VOID DETECTED.</p>
-                    <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
+            ) : items.length > 0 ? (
+              <ErrorBoundary name="GalaxyScene">
+                <GalaxyScene 
+                  data={items} 
+                  onItemClick={setSelectedItem} 
+                  highlightedItemId={hoveredItemId}
+                />
+              </ErrorBoundary>
+            ) : (
+                <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
+                    <div className="text-center">
+                        <p className="mb-2">VOID DETECTED.</p>
+                        <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
+                    </div>
                 </div>
-            </div>
-         )}
-      </div>
+            )}
+          </div>
 
-      {/* 🖥️ 左侧：星际终端 */}
-      <HistoryTerminal 
-        items={items} 
-        onItemHover={setHoveredItemId}
-        onItemClick={setSelectedItem}
-      />
+          {/* 🖥️ 左侧：星际终端 */}
+          <ErrorBoundary name="HistoryTerminal">
+            <HistoryTerminal 
+              items={items} 
+              onItemHover={setHoveredItemId}
+              onItemClick={setSelectedItem}
+            />
+          </ErrorBoundary>
+        </div>
+      </ErrorBoundary>
 
       {/* 📄 详情页模态框 */}
       <AnimatePresence>
@@ -173,7 +181,7 @@ export default function HistoryPage() {
                     {selectedItem.summary}
                   </h2>
                   <div className="flex flex-wrap gap-2">
-                    {selectedItem.tags.map(tag => (
+                    {Array.isArray(selectedItem.tags) && selectedItem.tags.map(tag => (
                       <span key={tag} className="px-2 py-1 rounded text-xs bg-white/5 text-white/60 border border-white/5">
                         #{tag}
                       </span>
@@ -184,7 +192,7 @@ export default function HistoryPage() {
                 {/* 正文内容 */}
                 <div className="prose prose-invert prose-lg max-w-none text-white/70 font-light leading-relaxed">
                   <p className="whitespace-pre-wrap">
-                    {contentLoading ? "Loading full neural record..." : fullContent}
+                    {contentLoading ? "Loading full neural record..." : fullContent || selectedItem.summary}
                   </p>
                   <hr className="border-white/10 my-8" />
                   <p className="text-sm text-white/30 italic">
