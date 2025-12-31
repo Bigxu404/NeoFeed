@@ -182,7 +182,7 @@ const LavaMaterial = shaderMaterial(
   `
 );
 
-// 🛠️ TypeScript 类型扩展 - 使用 any 避免复杂的 ref 类型推导
+// 🛠️ TypeScript 类型扩展
 declare module '@react-three/fiber' {
   interface ThreeElements {
     terrestrialMaterial: any;
@@ -196,10 +196,22 @@ extend({ TerrestrialMaterial, GaseousMaterial, LavaMaterial });
 // ==========================================
 // 🌟 通用星球组件 (Memoized to prevent re-renders)
 // ==========================================
-const Star = memo(function Star({ item, onClick, glowTexture, highlighted }: { item: GalaxyItem; onClick: (item: GalaxyItem) => void; glowTexture: THREE.Texture | null; highlighted: boolean }) {
+const Star = memo(function Star({ 
+    item, 
+    onClick, 
+    glowTexture, 
+    highlighted,
+    geometries
+}: { 
+    item: GalaxyItem; 
+    onClick: (item: GalaxyItem) => void; 
+    glowTexture: THREE.Texture | null; 
+    highlighted: boolean;
+    geometries: { sphere: THREE.SphereGeometry; ring: THREE.TorusGeometry; }
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
-  const materialRef = useRef<any>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
   const [hovered, setHover] = useState(false);
 
   const isActive = hovered || highlighted; 
@@ -220,19 +232,16 @@ const Star = memo(function Star({ item, onClick, glowTexture, highlighted }: { i
     }
     
     if (materialRef.current) {
-      materialRef.current.time = state.clock.elapsedTime;
+      materialRef.current.uniforms.time.value = state.clock.elapsedTime;
     }
   });
 
   // 根据分类选择不同的星球渲染逻辑
   const renderPlanet = () => {
-    const geometryArgs: [number, number, number] = [item.size, 16, 16]; // 降低精度到 16x16 以提升性能
-
     switch (item.category) {
       case 'life': // 🌍 类地行星
         return (
-          <mesh ref={meshRef}>
-            <sphereGeometry args={geometryArgs} />
+          <mesh ref={meshRef} geometry={geometries.sphere}>
             <terrestrialMaterial 
               ref={materialRef} 
               colorLand={new THREE.Color('#81c784')}
@@ -243,24 +252,21 @@ const Star = memo(function Star({ item, onClick, glowTexture, highlighted }: { i
         );
       case 'tech': // 🔵 气态巨行星
         return (
-          <mesh ref={meshRef}>
-            <sphereGeometry args={geometryArgs} />
+          <mesh ref={meshRef} geometry={geometries.sphere}>
             <gaseousMaterial 
               ref={materialRef}
               colorA={new THREE.Color('#ff9800')}
               colorB={new THREE.Color('#ffcc80')}
             />
             {/* 气态行星加一个淡淡的光环 */}
-            <mesh rotation={[Math.PI/3, 0, 0]}>
-               <torusGeometry args={[item.size * 1.6, 0.05, 16, 64]} />
+            <mesh rotation={[Math.PI/3, 0, 0]} geometry={geometries.ring}>
                <meshBasicMaterial color="#ffb74d" transparent opacity={0.3} />
             </mesh>
           </mesh>
         );
       case 'idea': // 🟣 能量星球
         return (
-          <mesh ref={meshRef}>
-            <sphereGeometry args={geometryArgs} />
+          <mesh ref={meshRef} geometry={geometries.sphere}>
             <lavaMaterial 
               ref={materialRef}
               colorCore={new THREE.Color('#e0e0e0')}
@@ -325,11 +331,30 @@ const Star = memo(function Star({ item, onClick, glowTexture, highlighted }: { i
   );
 });
 
+Star.displayName = 'Star';
+
 // 中心恒星 (原黑洞改造)
 function CentralSingularity({ glowTexture }: { glowTexture: THREE.Texture | null }) {
     const meshRef = useRef<THREE.Mesh>(null);
     const ring1Ref = useRef<THREE.Mesh>(null);
     const ring2Ref = useRef<THREE.Mesh>(null);
+
+    // 共享中心几何体
+    const centralGeom = useMemo(() => {
+        const sphere = new THREE.SphereGeometry(1.5, 32, 32); // 太阳核心
+        const ring1 = new THREE.TorusGeometry(3.2, 0.05, 16, 100);
+        const ring2 = new THREE.TorusGeometry(4.5, 0.03, 16, 100);
+        return { sphere, ring1, ring2 };
+    }, []);
+
+    // 卸载时销毁几何体
+    useEffect(() => {
+        return () => {
+            centralGeom.sphere.dispose();
+            centralGeom.ring1.dispose();
+            centralGeom.ring2.dispose();
+        };
+    }, [centralGeom]);
     
     useFrame((state) => {
       if (meshRef.current) {
@@ -354,8 +379,7 @@ function CentralSingularity({ glowTexture }: { glowTexture: THREE.Texture | null
     return (
       <group>
         {/* 🌞 太阳核心 */}
-        <mesh ref={meshRef} position={[0, 0, 0]}>
-          <sphereGeometry args={[1.5, 64, 64]} />
+        <mesh ref={meshRef} position={[0, 0, 0]} geometry={centralGeom.sphere}>
           <meshBasicMaterial color="#ff3d00" />
         </mesh>
 
@@ -375,16 +399,14 @@ function CentralSingularity({ glowTexture }: { glowTexture: THREE.Texture | null
 
         {/* 星环 1 - 交错轨道 */}
         <group rotation={[0.5, 0, 0]}> {/* 基础倾斜 */}
-            <mesh ref={ring1Ref} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[3.2, 0.05, 16, 100]} />
+            <mesh ref={ring1Ref} rotation={[Math.PI / 2, 0, 0]} geometry={centralGeom.ring1}>
               <meshStandardMaterial color="#ffb74d" emissive="#ff9100" emissiveIntensity={3} transparent opacity={0.9} />
             </mesh>
         </group>
 
         {/* 星环 2 - 交错轨道 */}
         <group rotation={[-0.5, 0, 0]}> {/* 反向倾斜 */}
-            <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[4.5, 0.03, 16, 100]} />
+            <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]} geometry={centralGeom.ring2}>
               <meshStandardMaterial color="#ff5252" emissive="#d50000" emissiveIntensity={2} transparent opacity={0.7} />
             </mesh>
         </group>
@@ -407,11 +429,18 @@ function SimpleStars() {
     return p;
   }, []);
 
+  const starGeom = useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(points, 3));
+    return geom;
+  }, [points]);
+
+  useEffect(() => {
+    return () => starGeom.dispose();
+  }, [starGeom]);
+
   return (
-    <points>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[points, 3]} count={3000} />
-      </bufferGeometry>
+    <points geometry={starGeom}>
       <pointsMaterial size={0.5} color="#ffffff" sizeAttenuation transparent opacity={0.8} />
     </points>
   );
@@ -439,15 +468,38 @@ export default function GalaxyScene({ data, onItemClick, highlightedItemId }: Ga
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 64, 64);
     }
-    return new THREE.CanvasTexture(canvas);
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
   }, []);
+
+  // 🌍 共享星球几何体 (显著提升渲染性能)
+  const sharedGeometries = useMemo(() => {
+    return {
+        sphere: new THREE.SphereGeometry(1, 16, 16),
+        ring: new THREE.TorusGeometry(1.6, 0.05, 12, 48), // 气态行星光环
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+        glowTexture?.dispose();
+        sharedGeometries.sphere.dispose();
+        sharedGeometries.ring.dispose();
+    };
+  }, [glowTexture, sharedGeometries]);
 
   return (
     <div className="w-full h-full relative bg-black">
       <Canvas 
         camera={{ position: [0, 15, 25], fov: 60 }} 
         style={{ width: '100%', height: '100%' }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }} 
+        gl={{ 
+            antialias: true, 
+            powerPreference: 'high-performance',
+            alpha: false,
+            stencil: false,
+            depth: true
+        }} 
         dpr={[1, 2]} 
       >
         <color attach="background" args={['#05020a']} />
@@ -472,6 +524,7 @@ export default function GalaxyScene({ data, onItemClick, highlightedItemId }: Ga
               onClick={onItemClick} 
               glowTexture={glowTexture} 
               highlighted={item.id === highlightedItemId} // ✨ 传递高亮状态
+              geometries={sharedGeometries}
             />
           ))}
         </group>

@@ -7,7 +7,11 @@ import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import HistoryTerminal from '@/components/history/HistoryTerminal';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { useFeedContent } from '@/hooks/useFeedContent';
+import { useProfile } from '@/hooks/useProfile';
+import { useFeeds } from '@/hooks/useFeeds';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 // 动态导入 GalaxyScene，禁用 SSR
 const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), { 
@@ -31,6 +35,8 @@ export default function HistoryPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { profile, clearCache } = useProfile();
+  const { isOffline } = useFeeds();
   const { content: fullContent, loading: contentLoading } = useFeedContent(selectedItem?.id || null, selectedItem?.summary);
 
   useEffect(() => {
@@ -81,8 +87,15 @@ export default function HistoryPage() {
   const closeDetail = () => setSelectedItem(null);
 
   return (
-    <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans">
+    <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans flex flex-col">
       
+      {/* 🚀 统一 Header */}
+      <div className="relative z-50 pt-8">
+        <ErrorBoundary name="HistoryHeader">
+          <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
+        </ErrorBoundary>
+      </div>
+
       {/* 🌌 3D 背景层 (始终存在) */}
       <div className="absolute inset-0 z-0">
          {loading ? (
@@ -110,32 +123,14 @@ export default function HistoryPage() {
          )}
       </div>
 
-      {/* 🟢 顶部导航 */}
-      <div className="absolute top-0 left-0 right-0 p-6 z-10 flex justify-between items-start pointer-events-none">
-        <button 
-          className="pointer-events-auto text-white/50 hover:text-white flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/5 hover:bg-white/10 transition-all group"
-          onClick={() => window.location.href = '/dashboard'}
-        >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Back to Workbench</span>
-        </button>
-
-        <div className="text-right pointer-events-auto">
-          <h1 className="text-2xl font-light tracking-widest text-white/80">MY GALAXY</h1>
-          <p className="text-white/30 text-xs mt-1 font-mono">
-            {items.length} FRAGMENTS DISCOVERED
-          </p>
-        </div>
-      </div>
-
-      {/* 🖥️ 左侧：星际终端 (替代原有列表) */}
+      {/* 🖥️ 左侧：星际终端 */}
       <HistoryTerminal 
         items={items} 
         onItemHover={setHoveredItemId}
         onItemClick={setSelectedItem}
       />
 
-      {/* 📄 详情页模态框 (Landing Experience) */}
+      {/* 📄 详情页模态框 */}
       <AnimatePresence>
         {selectedItem && (
           <motion.div 
@@ -143,14 +138,14 @@ export default function HistoryPage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-12 bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-12 bg-black/60 backdrop-blur-md"
             onClick={closeDetail}
           >
             <div 
               className="w-full max-w-4xl max-h-[85vh] bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* 左侧装饰栏 (模拟数据流) */}
+              {/* 左侧装饰栏 */}
               <div className={`hidden md:flex w-24 flex-col items-center py-8 border-r border-white/5
                 ${selectedItem.category === 'tech' ? 'bg-orange-900/10' : 
                   selectedItem.category === 'life' ? 'bg-green-900/10' : 'bg-white/5'}
@@ -189,9 +184,6 @@ export default function HistoryPage() {
                 <div className="prose prose-invert prose-lg max-w-none text-white/70 font-light leading-relaxed">
                   <p className="whitespace-pre-wrap">
                     {contentLoading ? "Loading full neural record..." : fullContent}
-                  </p>
-                  <p>
-                    (这里模拟了一篇长文的阅读体验。真正的星际探索才刚刚开始...)
                   </p>
                   <hr className="border-white/10 my-8" />
                   <p className="text-sm text-white/30 italic">

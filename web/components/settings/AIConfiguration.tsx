@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { updateAiConfig, getAiConfig, AIConfig, testAiConfig } from '@/app/settings/actions';
 import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 
 const DEFAULT_PROMPT = `你是 NeoFeed 的首席情报分析师。
@@ -51,9 +52,10 @@ export default function AIConfiguration() {
     const res = await updateAiConfig(config);
     setSaving(false);
     if (res.error) {
-      alert('Failed to save settings: ' + res.error);
+      toast.error('保存失败', { description: res.error });
     } else {
       setSaved(true);
+      toast.success('神经核心配置已更新');
       setTimeout(() => setSaved(false), 3000);
     }
   };

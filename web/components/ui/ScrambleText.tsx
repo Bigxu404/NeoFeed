@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { motion } from 'framer-motion';
 
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
@@ -13,13 +13,13 @@ interface ScrambleTextProps {
   trigger?: any; // Change this prop to re-trigger animation
 }
 
-export default function ScrambleText({ 
+const ScrambleText = memo(({ 
   text, 
   className, 
   scrambleSpeed = 30, 
   revealSpeed = 50,
   trigger
-}: ScrambleTextProps) {
+}: ScrambleTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
   
@@ -71,5 +71,9 @@ export default function ScrambleText({
       {displayText}
     </motion.span>
   );
-}
+});
+
+ScrambleText.displayName = 'ScrambleText';
+
+export default ScrambleText;
 

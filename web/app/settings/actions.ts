@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
+import { AIConfig } from '@/types/index'
 
 // ... existing code ...
 
@@ -52,14 +53,6 @@ export async function getApiKey() {
 }
 
 // ✨ 新增：AI 配置相关 Actions
-
-export interface AIConfig {
-  provider: 'openai' | 'deepseek' | 'siliconflow';
-  model: string;
-  apiKey?: string;
-  prompt: string;
-  notificationEmail?: string; // New field
-}
 
 export async function getAiConfig() {
   const supabase = await createClient();
@@ -180,7 +173,8 @@ export async function testAiConfig(config: AIConfig) {
     }
     
     return { success: true, message: result.summary };
-  } catch (err: any) {
-    return { error: err.message || '连接测试失败' };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '连接测试失败';
+    return { error: message };
   }
 }

@@ -12,6 +12,14 @@ export interface GalaxyItem {
   url?: string;
 }
 
+export interface AIConfig {
+  provider: 'openai' | 'deepseek' | 'siliconflow';
+  model: string;
+  apiKey?: string;
+  prompt: string;
+  notificationEmail?: string;
+}
+
 export interface UserProfile {
   id: string;
   created_at: string;
@@ -19,6 +27,9 @@ export interface UserProfile {
   full_name: string | null;
   avatar_url: string | null;
   active_days: number;
+  api_key: string | null;
+  ai_config: AIConfig | null;
+  notification_email: string | null;
   bio?: string;
 }
 

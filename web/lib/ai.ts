@@ -35,12 +35,22 @@ export async function analyzeContent(
     apiKey?: string;
   }
 ): Promise<AIAnalysisResult> {
-  // 1. Determine which API Key and Base URL to use
+  // ... (keeping existing analyzeContent code)
+}
+
+export async function filterDiscoveryItems(
+  items: { title: string; summary: string }[],
+  themes: string[],
+  userConfig?: {
+    provider?: string;
+    model?: string;
+    apiKey?: string;
+  }
+): Promise<{ index: number; reason: string }[]> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
   let baseURL = 'https://api.siliconflow.cn/v1';
-  let model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"; // Default
+  let model = "deepseek-ai/DeepSeek-V3"; 
 
-  // If user provided a specific provider, adjust settings
   if (userConfig?.provider === 'openai') {
     baseURL = 'https://api.openai.com/v1';
     model = userConfig.model || 'gpt-4o-mini';
@@ -50,66 +60,30 @@ export async function analyzeContent(
   } else if (userConfig?.provider === 'siliconflow') {
     if (userConfig.model) model = userConfig.model;
   }
-  
-  if (!apiKey) {
-    console.error('❌ AI Error: No API Key available (Global or User-defined)');
-    return {
-      title: title || content.slice(0, 20) + "...",
-      summary: "AI Key Missing. Please configure your own API Key in Settings -> Intelligence.",
-      takeaways: [],
-      tags: ["error", "no-key"],
-      category: "other",
-      emotion: "neutral",
-      reading_time: Math.ceil(content.length / 10),
-    };
-  }
 
-  // Lazy Initialization with dynamic config
-  const openai = new OpenAI({
-    apiKey: apiKey,
-    baseURL: baseURL,
-  });
+  if (!apiKey) return [];
 
-  // Optimized System Prompt for Quality and Noise Reduction
+  const openai = new OpenAI({ apiKey, baseURL });
+
   const systemPrompt = `
-    You are NeoFeed's Elite Intelligence Analyst. Your mission is to filter noise and extract high-value insights from the input.
+    你是一个高级情报官。用户当前关注的主题有：[${themes.join(', ')}]。
+    请从以下 RSS 简讯列表中，挑选出最符合用户主题的 Top 7 条。
     
-    CONTEXT:
-    The input is raw text scraped from a webpage (${url || 'URL Unknown'}). It may contain "noise" like navigation menus, footers, ads, or copyright notices.
-    
-    YOUR TASKS:
-    1. 🛡️ **NOISE FILTER**: Aggressively ignore unrelated text (menus, ads, "subscribe", "read more"). Focus ONLY on the core article or content.
-    2. 🧠 **DEEP INSIGHT**: Don't just summarize "what happened". Explain "why it matters" and "what is the underlying principle".
-    3. ⚡ **ACTIONABLE INTELLIGENCE**: Extract specific tools, concepts, or actions the user can take.
-    
-    OUTPUT FORMAT (JSON Only):
+    判定准则：
+    1. 语义匹配：理解核心概念，而非简单的关键词包含。
+    2. 质量优先：即使与主题稍有偏离，但如果是深度好文也请保留。
+    3. 排除噪音：过滤广告、推广、单纯的新闻简讯。
+
+    输出格式要求 (JSON Only):
     {
-      "title": "A clean, concise title (max 10 words). Fix clickbait.",
-      "summary": "A high-density summary (approx 150-200 words). Structure: Context -> Core Argument -> Conclusion. Use markdown bolding for key terms.",
-      "takeaways": [
-        "Actionable item 1 (e.g., 'Try Tool X')",
-        "Insight 2 (e.g., 'Concept Y explains Z')",
-        "Key Fact 3"
-      ],
-      "tags": ["precise", "tags", "max-5"],
-      "category": "One of: tech (code/AI), life (daily/food), idea (philosophy/strategy), art (design/culture), other",
-      "emotion": "One of: exciting, controversial, insightful, neutral, boring",
-      "reading_time": 120 (estimated seconds for the CORE content only)
+      "items": [
+        { "index": 0, "reason": "为什么推荐这条 (15字以内)" },
+        ...
+      ]
     }
-    
-    LANGUAGE RULE:
-    - If the input is Chinese, output in Chinese (Simplified).
-    - If the input is English, output in English.
   `;
 
-  const userContent = `
-    ${title ? `Page Title: ${title}\n` : ''}
-    ${url ? `Source URL: ${url}\n` : ''}
-    ---
-    RAW CONTENT:
-    ${content.slice(0, 15000)} 
-    (Truncated if too long)
-  `.trim();
+  const userContent = items.map((it, i) => `${i}. 标题: ${it.title}\n摘要: ${it.summary.slice(0, 100)}`).join('\n---\n');
 
   try {
     const completion = await openai.chat.completions.create({
@@ -117,46 +91,16 @@ export async function analyzeContent(
         { role: "system", content: systemPrompt },
         { role: "user", content: userContent }
       ],
-      model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B", 
+      model: model,
       response_format: { type: "json_object" },
-      temperature: 0.3, // Lower temperature for more stable/analytical results
+      temperature: 0.3,
     });
 
-    const cleanContent = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{}';
-    
-    let rawResult;
-    try {
-      rawResult = JSON.parse(cleanContent);
-    } catch (e) {
-      console.error("JSON Parse Failed:", cleanContent);
-      throw new Error("Invalid JSON from AI");
-    }
-    
-    // Post-processing & Validation
-    const result: AIAnalysisResult = {
-      title: rawResult.title || title || "Untitled Analysis",
-      summary: rawResult.summary || "Analysis failed to generate summary.",
-      takeaways: Array.isArray(rawResult.takeaways) ? rawResult.takeaways.slice(0, 5) : [],
-      tags: Array.isArray(rawResult.tags) ? rawResult.tags.slice(0, 5) : [],
-      category: normalizeCategory(rawResult.category),
-      emotion: rawResult.emotion || 'neutral',
-      reading_time: typeof rawResult.reading_time === 'number' ? rawResult.reading_time : 60,
-      status: 'done'
-    };
-
-    return result;
+    const content = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{"items":[]}';
+    const result = JSON.parse(content);
+    return Array.isArray(result.items) ? result.items : [];
   } catch (error) {
-    console.error("AI Analysis Failed:", error);
-    // Fallback
-    return {
-      title: title || "Content Saved",
-      summary: "AI processing encountered an error, but your content is saved safely. [System: failed_analysis]",
-      takeaways: [],
-      tags: ["error", "raw"],
-      category: "other",
-      emotion: "neutral",
-      reading_time: 60,
-      status: 'failed'
-    };
+    console.error("AI Filtering Failed:", error);
+    return [];
   }
 }

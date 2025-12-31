@@ -1,6 +1,7 @@
 import { inngest } from "@/inngest/client";
 import { createAdminClient } from "@/lib/supabase/server";
 import { analyzeContent } from "@/lib/ai";
+import { AIConfig } from "@/types/index";
 
 export const processFeed = inngest.createFunction(
   { id: "process-feed-url" },
@@ -93,7 +94,7 @@ export const processFeed = inngest.createFunction(
           rawData.content, 
           url, 
           rawData.title, 
-          profile?.ai_config as any
+          profile?.ai_config as AIConfig
         );
       });
 
@@ -121,8 +122,9 @@ export const processFeed = inngest.createFunction(
       console.log(`✅ [Inngest] Successfully processed URL: ${url}`);
       return { success: true, feedId };
 
-    } catch (err: any) {
-      console.error(`💥 [Inngest] Error processing URL: ${err.message}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error(`💥 [Inngest] Error processing URL: ${message}`);
       
       // 更新状态为失败
       await step.run("mark-as-failed", async () => {
@@ -131,7 +133,7 @@ export const processFeed = inngest.createFunction(
           .from("feeds")
           .update({ 
             status: "failed",
-            summary: `处理失败: ${err.message}` 
+            summary: `处理失败: ${message}` 
           })
           .eq("id", feedId);
       });

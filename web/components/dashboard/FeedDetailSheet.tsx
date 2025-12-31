@@ -4,17 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Tag, ExternalLink, Loader2 } from 'lucide-react';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import { cn } from '@/lib/utils';
-
-interface FeedItem {
-  id: string;
-  title: string;
-  summary: string;
-  url?: string;
-  tags?: string[];
-  category?: string;
-  created_at: string;
-  status?: string; // 🚀 Added status
-}
+import { FeedItem } from '@/app/dashboard/actions';
 
 interface FeedDetailSheetProps {
   feed: FeedItem | null;

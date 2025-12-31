@@ -5,15 +5,19 @@ import { ChevronLeft, Shield, Zap, Brain, Clock, Award, Globe, Radio, Loader2 } 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import { getFeeds } from '@/app/dashboard/actions'; // Removed getUserProfile
-import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
+import { getFeedsCount } from '@/app/dashboard/actions'; 
+import { useProfile } from '@/hooks/useProfile'; 
+import { useFeeds } from '@/hooks/useFeeds'; 
 import { useRouter } from 'next/navigation';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 // ✨ 动态导入 TheArchitectWall (Client Component)
 const TheArchitectWall = dynamic(() => import('@/components/profile/TheArchitectWall'), { ssr: false });
 
 export default function ProfilePage() {
-  const { profile, loading: profileLoading } = useProfile(); // 🚀 从全局缓存获取
+  const { profile, loading: profileLoading, clearCache } = useProfile(); 
+  const { isOffline } = useFeeds();
   const [stats, setStats] = useState({ total: 0, activeDays: 0 });
   const [feedsLoading, setFeedsLoading] = useState(true);
   const router = useRouter();
@@ -21,11 +25,11 @@ export default function ProfilePage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const feedsRes = await getFeeds();
-        if (feedsRes.data) {
+        const countRes = await getFeedsCount();
+        if (countRes.data !== undefined) {
           setStats(prev => ({
             ...prev,
-            total: feedsRes.data?.length || 0
+            total: countRes.data
           }));
         }
       } catch (e) {
@@ -56,7 +60,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-hidden relative">
+    <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 relative flex flex-col">
       
       {/* 🧱 架构师之墙背景 */}
       <TheArchitectWall />
@@ -64,19 +68,15 @@ export default function ProfilePage() {
       {/* 背景噪点纹理 */}
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-0" />
       
-      {/* Header Navigation */}
-      <div className="relative z-10 p-6 md:p-12">
-        <button 
-          onClick={() => window.location.href = '/dashboard'}
-          className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/5 hover:bg-white/5 hover:border-green-500/30"
-        >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span className="text-xs font-medium tracking-wide">Back to Workbench</span>
-        </button>
+      {/* 🚀 统一 Header */}
+      <div className="relative z-50 pt-8">
+        <ErrorBoundary name="ProfileHeader">
+          <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
+        </ErrorBoundary>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 pb-20">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 pb-20 mt-12 overflow-y-auto custom-scrollbar flex-1 w-full">
         
         {/* 1. Identity Card (身份卡) */}
         <motion.div 
@@ -86,7 +86,7 @@ export default function ProfilePage() {
           className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12 p-8 rounded-3xl bg-black/40 backdrop-blur-xl backdrop-saturate-150 border border-white/10 shadow-2xl"
         >
           {/* Avatar */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <div className="w-24 h-24 rounded-full bg-black border border-green-500/20 flex items-center justify-center overflow-hidden relative group shadow-[0_0_30px_rgba(34,197,94,0.1)]">
                {profile?.avatar_url ? (
                  <img src={profile.avatar_url} className="w-full h-full object-cover" />
@@ -95,10 +95,8 @@ export default function ProfilePage() {
                    {profile?.full_name?.charAt(0) || 'N'}
                  </span>
                )}
-               {/* 动态光环 */}
                <div className="absolute inset-0 rounded-full border border-green-500/30 animate-spin-slow opacity-50 group-hover:opacity-100 transition-opacity" style={{ animationDuration: '8s' }} />
             </div>
-            {/* Level Badge */}
             <div className="absolute -bottom-2 -right-2 bg-green-900/80 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30 backdrop-blur-sm">
               LV {Math.floor(stats.total / 10) + 1}
             </div>
@@ -142,6 +140,7 @@ export default function ProfilePage() {
              initial={{ opacity: 0, x: -20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.2 }}
+             onClick={() => router.push('/history')}
              className="group relative p-6 rounded-2xl bg-black/40 backdrop-blur-xl backdrop-saturate-150 border border-white/10 hover:border-green-500/50 transition-all duration-300 overflow-hidden cursor-pointer hover:bg-black/60 hover:scale-[1.02]"
           >
             <div className="flex justify-between items-start mb-6">
@@ -152,11 +151,9 @@ export default function ProfilePage() {
                   </h3>
                   <p className="text-[10px] text-white/40 font-mono mt-1 group-hover:text-green-400/60 transition-colors">NEO_SYSTEM_01</p>
                </div>
-               <Link href="/history" onClick={(e) => e.stopPropagation()}>
-                 <button className="text-[10px] bg-white/5 hover:bg-green-500/20 hover:text-green-400 px-3 py-1.5 rounded-full transition-all border border-white/5 hover:border-green-500/30 font-medium tracking-wide">
-                    进入系统
-                 </button>
-               </Link>
+               <button className="text-[10px] bg-white/5 hover:bg-green-500/20 hover:text-green-400 px-3 py-1.5 rounded-full transition-all border border-white/5 hover:border-green-500/30 font-medium tracking-wide">
+                  进入系统
+               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4 relative z-10">
@@ -252,8 +249,12 @@ export default function ProfilePage() {
   );
 }
 
+import { LucideIcon } from 'lucide-react';
+
+// ... (keep the rest of imports)
+
 // 辅助组件：数据卡片
-function MetricCard({ icon: Icon, label, value, delay }: { icon: any, label: string, value: string | number, delay: number }) {
+function MetricCard({ icon: Icon, label, value, delay }: { icon: LucideIcon, label: string, value: string | number, delay: number }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}

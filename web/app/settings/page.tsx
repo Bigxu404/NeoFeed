@@ -7,9 +7,16 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { generateApiKey, getApiKey } from './actions';
 import AIConfiguration from '@/components/settings/AIConfiguration';
-import ProfileSettings from '@/components/settings/ProfileSettings'; // Import new component
+import ProfileSettings from '@/components/settings/ProfileSettings';
+import SubscriptionSettings from '@/components/settings/SubscriptionSettings';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import { useProfile } from '@/hooks/useProfile';
+import { useFeeds } from '@/hooks/useFeeds';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 // API Key 管理组件
+// ... (keep ApiKeyManager as is)
 function ApiKeyManager() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,8 +39,9 @@ function ApiKeyManager() {
     if (result.apiKey) {
       setApiKey(result.apiKey);
       setShowKey(true); // 生成后自动显示
+      toast.success('API 密钥已生成');
     } else {
-      alert('生成失败，请重试');
+      toast.error('生成失败，请重试');
     }
     setIsGenerating(false);
   };
@@ -42,6 +50,7 @@ function ApiKeyManager() {
     if (!apiKey) return;
     navigator.clipboard.writeText(apiKey);
     setCopied(true);
+    toast.success('密钥已复制到剪贴板');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -101,7 +110,7 @@ function ApiKeyManager() {
 }
 
 // 类型定义
-type TabId = 'display' | 'system' | 'intelligence' | 'account' | 'danger';
+type TabId = 'display' | 'system' | 'intelligence' | 'discovery' | 'account' | 'danger';
 // 模拟设置项组件：开关
 function Switch({ label, checked, onChange, description }: { label: string; checked: boolean; onChange: () => void; description?: string }) {
   return (
@@ -155,6 +164,8 @@ function Slider({ label, value, min = 0, max = 100, onChange, unit = '%' }: { la
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('display');
   const router = useRouter();
+  const { profile, clearCache } = useProfile();
+  const { isOffline } = useFeeds();
 
   // 模拟状态
   const [settings, setSettings] = useState({
@@ -170,20 +181,22 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    clearCache();
     router.replace('/landing');
   };
 
-  const updateSetting = (key: keyof typeof settings, value: any) => {
+  const updateSetting = <K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const tabs = [
-    { id: 'display', label: '显示设置', icon: Monitor, desc: '视觉效果参数 Visual Parameters' },
-    { id: 'system', label: '系统配置', icon: HardDrive, desc: '核心功能设定 Core Configuration' },
-    { id: 'intelligence', label: '神经核心', icon: Cpu, desc: 'AI 模型与逻辑配置 AI Model & Logic' },
-    { id: 'account', label: '账户安全', icon: Shield, desc: '身份与密钥 Identity & Security' },
-    { id: 'danger', label: '危险区域', icon: AlertTriangle, desc: '不可逆操作 Irreversible Actions', danger: true },
-  ];
+    const tabs = [
+        { id: 'display', label: '显示设置', icon: Monitor, desc: '视觉效果参数 Visual Parameters' },
+        { id: 'system', label: '系统配置', icon: HardDrive, desc: '核心功能设定 Core Configuration' },
+        { id: 'intelligence', label: '神经核心', icon: Cpu, desc: 'AI 模型与逻辑配置 AI Model & Logic' },
+        { id: 'discovery', label: '信号发现', icon: Globe, desc: 'RSS 订阅与主题筛选 RSS Discovery' },
+        { id: 'account', label: '账户安全', icon: Shield, desc: '身份与密钥 Identity & Security' },
+        { id: 'danger', label: '危险区域', icon: AlertTriangle, desc: '不可逆操作 Irreversible Actions', danger: true },
+    ];
 
   return (
     <div className="min-h-screen w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 flex flex-col">
@@ -192,37 +205,24 @@ export default function SettingsPage() {
       <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
       <div className="fixed inset-0 bg-[linear-gradient(rgba(18,18,18,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] pointer-events-none opacity-20" />
 
-      {/* Header */}
-      <div className="relative z-10 p-6 md:p-8 border-b border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => window.location.href = '/dashboard'}
-            className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded border border-white/5 hover:bg-white/5 hover:border-green-500/30"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="text-xs font-mono">返回</span>
-          </button>
-          <h1 className="text-lg font-mono font-bold tracking-wider text-white/90 flex items-center gap-2">
-            <Terminal size={18} className="text-green-500" />
-            SYSTEM_CONFIG
-          </h1>
-        </div>
-        <div className="text-[10px] font-mono text-white/30 hidden md:block">
-          v2.4.0_STABLE :: MATRIX_BUILD
-        </div>
+      {/* 🚀 统一 Header */}
+      <div className="relative z-50 pt-8 border-b border-white/5 pb-4 bg-black/20 backdrop-blur-md">
+        <ErrorBoundary name="SettingsHeader">
+          <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
+        </ErrorBoundary>
       </div>
 
       {/* Main Layout */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full relative z-10">
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full relative z-10 min-h-0 overflow-hidden">
         
         {/* Sidebar Navigation */}
-        <div className="w-full md:w-64 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible">
+        <div className="w-full md:w-64 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible shrink-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabId)}
               className={`
-                flex items-center gap-3 p-3 w-full text-left transition-all border border-transparent whitespace-nowrap md:whitespace-normal
+                flex items-center gap-3 p-3 w-full text-left transition-all border border-transparent whitespace-nowrap md:whitespace-normal rounded-lg
                 ${activeTab === tab.id 
                   ? 'bg-white/[0.08] border-white/10 text-green-400' 
                   : 'text-white/40 hover:text-white hover:bg-white/[0.03]'}
@@ -243,7 +243,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 md:p-12 overflow-y-auto h-[calc(100vh-80px)]">
+        <div className="flex-1 p-6 md:p-12 overflow-y-auto custom-scrollbar">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -332,12 +332,17 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* INTELLIGENCE SETTINGS */}
-              {activeTab === 'intelligence' && (
-                <AIConfiguration />
-              )}
+                  {/* INTELLIGENCE SETTINGS */}
+                  {activeTab === 'intelligence' && (
+                    <AIConfiguration />
+                  )}
 
-              {/* ACCOUNT SETTINGS */}
+                  {/* DISCOVERY SETTINGS */}
+                  {activeTab === 'discovery' && (
+                    <SubscriptionSettings />
+                  )}
+
+                  {/* ACCOUNT SETTINGS */}
               {activeTab === 'account' && (
                 <div className="space-y-10">
                   {/* 1. 个人资料编辑 */}

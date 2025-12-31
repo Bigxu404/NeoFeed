@@ -6,37 +6,33 @@ import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
 import { updateProfile, uploadAvatar } from '@/app/settings/actions';
 import { Loader2, Camera, User, Check, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function ProfileSettings() {
-  const { profile, loading, updateCache } = useProfile(); // 🚀 修复：增加 loading 解构
+  const { profile, loading, updateCache } = useProfile();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
   const [nickname, setNickname] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 修复：定义头像点击处理函数
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  // 初始化昵称
   useEffect(() => {
     if (profile) setNickname(profile.full_name || '');
   }, [profile]);
 
   const handleUpdateNickname = async () => {
     setSaving(true);
-    setStatus(null);
     const res = await updateProfile({ full_name: nickname });
     setSaving(false);
     if (res.error) {
-      setStatus({ type: 'error', msg: `更新失败: ${res.error}` });
+      toast.error('昵称更新失败', { description: res.error });
     } else {
-      setStatus({ type: 'success', msg: '昵称已更新' });
-      updateCache({ full_name: nickname }); // 🚀 同步更新全局缓存
+      toast.success('昵称已更新');
+      updateCache({ full_name: nickname });
     }
-    setTimeout(() => setStatus(null), 3000);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,12 +40,11 @@ export default function ProfileSettings() {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      setStatus({ type: 'error', msg: '文件过大，请上传 2MB 以下的图片' });
+      toast.error('文件过大', { description: '请上传 2MB 以下的图片' });
       return;
     }
 
     setUploading(true);
-    setStatus(null);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -58,16 +53,15 @@ export default function ProfileSettings() {
       setUploading(false);
       
       if (res.error) {
-        setStatus({ type: 'error', msg: res.error });
+        toast.error('头像上传失败', { description: res.error });
       } else {
-        setStatus({ type: 'success', msg: '头像已上传' });
-        updateCache({ avatar_url: (res as any).url }); // 🚀 同步更新全局缓存
+        toast.success('头像已更新');
+        updateCache({ avatar_url: (res as any).url });
       }
     } catch (err) {
       setUploading(false);
-      setStatus({ type: 'error', msg: '上传失败，网络连接异常' });
+      toast.error('上传失败', { description: '网络连接异常' });
     }
-    setTimeout(() => setStatus(null), 3000);
   };
 
   if (loading) return <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-white/20" /></div>;
@@ -87,7 +81,7 @@ export default function ProfileSettings() {
             className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden cursor-pointer hover:border-white/30 transition-all relative"
           >
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} className="w-full h-full object-cover" />
+              <img src={profile.avatar_url} className="w-full h-full object-cover" alt="avatar" />
             ) : (
               <User className="w-10 h-10 text-white/20" />
             )}
@@ -142,20 +136,6 @@ export default function ProfileSettings() {
           </div>
         </div>
       </div>
-
-      {status && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "p-3 rounded-lg border text-xs font-mono flex items-center gap-2",
-            status.type === 'success' ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-red-500/10 border-red-500/20 text-red-400"
-          )}
-        >
-          {status.type === 'success' ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-          {status.msg}
-        </motion.div>
-      )}
     </div>
   );
 }

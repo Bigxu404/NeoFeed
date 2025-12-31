@@ -1,81 +1,66 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BentoGrid, BentoCard } from '@/components/dashboard/BentoGrid';
+import { BentoGrid } from '@/components/dashboard/BentoGrid';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import InputPrism from '@/components/dashboard/InputPrism';
+import ProfileCard from '@/components/dashboard/ProfileCard';
+import QuickStatsCard from '@/components/dashboard/QuickStatsCard';
+import SystemStatusCard from '@/components/dashboard/SystemStatusCard';
+import InsightStream from '@/components/dashboard/InsightStream';
+import DiscoveryStream from '@/components/dashboard/DiscoveryStream';
 import FeedDetailSheet from '@/components/dashboard/FeedDetailSheet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, Radio, Zap, ArrowRight, Activity, Loader2, CheckCircle2, AlertCircle, LogOut, LayoutGrid, Clock, Settings, BookOpen, Menu, User, Trash2, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getFeeds, FeedItem, deleteFeed, summarizeFeed } from '@/app/dashboard/actions'; // Added summarizeFeed
-import { useProfile } from '@/hooks/useProfile'; // 🚀 使用新 Hook
-import ScrambleText from '@/components/ui/ScrambleText';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter, useSearchParams } from 'next/navigation';
-
-const NavItems = [
-    { icon: LayoutGrid, label: '工作台', path: '/dashboard' },
-    { icon: Clock, label: '知识星系', path: '/history' },
-    { icon: Activity, label: '洞察中心', path: '/insight' },
-    { icon: User, label: '个人矩阵', path: '/profile' },
-    { icon: Settings, label: '系统设置', path: '/settings' },
-];
+import { CheckCircle2 } from 'lucide-react';
+import { getFeeds, FeedItem, deleteFeed, summarizeFeed } from '@/app/dashboard/actions';
+import { useProfile } from '@/hooks/useProfile';
+import { useFeeds } from '@/hooks/useFeeds';
+import { useSearchParams } from 'next/navigation';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 export default function Workbench() {
   const [url, setUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [feeds, setFeeds] = useState<FeedItem[]>([]);
-  const { profile, loading: profileLoading, clearCache } = useProfile(); // 🚀 增加 clearCache
-  const [feedsLoading, setFeedsLoading] = useState(true);
+  const { 
+    feeds, 
+    count: feedsCount, // 🚀 使用总数
+    loading: feedsLoading, 
+    isOffline, // 🚀 引入离线状态
+    addOptimisticFeed, 
+    updateFeedInCache, 
+    removeFeedFromCache, 
+    refreshFeeds 
+  } = useFeeds(); // 🚀 SWR 数据流
+  const { profile, loading: profileLoading, clearCache } = useProfile();
   const [status, setStatus] = useState<'idle' | 'scanning' | 'analyzing' | 'success' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [selectedFeed, setSelectedFeed] = useState<FeedItem | null>(null);
-  const [showWelcome, setShowWelcome] = useState(false); // 🚀 欢迎提示状态
-  const router = useRouter();
+  const [showWelcome, setShowWelcome] = useState(false);
   const searchParams = useSearchParams();
 
-  const fetchFeedsData = async () => {
-    try {
-      const { data } = await getFeeds();
-      if (data) setFeeds(data);
-    } catch (err) {
-      console.error("Failed to fetch feeds", err);
-    } finally {
-      setFeedsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchFeedsData();
-  }, []);
-
-  useEffect(() => {
-    // 检查是否有 verified 参数
     if (searchParams.get('verified') === 'true') {
       setShowWelcome(true);
-      // 5秒后自动关闭
       const timer = setTimeout(() => setShowWelcome(false), 5000);
-      
-      // 清理 URL 参数，避免刷新页面再次弹出
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-      
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
-  const handleIngest = async () => {
-    if (!url.trim()) return;
+  const handleIngest = async (targetUrl?: string) => {
+    const finalUrl = targetUrl || url;
+    if (!finalUrl.trim()) return;
     
-    // 1. UI 即时响应
-    const originalUrl = url;
-    setUrl(''); // 瞬间清空输入框
+    const originalUrl = finalUrl;
+    if (!targetUrl) setUrl('');
+    
     setStatus('scanning');
     setProgress(30);
     setIsProcessing(true);
 
     try {
-      console.log("📡 [Workbench] Triggering ingest for URL:", originalUrl);
       const res = await fetch('/api/ingest-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -89,324 +74,143 @@ export default function Workbench() {
         throw new Error(errorMsg);
       }
 
-      // 2. 🚀 [New] 乐观更新：瞬间把新卡片加进列表
       const initialFeed = resData.data;
       if (initialFeed) {
-        setFeeds(prev => [initialFeed, ...prev]);
+        addOptimisticFeed(initialFeed); // 🚀 乐观更新
       }
 
-      // 3. 瞬间显示完成动画
       setProgress(100);
       setStatus('success');
+      toast.success('信号捕获成功', {
+        description: 'AI 正在后台同步神经网络...',
+      });
       
-      // 4. 延迟重置处理状态，允许输入下一个
       setTimeout(() => { 
         setStatus('idle'); 
         setProgress(0); 
         setIsProcessing(false); 
       }, 1500);
 
-      // 5. 静默轮询：直到这个特定的 Feed 状态变为 done
       if (initialFeed) {
         let attempts = 0;
         const pollItem = async () => {
-          if (attempts >= 15) return; // 最多轮询 15 次 (约 45s)
+          if (attempts >= 15) return;
           attempts++;
           
           const { data: latestFeeds } = await getFeeds();
           const updatedItem = latestFeeds?.find(f => f.id === initialFeed.id);
           
           if (updatedItem && updatedItem.status === 'done') {
-            // 更新本地列表中的该项
-            setFeeds(prev => prev.map(f => f.id === initialFeed.id ? updatedItem : f));
+            updateFeedInCache(updatedItem); // 🚀 更新 SWR 缓存
             return;
           }
           
-          setTimeout(pollItem, 3000); // 每 3 秒查一次
+          setTimeout(pollItem, 3000);
         };
         setTimeout(pollItem, 3000);
       }
 
-    } catch (e: any) {
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '未知错误';
       console.error(e);
-      alert(`捕获失败: ${e.message}`);
+      toast.error('捕获失败', {
+        description: message,
+      });
       setStatus('error');
       setProgress(0);
-      setUrl(originalUrl); // 失败时恢复 URL
+      setUrl(originalUrl);
       setTimeout(() => { setStatus('idle'); setIsProcessing(false); }, 3000);
     }
-  };
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    clearCache(); // 🚀 登出时清除本地 Profile 缓存
-    router.replace('/landing');
   };
 
   const handleSummarize = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     
-    // 更新本地状态为处理中
-    setFeeds(prev => prev.map(f => f.id === id ? { ...f, status: 'processing' } : f));
+    // 更新状态为处理中
+    const currentItem = feeds.find(f => f.id === id);
+    if (currentItem) {
+        updateFeedInCache({ ...currentItem, status: 'processing' });
+    }
 
     const res = await summarizeFeed(id);
     if (res.error) {
-      alert(`总结失败: ${res.error}`);
-      fetchFeedsData(); // 恢复状态
+      toast.error('总结失败', {
+        description: res.error,
+      });
+      refreshFeeds(); // 恢复
     } else if (res.data) {
-      // 更新本地列表
-      setFeeds(prev => prev.map(f => f.id === id ? res.data : f));
+      toast.success('AI 总结已更新');
+      updateFeedInCache(res.data);
     }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // 阻止触发打开详情页
+    e.stopPropagation();
     if (!confirm('确定要删除这个信号吗？')) return;
 
-    // 乐观更新：立刻从本地列表中移除
-    setFeeds(prev => prev.filter(f => f.id !== id));
+    removeFeedFromCache(id); // 🚀 乐观删除
 
     const res = await deleteFeed(id);
     if (res.error) {
-      alert(`删除失败: ${res.error}`);
-      fetchFeedsData(); // 失败时重新拉取数据以恢复
+      toast.error('删除失败', {
+        description: res.error,
+      });
+      refreshFeeds(); // 失败时重新同步
+    } else {
+      toast.success('信号已抹除');
     }
   };
-
-  if (profileLoading || feedsLoading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-white/20" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans selection:bg-white/20 relative flex flex-col overflow-x-hidden">
       
-      {/* Header Area */}
-      <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 w-full max-w-7xl mx-auto px-4 z-50 shrink-0">
-        <nav className="flex items-center gap-1 px-2 py-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
-            {NavItems.map((item, idx) => {
-                const isActive = item.label === '工作台'; 
-                return (
-                    <button key={idx} onClick={() => item.path !== '/dashboard' && router.push(item.path)}
-                        className={cn("relative flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300", isActive ? "bg-white text-black font-medium" : "text-white/60 hover:text-white hover:bg-white/10")}>
-                        <item.icon className={cn("w-4 h-4", isActive ? "text-black" : "text-current")} strokeWidth={2} />
-                        <span className="text-xs tracking-wide">{item.label}</span>
-                    </button>
-                );
-            })}
-        </nav>
+      <ErrorBoundary name="Header">
+        <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} />
+      </ErrorBoundary>
 
-        <div className="flex items-center gap-6">
-            <h1 className="text-2xl tracking-tight text-white font-serif italic">NeoFeed</h1>
-                    <div className="relative group cursor-pointer" onClick={() => setShowUserMenu(!showUserMenu)}>
-                        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-black border border-white/20 flex items-center justify-center overflow-hidden">
-                                {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-xs font-serif italic text-white">{profile?.full_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'N'}</span>
-                                )}
-                            </div>
-                            <LogOut className="w-4 h-4 text-white/30 group-hover:text-red-400 transition-colors" />
-                        </div>
-                {showUserMenu && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-xl p-2 shadow-2xl z-50">
-                        <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                            <LogOut className="w-3 h-3" /> 断开连接
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-4">
           <BentoGrid className="gap-4">
-        
-                {/* 1. Input Prism (Left Large) */}
-                <BentoCard colSpan={3} rowSpan={4} className="relative bg-gradient-to-br from-neutral-900/80 to-black">
-                  <div className="flex flex-col h-full justify-between py-2">
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            <span className="text-[10px] font-bold tracking-widest uppercase text-white/40">输入棱镜 Input Prism</span>
-                        </div>
-                        <h2 className="text-4xl font-light leading-tight mb-4 text-white/90">捕获 <span className="font-serif italic text-white/50">万物</span></h2>
-                        <p className="text-sm text-white/40 max-w-md leading-relaxed">将整个互联网作为你的数据源。粘贴 URL，记录灵感，或初始化自动化代理任务。</p>
-                    </div>
+                <ErrorBoundary name="InputPrism">
+                  <InputPrism 
+                      url={url} 
+                      setUrl={setUrl} 
+                      status={status} 
+                      progress={progress} 
+                      isProcessing={isProcessing} 
+                      onIngest={handleIngest} 
+                  />
+                </ErrorBoundary>
 
-                    <div className="relative group">
-                        {status === 'scanning' && <motion.div layoutId="scanner" className="absolute left-0 right-0 top-0 h-full bg-cyan-500/10 z-0" initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }} />}
-                        {isProcessing && <div className="absolute top-0 left-0 right-0 h-1 bg-white/5 overflow-hidden rounded-t-xl z-20"><motion.div className="h-full bg-cyan-500" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} /></div>}
-                        <div className={cn("absolute -inset-0.5 rounded-xl opacity-20 group-hover:opacity-40 blur transition duration-500", status === 'error' ? "bg-red-500" : status === 'success' ? "bg-green-500" : "bg-gradient-to-r from-cyan-500 to-purple-500")} />
-                        <div className="relative bg-black rounded-xl p-1 flex items-center z-10">
-                            <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleIngest()} disabled={isProcessing} placeholder={status === 'scanning' ? "正在初始化协议..." : status === 'analyzing' ? "神经网络处理中..." : status === 'success' ? "传输完成。" : status === 'error' ? "传输失败。" : "粘贴 URL 或输入指令..."} className="w-full bg-transparent border-none outline-none text-white px-6 py-4 placeholder:text-white/20 font-mono text-sm disabled:cursor-not-allowed" />
-                            <button onClick={handleIngest} disabled={isProcessing} className={cn("p-3 rounded-lg transition-colors flex items-center justify-center min-w-[48px]", isProcessing ? "bg-white/5 cursor-wait" : "bg-white/10 hover:bg-white/20")}>
-                                {status === 'scanning' || status === 'analyzing' ? <Loader2 className="w-5 h-5 animate-spin text-cyan-400" /> : status === 'success' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : status === 'error' ? <AlertCircle className="w-5 h-5 text-red-500" /> : <ArrowRight className="w-5 h-5" />}
-                            </button>
-                        </div>
-                    </div>
-                  </div>
-                </BentoCard>
+                <ErrorBoundary name="ProfileCard">
+                  <ProfileCard profile={profile} loading={profileLoading} />
+                </ErrorBoundary>
 
-                {/* 2. Profile Card (Right Row 1-2) */}
-                <BentoCard colSpan={1} rowSpan={2} className="bg-neutral-900/30">
-                    <div className="flex flex-col h-full justify-between py-1">
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-black border border-white/20 flex items-center justify-center shrink-0">
-                                {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} className="w-full h-full rounded-full object-cover" />
-                                ) : (
-                                    <span className="text-sm font-serif italic text-white">{profile?.full_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'N'}</span>
-                                )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-bold text-white truncate">{profile?.full_name || 'Neo Walker'}</h3>
-                                <p className="text-[9px] text-white/40 truncate font-mono">{profile?.email || 'neo@matrix.org'}</p>
-                            </div>
-                        </div>
-                        <p className="text-[11px] text-white/50 font-serif italic py-1 leading-relaxed line-clamp-2">
-                            "Seeking truth in the data stream."
-                        </p>
-                        <div className="grid grid-cols-2 gap-2 mt-auto">
-                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center justify-center">
-                                <span className="text-[8px] text-white/30 uppercase">活跃天数</span>
-                                <span className="text-sm font-bold text-white font-mono">{profile?.active_days || 0}</span>
-                            </div>
-                            <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col items-center justify-center">
-                                <span className="text-[8px] text-white/30 uppercase">成就</span>
-                                <div className="flex gap-1"><Zap className="w-3 h-3 text-yellow-500" /></div>
-                            </div>
-                        </div>
-                    </div>
-                </BentoCard>
+                <ErrorBoundary name="QuickStats">
+                  <QuickStatsCard count={feedsCount} loading={feedsLoading} />
+                </ErrorBoundary>
 
-                {/* 3. Quick Stats (Right Row 3) */}
-                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
-                    <div className="flex flex-row h-full items-center justify-between px-2">
-                        <div className="flex flex-col">
-                            <span className="text-2xl font-bold font-serif text-white">{feeds.length}</span>
-                            <span className="text-[9px] uppercase tracking-widest text-white/40">已收集项目</span>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                            <Settings className="w-4 h-4 text-white/20" />
-                        </div>
-                    </div>
-                </BentoCard>
+                <ErrorBoundary name="SystemStatus">
+                  <SystemStatusCard />
+                </ErrorBoundary>
 
-                {/* 4. System Status (Right Row 4) */}
-                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
-                    <div className="flex flex-row h-full items-center justify-between px-2">
-                        <div className="flex flex-col gap-1">
-                             <div className="flex items-center gap-2">
-                                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-[9px] uppercase text-white/60">系统正常</span>
-                             </div>
-                             <div className="flex items-center gap-2">
-                                <Globe className="w-2.5 h-2.5 text-blue-500" />
-                                <span className="text-[9px] uppercase text-white/60">网络已连接</span>
-                             </div>
-                        </div>
-                        <div className="h-8 w-px bg-white/10 mx-2" />
-                        <div className="text-right">
-                            <div className="text-[8px] text-white/30 font-mono">CPU: 12%</div>
-                            <div className="text-[8px] text-white/30 font-mono">MEM: 34%</div>
-                        </div>
-                    </div>
-                </BentoCard>
+                <ErrorBoundary name="DiscoveryStream">
+                  <DiscoveryStream onFeed={(targetUrl) => handleIngest(targetUrl)} />
+                </ErrorBoundary>
 
-                {/* 5. Insight Stream (Bottom Wide) */}
-                <BentoCard colSpan={4} rowSpan={2} className="min-h-[400px]">
-                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <Radio className="w-4 h-4 text-purple-500" />
-                            <span className="text-xs font-bold tracking-widest uppercase text-white/40">洞察流 Insight Stream</span>
-                        </div>
-                    </div>
-                    {feedsLoading ? <div className="flex h-40 items-center justify-center text-white/30"><Loader2 className="animate-spin w-6 h-6" /></div> : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {feeds.length === 0 ? <div className="col-span-3 text-center text-white/30 py-10 font-mono text-xs">虚空中暂无信号。</div> : feeds.map((item) => {
-                                        const isProcessing = item.status === 'processing';
-                                        return (
-                                            <div key={item.id} onClick={() => setSelectedFeed(item)} 
-                                                className={cn(
-                                                    "p-4 rounded-xl border transition-all cursor-pointer group/card flex flex-col h-full relative overflow-hidden",
-                                                    isProcessing 
-                                                        ? "bg-white/[0.02] border-white/5 cursor-wait" 
-                                                        : "bg-white/5 border-white/5 hover:bg-white/10"
-                                                )}>
-                                                {/* Processing 扫描线效果 */}
-                                                {isProcessing && (
-                                                    <motion.div 
-                                                        className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-1/2 w-full z-0"
-                                                        animate={{ y: ['-100%', '200%'] }}
-                                                        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                                                    />
-                                                )}
-
-                                                <div className="flex items-start justify-between mb-3 relative z-10">
-                                                    <div className={cn(
-                                                        "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold uppercase",
-                                                        isProcessing ? "bg-white/5 text-white/20" : "bg-gradient-to-br from-gray-800 to-black text-white"
-                                                    )}>
-                                                        {isProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : (item.category?.slice(0, 2) || 'AI')}
-                                                    </div>
-                                                    <span className="text-[9px] text-white/30 font-mono">
-                                                        {isProcessing ? "SYNCHRONIZING..." : new Date(item.created_at).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                                <h3 className={cn(
-                                                    "text-sm font-medium leading-snug mb-2 transition-colors line-clamp-2 relative z-10",
-                                                    isProcessing ? "text-white/40" : "group-hover/card:text-cyan-400"
-                                                )}>
-                                                    <ScrambleText text={item.title || 'Untitled Signal'} />
-                                                </h3>
-                                                <p className="text-xs text-white/40 line-clamp-2 mb-3 flex-1 relative z-10">
-                                                    {item.summary || (isProcessing ? '正在链接神经网络，提取核心洞察...' : '等待分析...')}
-                                                </p>
-                                                <div className="flex flex-wrap gap-1 mt-auto relative z-10">
-                                                    {isProcessing ? (
-                                                        <div className="h-4 w-16 bg-white/5 rounded animate-pulse" />
-                                                    ) : item.tags?.slice(0, 2).map((tag) => (
-                                                        <span key={tag} className="px-1.5 py-0.5 rounded-md bg-white/5 text-[8px] text-white/40 uppercase">#{tag}</span>
-                                                    ))}
-                                                </div>
-
-                                                {/* Action Buttons - Show on hovering */}
-                                                <div className="absolute bottom-3 right-3 flex items-center gap-1 z-20">
-                                                    {!isProcessing && (
-                                                        <button 
-                                                            onClick={(e) => handleSummarize(e, item.id)}
-                                                            className="p-2 rounded-lg bg-cyan-500/0 hover:bg-cyan-500/20 text-white/0 group-hover/card:text-cyan-400/60 hover:text-cyan-400 transition-all"
-                                                            title="AI 重新总结"
-                                                        >
-                                                            <Sparkles className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    )}
-                                                    <button 
-                                                        onClick={(e) => handleDelete(e, item.id)}
-                                                        className="p-2 rounded-lg bg-red-500/0 hover:bg-red-500/20 text-white/0 group-hover/card:text-red-400/60 hover:text-red-400 transition-all"
-                                                        title="删除条目"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                        </div>
-                    )}
-                </BentoCard>
+                <ErrorBoundary name="InsightStream">
+                  <InsightStream 
+                      feeds={feeds} 
+                      feedsLoading={feedsLoading} 
+                      onSelectFeed={setSelectedFeed} 
+                      onSummarize={handleSummarize} 
+                      onDelete={handleDelete} 
+                  />
+                </ErrorBoundary>
           </BentoGrid>
       </div>
+
       <FeedDetailSheet feed={selectedFeed} onClose={() => setSelectedFeed(null)} />
 
-      {/* 🚀 Welcome Notification */}
       <AnimatePresence>
         {showWelcome && (
           <motion.div

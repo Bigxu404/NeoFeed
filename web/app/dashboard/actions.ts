@@ -1,18 +1,10 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server';
+import { Database } from '@/types/database';
+import { AIConfig } from '@/types/index'; // 🚀 引入类型
 
-export interface FeedItem {
-  id: string;
-  title: string;
-  summary: string;
-  url: string;
-  tags: string[];
-  category: string;
-  created_at: string;
-  status: string;
-  source_type?: string;
-}
+export type FeedItem = Database['public']['Tables']['feeds']['Row'];
 
 export async function getFeeds() {
   const supabase = await createClient();
@@ -35,6 +27,53 @@ export async function getFeeds() {
   }
 
   return { data: data as FeedItem[], error: null };
+}
+
+export async function getFeedsCount() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { data: 0, error: 'Unauthorized' };
+
+  const { count, error } = await supabase
+    .from('feeds')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error counting feeds:', error);
+    return { data: 0, error: error.message };
+  }
+
+  return { data: count || 0, error: null };
+}
+
+export async function getCategoryDistribution() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { data: null, error: 'Unauthorized' };
+
+  // 使用 RPC 或者复杂的 select 来一次性获取分布，但 Supabase JS SDK 限制较多
+  // 这里采用一种更高效的查询方式：只查询 category 字段，不限数量（或者限一个较大的数）
+  // 更好的方式是使用 Supabase 的自定义函数 (RPC)，但为了保持代码在 TS 层，我们先尝试 select 关键字段
+  const { data, error } = await supabase
+    .from('feeds')
+    .select('category')
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error fetching distribution:', error);
+    return { data: null, error: error.message };
+  }
+
+  const dist = data.reduce((acc: any, curr: any) => {
+    const cat = (curr.category?.toLowerCase() || 'other');
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+
+  return { data: dist, error: null };
 }
 
 export async function getUserProfile() {
@@ -138,7 +177,7 @@ export async function summarizeFeed(feedId: string) {
       feed.content_raw, 
       feed.url, 
       feed.title, 
-      profile?.ai_config as any
+      profile?.ai_config as AIConfig // 🚀 强类型
     );
 
     // 3. Update DB

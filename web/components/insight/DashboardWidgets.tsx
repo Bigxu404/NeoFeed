@@ -1,8 +1,12 @@
 'use client'
 
-import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { Sparkles, Globe, Lightbulb, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, useMemo } from 'react';
+import { Sparkles, Globe, Lightbulb, ChevronRight, RefreshCw, Plus, ExternalLink } from 'lucide-react';
+import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const DEFAULT_SPARKS = [
     {
@@ -49,33 +53,121 @@ export function TypingEffect({ text, speed = 30 }: { text: string; speed?: numbe
   );
 }
 
-// 🌍 左侧：每日洞察
-export function DailyDiscovery() {
-    const items = [
-        { title: "DeepMind 发布新一代天气模型 GraphCast", tag: "Tech", time: "10:00 AM" },
-        { title: "NASA 韦伯望远镜发现系外行星 K2-18b", tag: "Space", time: "02:15 PM" },
-        { title: "WebAssembly GC 标准正式发布", tag: "Code", time: "Yesterday" },
-    ];
+// 🌍 左侧：每日洞察 (现在连接到 Discovery Stream)
+export function DailyDiscovery({ onFeed }: { onFeed?: (url: string) => Promise<void> }) {
+    const [items, setItems] = useState<DiscoveryItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const fetchItems = async () => {
+        setLoading(true);
+        const { data, error } = await getDiscoveryItems();
+        if (error) {
+            toast.error('获取发现流失败');
+        } else {
+            setItems(data || []);
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const displayItems = useMemo(() => {
+        if (items.length <= 3) return items;
+        return items.slice(currentIndex, currentIndex + 3);
+    }, [items, currentIndex]);
+
+    const handleRefresh = () => {
+        if (items.length <= 3) {
+            fetchItems();
+        } else {
+            setCurrentIndex(prev => (prev + 3 >= items.length ? 0 : prev + 3));
+        }
+    };
+
+    const handleFeedClick = async (e: React.MouseEvent, url: string) => {
+        e.stopPropagation();
+        if (onFeed) {
+            await onFeed(url);
+        }
+    };
 
     return (
-        <div className="space-y-4">
-            {items.map((item, i) => (
-                <div key={i} className="group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/40 hover:bg-green-900/10 transition-all cursor-pointer relative overflow-hidden">
-                    {/* Hover Glow */}
-                    <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    <div className="relative z-10 flex justify-between items-start mb-1">
-                        <span className="text-[10px] font-mono text-green-300/70 uppercase tracking-wider">{item.tag}</span>
-                        <span className="text-[10px] text-white/20 font-mono">{item.time}</span>
-                    </div>
-                    <h4 className="relative z-10 text-sm text-white/70 group-hover:text-white group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] leading-snug transition-all">
-                        {item.title}
-                    </h4>
-                </div>
-            ))}
-            <button className="w-full py-3 text-xs text-white/30 hover:text-green-400 border-t border-white/5 mt-2 transition-colors flex items-center justify-center gap-2 group">
-                <Globe size={12} className="group-hover:animate-spin-slow" /> 
-                LOAD_MORE_SIGNALS
+        <div className="flex flex-col h-full">
+            <div className="flex-1 space-y-4">
+                <AnimatePresence mode="wait">
+                    {loading ? (
+                        <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                                    <Skeleton className="h-3 w-1/4" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                </div>
+                            ))}
+                        </motion.div>
+                    ) : items.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-4 text-white/20 font-mono text-[10px]">
+                            NO_SIGNALS_FOUND
+                        </div>
+                    ) : (
+                        <motion.div 
+                            key={currentIndex}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="space-y-4"
+                        >
+                            {displayItems.map((item) => (
+                                <div 
+                                    key={item.id} 
+                                    className="group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/40 hover:bg-green-900/10 transition-all cursor-pointer relative overflow-hidden"
+                                >
+                                    <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    
+                                    <div className="relative z-10 flex justify-between items-start mb-1">
+                                        <span className="text-[10px] font-mono text-green-300/70 uppercase tracking-wider truncate max-w-[100px]">
+                                            {item.source_name}
+                                        </span>
+                                        <div className="flex gap-2">
+                                            <a href={item.url} target="_blank" className="text-white/10 hover:text-white transition-colors">
+                                                <ExternalLink size={10} />
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <h4 className="relative z-10 text-sm text-white/70 group-hover:text-white leading-snug mb-2">
+                                        {item.title}
+                                    </h4>
+                                    
+                                    {/* Intelligence Reason (Small) */}
+                                    <div className="relative z-10 flex items-center gap-1.5 text-[9px] text-green-400/60 font-mono italic">
+                                        <Sparkles size={10} />
+                                        <span className="truncate">{item.reason}</span>
+                                    </div>
+
+                                    {/* Hover Action */}
+                                    <button 
+                                        onClick={(e) => handleFeedClick(e, item.url)}
+                                        className="absolute bottom-2 right-2 p-1.5 rounded-full bg-green-500 text-black scale-0 group-hover:scale-100 transition-transform duration-300 z-20"
+                                        title="Feed to Matrix"
+                                    >
+                                        <Plus size={12} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            <button 
+                onClick={handleRefresh}
+                disabled={loading}
+                className="w-full py-3 text-xs text-white/30 hover:text-green-400 border-t border-white/5 mt-4 transition-colors flex items-center justify-center gap-2 group disabled:opacity-50"
+            >
+                <RefreshCw size={12} className={cn("group-hover:rotate-180 transition-transform duration-500", loading && "animate-spin")} /> 
+                {items.length > 3 ? 'SWAP_SIGNALS' : 'REFRESH_STREAM'}
             </button>
         </div>
     );
@@ -148,7 +240,7 @@ export function EnergyBars({ categories }: { categories: { label: string; value:
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(100, (item.value / 10) * 100)}%` }} // 简单缩放：假设 10 条为满
                             transition={{ duration: 1.2, delay: 0.5, ease: "circOut" }}
-                        />
+                         />
                     </div>
                 </div>
             ))}

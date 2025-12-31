@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { getUserProfile } from '@/app/dashboard/actions';
+import { UserProfile } from '@/types/index';
 
 // 简单的内存缓存，用于在页面跳转间保持数据
-let memoryCache: any = null;
+let memoryCache: UserProfile | null = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 10 * 60 * 1000; // 10 分钟有效
 
 export function useProfile() {
-  const [profile, setProfile] = useState<any>(memoryCache);
+  const [profile, setProfile] = useState<UserProfile | null>(memoryCache);
   const [loading, setLoading] = useState(!memoryCache);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +29,7 @@ export function useProfile() {
       if (!memoryCache) {
         const local = localStorage.getItem('neofeed_profile');
         if (local) {
-          const parsed = JSON.parse(local);
+          const parsed = JSON.parse(local) as UserProfile;
           setProfile(parsed);
           memoryCache = parsed;
         }
@@ -39,13 +40,15 @@ export function useProfile() {
       if (fetchError) throw new Error(fetchError);
 
       if (data) {
-        setProfile(data);
-        memoryCache = data;
+        const typedData = data as UserProfile;
+        setProfile(typedData);
+        memoryCache = typedData;
         lastFetchTime = now;
-        localStorage.setItem('neofeed_profile', JSON.stringify(data));
+        localStorage.setItem('neofeed_profile', JSON.stringify(typedData));
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '获取个人资料失败';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -58,8 +61,8 @@ export function useProfile() {
   const refreshProfile = () => fetchProfile(true);
 
   // 提供一个手动更新缓存的方法，用于 nickname/avatar 修改后
-  const updateCache = (newData: any) => {
-    const updated = { ...(memoryCache || profile), ...newData };
+  const updateCache = (newData: Partial<UserProfile>) => {
+    const updated = { ...(memoryCache || profile), ...newData } as UserProfile;
     setProfile(updated);
     memoryCache = updated;
     localStorage.setItem('neofeed_profile', JSON.stringify(updated));
