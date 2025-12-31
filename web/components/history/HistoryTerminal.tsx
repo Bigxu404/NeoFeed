@@ -51,7 +51,7 @@ export default function HistoryTerminal({ items, onItemHover, onItemClick, class
     >
       {/* 🚀 终端主面板 */}
       <div className={`
-        flex flex-col h-full bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 ease-spring
+        flex flex-col h-full bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 ease-in-out
         ${isExpanded ? 'w-[360px] opacity-100' : 'w-12 opacity-60 hover:opacity-100'}
         pointer-events-auto shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)]
       `}>

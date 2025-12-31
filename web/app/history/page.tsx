@@ -12,6 +12,7 @@ import { useFeedContent } from '@/hooks/useFeedContent';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { useRouter } from 'next/navigation';
 
 // 动态导入 GalaxyScene，禁用 SSR
 const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), { 
@@ -32,8 +33,8 @@ export default function HistoryPage() {
   const [items, setItems] = useState<GalaxyItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<GalaxyItem | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const { profile, clearCache } = useProfile();
   const { isOffline } = useFeeds();
@@ -48,10 +49,9 @@ export default function HistoryPage() {
       if (cached) {
         try {
           const { data, timestamp } = JSON.parse(cached);
-          if (Date.now() - timestamp < 300000) {
+          if (Array.isArray(data) && Date.now() - timestamp < 300000) {
             console.log("🌌 [Galaxy] Loaded from cache", data.length);
             setItems(mapFeedsToGalaxy(data));
-            setIsLoaded(true);
             setLoading(false);
           }
         } catch (e) {
@@ -65,19 +65,20 @@ export default function HistoryPage() {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const { data } = await res.json();
         
-        console.log(`✅ [Galaxy] Received ${data?.length || 0} items from network`);
-        
-        localStorage.setItem('galaxy_cache', JSON.stringify({
-          data,
-          timestamp: Date.now()
-        }));
+        if (Array.isArray(data)) {
+          console.log(`✅ [Galaxy] Received ${data.length} items from network`);
+          
+          localStorage.setItem('galaxy_cache', JSON.stringify({
+            data,
+            timestamp: Date.now()
+          }));
 
-        setItems(mapFeedsToGalaxy(data || []));
+          setItems(mapFeedsToGalaxy(data));
+        }
       } catch (e) {
         console.error("❌ [Galaxy] Fetch error:", e);
       } finally {
         setLoading(false);
-        setIsLoaded(true);
       }
     };
     fetchGalaxyData();
@@ -102,7 +103,7 @@ export default function HistoryPage() {
             <div className="w-full h-full flex items-center justify-center bg-black">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
-                <div className="text-white/30 text-sm font-mono animate-pulse">
+                <div className="text-white/30 text-[10px] font-mono tracking-widest animate-pulse">
                   NEURAL GALAXY LOADING...
                 </div>
               </div>

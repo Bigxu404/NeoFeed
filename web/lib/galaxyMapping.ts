@@ -51,7 +51,7 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
       summary: feed.title || feed.summary || 'Untitled Star',
       content: feed.content_raw || feed.summary || 'No content.',
       tags: feed.tags || [],
-      date: new Date(feed.created_at).toLocaleDateString(),
+      date: new Date(feed.created_at).toISOString().split('T')[0],
       timestamp: new Date(feed.created_at).getTime()
     });
   });
