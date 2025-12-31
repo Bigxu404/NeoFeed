@@ -150,10 +150,17 @@ function LoginContent() {
             className={`
               w-full h-12 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 mt-8
               disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed
-              ${!isValid || isLoading ? '' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'}
+              ${!isValid || isLoading ? '' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 active:scale-[0.98]'}
             `}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isLogin ? 'Sign In' : 'Sign Up')}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{isLogin ? '正在连接矩阵...' : '正在初始化神经元...'}</span>
+              </>
+            ) : (
+              <span>{isLogin ? 'Sign In' : 'Sign Up'}</span>
+            )}
           </button>
         </form>
 
