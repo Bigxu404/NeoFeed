@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GalaxyItem } from '@/types';
 import { mapFeedsToGalaxy } from '@/lib/galaxyMapping';
 import dynamic from 'next/dynamic';

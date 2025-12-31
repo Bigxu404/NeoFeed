@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { login, signup } from './actions'
 import { Loader2, Infinity, ChevronLeft } from 'lucide-react'

@@ -34,8 +34,8 @@ export default function SiteHero() {
             <path d="M100,800 L120,600 Q150,400 200,300 Q250,200 220,150 Q180,100 150,150 Q100,200 80,300 L50,800 Z" />
             <circle cx="185" cy="130" r="35" />
          </svg>
-         {/* Matrix Rain Overlay */}
-         <div className="absolute inset-0 bg-[url('/matrix-rain.png')] opacity-30 bg-repeat mask-image-gradient" />
+         {/* Matrix Rain Overlay - Removed missing image */}
+         <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent opacity-30 mask-image-gradient" />
       </motion.div>
 
       {/* 🕴️ SMITH (Right Background) */}

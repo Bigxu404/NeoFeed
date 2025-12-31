@@ -1,10 +1,10 @@
 'use client'
 
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Shield, Zap, Brain, Clock, Award, Globe, Radio, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
 import { getFeedsCount } from '@/app/dashboard/actions'; 
 import { useProfile } from '@/hooks/useProfile'; 
 import { useFeeds } from '@/hooks/useFeeds'; 
