@@ -146,7 +146,7 @@ export default function InsightStream({
     }, [feeds, searchQuery]);
 
     return (
-        <BentoCard colSpan={3} rowSpan={2} className="min-h-[400px]">
+        <div className="flex flex-col h-full min-h-[400px]">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <Radio className="w-4 h-4 text-purple-500" />
@@ -205,7 +205,7 @@ export default function InsightStream({
                     </AnimatePresence>
                 </motion.div>
             )}
-        </BentoCard>
+        </div>
     );
 }
 

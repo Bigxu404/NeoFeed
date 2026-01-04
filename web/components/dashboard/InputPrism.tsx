@@ -23,22 +23,22 @@ export default function InputPrism({
     onIngest 
 }: InputPrismProps) {
     return (
-        <BentoCard colSpan={3} rowSpan={4} className="relative bg-gradient-to-br from-neutral-900/80 to-black">
-            <div className="flex flex-col h-full justify-between py-2">
+        <div className="flex flex-col h-full justify-center py-4">
+            <div className="space-y-6 md:space-y-10">
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <Zap className="w-4 h-4 text-yellow-500" />
                         <span className="text-[10px] font-bold tracking-widest uppercase text-white/40">输入棱镜 Input Prism</span>
                     </div>
-                    <h2 className="text-4xl font-light leading-tight mb-4 text-white/90">
+                    <h2 className="text-3xl md:text-5xl font-light leading-tight mb-4 text-white/90">
                         捕获 <span className="font-serif italic text-white/50">万物</span>
                     </h2>
-                    <p className="text-sm text-white/40 max-w-md leading-relaxed">
+                    <p className="text-sm md:text-base text-white/40 max-w-xl leading-relaxed">
                         将整个互联网作为你的数据源。粘贴 URL，记录灵感，或初始化自动化代理任务。
                     </p>
                 </div>
 
-                <div className="relative group">
+                <div className="relative group w-full max-w-2xl">
                     {status === 'scanning' && (
                         <motion.div 
                             layoutId="scanner" 
@@ -99,7 +99,7 @@ export default function InputPrism({
                     </div>
                 </div>
             </div>
-        </BentoCard>
+        </div>
     );
 }
 

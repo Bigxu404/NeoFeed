@@ -209,7 +209,7 @@ export default function Workbench() {
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 pb-12">
           <BentoGrid className="gap-4 md:gap-6 grid-cols-1 md:grid-cols-4 auto-rows-auto md:auto-rows-[120px]">
                 {/* 1. 捕获棱镜 (Mobile: Full Width, Desktop: col-3) */}
-                <BentoCard colSpan={1} rowSpan={1} className="md:col-span-3 md:row-span-4 overflow-visible">
+                <BentoCard colSpan={1} rowSpan={1} className="md:col-span-3 md:row-span-4 overflow-visible bg-gradient-to-br from-neutral-900/80 to-black">
                   <ErrorBoundary name="InputPrism">
                     <InputPrism 
                         url={url} 
@@ -223,28 +223,28 @@ export default function Workbench() {
                 </BentoCard>
 
                 {/* 2. 个人资料 (Mobile: Hidden, Desktop: col-1) */}
-                <BentoCard colSpan={1} rowSpan={2} className="hidden md:block">
+                <BentoCard colSpan={1} rowSpan={2} className="hidden md:block bg-neutral-900/30">
                   <ErrorBoundary name="ProfileCard">
                     <ProfileCard profile={profile} loading={profileLoading} />
                   </ErrorBoundary>
                 </BentoCard>
 
                 {/* 3. 快速统计 */}
-                <BentoCard colSpan={1} rowSpan={1}>
+                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
                   <ErrorBoundary name="QuickStats">
                     <QuickStatsCard count={feedsCount} loading={feedsLoading} />
                   </ErrorBoundary>
                 </BentoCard>
 
                 {/* 4. 系统状态 */}
-                <BentoCard colSpan={1} rowSpan={1}>
+                <BentoCard colSpan={1} rowSpan={1} className="bg-neutral-900/30">
                   <ErrorBoundary name="SystemStatus">
                     <SystemStatusCard />
                   </ErrorBoundary>
                 </BentoCard>
 
                 {/* 5. 发现流 (New!) */}
-                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:row-span-3">
+                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:row-span-3 bg-neutral-900/40 border-cyan-500/10">
                   <ErrorBoundary name="DiscoveryStream">
                     <DiscoveryStream onFeed={(targetUrl) => handleIngest(targetUrl)} />
                   </ErrorBoundary>

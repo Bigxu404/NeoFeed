@@ -47,23 +47,22 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
     };
 
     return (
-        <BentoCard colSpan={1} rowSpan={4} className="bg-neutral-900/40 border-cyan-500/10">
-            <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                        <Telescope className="w-4 h-4 text-cyan-400" />
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase">发现流 Discovery</span>
-                    </div>
-                    <button 
-                        onClick={handleRefresh}
-                        className="p-1.5 rounded-full hover:bg-white/5 text-white/20 hover:text-cyan-400 transition-all"
-                        title="换一换"
-                    >
-                        <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
-                    </button>
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                    <Telescope className="w-4 h-4 text-cyan-400" />
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase">发现流 Discovery</span>
                 </div>
+                <button 
+                    onClick={handleRefresh}
+                    className="p-1.5 rounded-full hover:bg-white/5 text-white/20 hover:text-cyan-400 transition-all"
+                    title="换一换"
+                >
+                    <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+                </button>
+            </div>
 
-                <div className="flex-1 space-y-4 relative overflow-hidden">
+            <div className="flex-1 space-y-4 relative overflow-hidden">
                     <AnimatePresence mode="wait">
                         {loading ? (
                             <motion.div 
@@ -160,7 +159,7 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                     </div>
                 )}
             </div>
-        </BentoCard>
+        </div>
     );
 }
 
