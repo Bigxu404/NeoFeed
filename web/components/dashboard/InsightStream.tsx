@@ -4,7 +4,6 @@ import React, { memo, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Radio, Loader2, Sparkles, Trash2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BentoCard } from './BentoGrid';
 import ScrambleText from '@/components/ui/ScrambleText';
 import type { FeedItem } from '@/app/dashboard/actions';
 import { Skeleton } from '@/components/ui/Skeleton';
