@@ -14,6 +14,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 // API Key 管理组件
 // ... (keep ApiKeyManager as is)
@@ -230,28 +231,48 @@ export default function SettingsPage() {
       {/* Main Layout */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full relative z-10 min-h-0 overflow-y-auto md:overflow-hidden">
         
-        {/* Sidebar Navigation - 移动端改为横向滚动，桌面端保持侧边栏 */}
-        <div className="w-full md:w-64 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar shrink-0 md:pt-8">
+        {/* Sidebar Navigation - 统一交互与排版 */}
+        <div className="w-full md:w-72 p-4 md:border-r border-b md:border-b-0 border-white/10 bg-black/20 backdrop-blur-sm flex flex-row md:flex-col gap-3 overflow-x-auto no-scrollbar shrink-0 md:pt-8">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabId)}
-              className={`
-                flex items-center gap-3 p-3 px-4 md:w-full text-left transition-all border border-transparent whitespace-nowrap rounded-xl md:rounded-lg
-                ${activeTab === tab.id 
-                  ? 'bg-white/[0.08] border-white/10 text-green-400' 
-                  : 'text-white/40 hover:text-white hover:bg-white/[0.03]'}
-                ${tab.danger && activeTab !== tab.id ? 'hover:text-red-400' : ''}
-                ${tab.danger && activeTab === tab.id ? '!text-red-500 !bg-red-500/10 !border-red-500/20' : ''}
-              `}
+              className={cn(
+                "flex items-center gap-4 p-4 px-5 min-w-[160px] md:w-full text-left transition-all duration-300 border rounded-2xl group relative overflow-hidden",
+                activeTab === tab.id 
+                  ? (tab.danger 
+                      ? "bg-red-500/10 border-red-500/20 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.05)]" 
+                      : "bg-white/[0.08] border-white/10 text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.05)]")
+                  : "bg-transparent border-transparent text-white/30 hover:text-white/60 hover:bg-white/[0.02]"
+              )}
             >
-              <tab.icon size={16} className={activeTab === tab.id ? 'animate-pulse' : ''} />
-              <div className="flex flex-col">
-                <span className="text-[10px] md:text-xs font-bold tracking-wider font-mono">{tab.label}</span>
-                <span className="text-[9px] opacity-50 font-mono hidden md:block">{tab.desc}</span>
+              {/* Icon Container */}
+              <div className={cn(
+                "p-2 rounded-xl transition-colors shrink-0",
+                activeTab === tab.id ? "bg-current/10" : "bg-white/5"
+              )}>
+                <tab.icon size={18} className={activeTab === tab.id ? 'animate-pulse' : ''} />
               </div>
+              
+              {/* Text Info */}
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className={cn(
+                  "text-xs md:text-sm font-bold tracking-wide transition-colors",
+                  activeTab === tab.id ? "text-white" : "text-inherit"
+                )}>
+                  {tab.label}
+                </span>
+                <span className="text-[9px] md:text-[10px] opacity-40 font-mono truncate mt-0.5">
+                  {tab.desc}
+                </span>
+              </div>
+
+              {/* Active Indicator Dot/Line */}
               {activeTab === tab.id && (
-                <div className="ml-auto w-1.5 h-1.5 bg-current rounded-full shadow-[0_0_5px_currentColor] hidden md:block" />
+                <motion.div 
+                  layoutId="active-indicator"
+                  className="w-1 h-4 bg-current rounded-full shadow-[0_0_10px_currentColor] ml-2 shrink-0"
+                />
               )}
             </button>
           ))}
