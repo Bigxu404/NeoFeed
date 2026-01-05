@@ -37,25 +37,25 @@ export async function analyzeContent(
   }
 ): Promise<AIAnalysisResult> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
-  let baseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
+  let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
   let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
 
-  // 优先级：用户配置的 Provider 预设地址
+  // 1. 自动修正 Base URL 格式 (移除末尾空格和斜杠)
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  // 2. 优先级：根据 Provider 预设地址
   if (userConfig?.provider === 'openai') {
-    baseURL = userConfig.baseURL || 'https://api.openai.com/v1';
+    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
     if (!userConfig.model) model = 'gpt-4o-mini';
   } else if (userConfig?.provider === 'deepseek') {
-    baseURL = userConfig.baseURL || 'https://api.deepseek.com';
+    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
     if (!userConfig.model) model = 'deepseek-chat';
   } else if (userConfig?.provider === 'siliconflow') {
-    baseURL = userConfig.baseURL || 'https://api.siliconflow.cn/v1';
+    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
     if (!userConfig.model) model = 'deepseek-ai/DeepSeek-V3';
-  } else if (userConfig?.provider === 'custom') {
-    baseURL = userConfig.baseURL || baseURL;
   }
 
   if (!apiKey) {
-    console.warn('⚠️ No AI API Key found, using fallback analysis');
     return {
       title: title || 'Untitled Feed',
       summary: 'AI Key 缺失。请在“设置 -> 神经核心”中配置您的 API Key。',
@@ -71,19 +71,17 @@ export async function analyzeContent(
   const openai = new OpenAI({ apiKey, baseURL });
 
   const systemPrompt = `
-    你是一个资深的信息分析专家，擅长从长文本中提取核心价值。
-    请分析用户提供的网页内容、标题和 URL，并返回结构化的 JSON 数据。
-    
-    输出要求：
-    1. title: 一个更具吸引力或概括性的标题（如果原标题不佳）。
-    2. summary: 一段约 200 字的精华摘要，说明该内容的核心论点。
-    3. takeaways: 3-5 条关键洞察或可执行的建议。
-    4. tags: 3-5 个相关的标签。
-    5. category: 必须是 'tech', 'life', 'idea', 'art', 'other' 之一。
-    6. emotion: 简短描述内容的基调（如：积极、批判、冷静、启发）。
-    7. reading_time: 预计阅读时间（分钟）。
-
-    注意：必须严格输出 JSON 格式。
+    你是一个资深的信息分析专家。
+    请分析用户提供的网页内容，并严格以 JSON 格式返回以下字段：
+    {
+      "title": "概括性标题",
+      "summary": "一段约 300 字的深度精华摘要，要求逻辑清晰，涵盖文章的核心论点、背景和结论。",
+      "takeaways": ["关键洞察1", "2", "3"],
+      "tags": ["标签1", "2"],
+      "category": "tech/life/idea/art/other",
+      "emotion": "基调描述",
+      "reading_time": 预计分钟数
+    }
   `;
 
   const userPrompt = `
@@ -92,18 +90,38 @@ export async function analyzeContent(
     Content: ${content.slice(0, 15000)}
   `;
 
-  try {
-    const completion = await openai.chat.completions.create({
+    try {
+    const params: any = {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
       model: model,
-      response_format: { type: "json_object" },
       temperature: 0.3,
-    });
+    };
 
-    const resultStr = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{}';
+    // 💡 只有官方或明确支持的模型才开启 response_format
+    const isOfficialOpenAI = baseURL.includes('api.openai.com');
+    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
+    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
+
+    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
+      params.response_format = { type: "json_object" };
+    }
+
+    const completion = await openai.chat.completions.create(params);
+    
+    // 🛡️ 极其严格的防御性检查
+    if (!completion || !completion.choices || completion.choices.length === 0) {
+      throw new Error("API 返回了空响应或 choices 字段缺失。这通常是由于模型名称错误或账户权限问题导致的。");
+    }
+
+    const firstChoice = completion.choices[0];
+    if (!firstChoice.message || !firstChoice.message.content) {
+      throw new Error("API 响应中没有内容 (Empty message content)。");
+    }
+
+    const resultStr = firstChoice.message.content.replace(/```json\n?|```/g, '').trim() || '{}';
     const parsed = JSON.parse(resultStr);
 
     return {
@@ -119,12 +137,10 @@ export async function analyzeContent(
   } catch (error: any) {
     console.error("AI Analysis Failed:", error);
     
-    // 💡 提取具体的错误信息返回给前端
-    let errorMessage = "AI 分析过程中出现未知错误。";
-    if (error?.status === 401) errorMessage = "API Key 错误或已过期 (401)。";
-    else if (error?.status === 402) errorMessage = "账户余额不足 (402)。";
-    else if (error?.status === 404) errorMessage = "模型名称或 API 地址错误 (404)。";
-    else if (error?.message) errorMessage = `API 报错: ${error.message}`;
+    let errorMessage = `API 报错: ${error.message || '未知错误'}`;
+    if (error?.status === 400) errorMessage = "请求无效 (400)。请检查模型名称是否正确，或尝试更换 API 代理地址。";
+    if (error?.status === 401) errorMessage = "API Key 错误 (401)。";
+    if (error?.status === 404) errorMessage = "接口地址错误 (404)。请确保 Base URL 以 /v1 结尾。";
 
     return {
       title: title || 'Analysis Failed',

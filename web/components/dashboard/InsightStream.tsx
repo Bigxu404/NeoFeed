@@ -180,29 +180,31 @@ export default function InsightStream({
                     {[1, 2, 3].map(i => <FeedSkeleton key={i} />)}
                 </div>
             ) : (
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <AnimatePresence mode='popLayout'>
-                        {filteredFeeds.length === 0 ? (
-                            <motion.div 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="col-span-3 text-center text-white/30 py-10 font-mono text-xs"
-                            >
-                                {searchQuery ? "未找到匹配的信号。" : "虚空中暂无信号。"}
-                            </motion.div>
-                        ) : (
-                            filteredFeeds.map((item) => (
-                                <FeedCard 
-                                    key={item.id}
-                                    item={item}
-                                    onSelect={onSelectFeed}
-                                    onSummarize={onSummarize}
-                                    onDelete={onDelete}
-                                />
-                            ))
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar -mr-2">
+                    <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
+                        <AnimatePresence mode='popLayout'>
+                            {filteredFeeds.length === 0 ? (
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="col-span-3 text-center text-white/30 py-10 font-mono text-xs"
+                                >
+                                    {searchQuery ? "未找到匹配的信号。" : "虚空中暂无信号。"}
+                                </motion.div>
+                            ) : (
+                                filteredFeeds.map((item) => (
+                                    <FeedCard 
+                                        key={item.id}
+                                        item={item}
+                                        onSelect={onSelectFeed}
+                                        onSummarize={onSummarize}
+                                        onDelete={onDelete}
+                                    />
+                                ))
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+                </div>
             )}
         </div>
     );

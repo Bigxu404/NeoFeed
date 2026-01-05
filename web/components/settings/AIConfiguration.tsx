@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { updateAiConfig, getAiConfig, AIConfig, testAiConfig } from '@/app/settings/actions';
-import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle } from 'lucide-react';
+import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 

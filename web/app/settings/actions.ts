@@ -165,16 +165,16 @@ export async function testAiConfig(config: AIConfig) {
   const { analyzeContent } = await import('@/lib/ai');
   
   try {
-    const testContent = "这是一条测试消息，用于验证 AI 配置是否正确生效。请简要回答 '连接成功'。";
-    const result = await analyzeContent(testContent, "test-url", "Test Connection", config);
+    const testContent = "验证连接。请严格只返回一个 JSON 对象，包含字段 'summary'，内容为 '握手成功'。";
+    const result = await analyzeContent(testContent, null, "Test", config);
     
-    if (result.tags.includes('error') || result.summary.includes('AI Key Missing')) {
+    if (result.status === 'failed') {
       return { error: result.summary };
     }
     
     return { success: true, message: result.summary };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : '连接测试失败';
-    return { error: message };
+  } catch (err: any) {
+    console.error("Test Config Action Failed:", err);
+    return { error: err.message || '连接测试过程中发生崩溃' };
   }
 }

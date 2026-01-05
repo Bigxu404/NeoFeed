@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Tag, ExternalLink, Loader2 } from 'lucide-react';
+import { X, Calendar, Tag, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import { cn } from '@/lib/utils';
 import { FeedItem } from '@/app/dashboard/actions';
@@ -85,9 +85,34 @@ export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps)
                     </a>
                 )}
 
+                {/* 🤖 AI Intelligence Summary - Simplified Refined Orange Theme */}
+                {feed.summary && !isProcessing && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-10 p-6 rounded-2xl bg-orange-500/[0.03] border border-orange-500/20 relative group overflow-hidden shadow-[0_0_30px_rgba(249,115,22,0.05)]"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-xs font-bold text-orange-400 tracking-wide">AI 总结</span>
+                            </div>
+                            <div className="h-px flex-1 bg-gradient-to-r from-orange-500/20 to-transparent ml-4" />
+                        </div>
+
+                        <p className="text-[15px] md:text-[16px] text-orange-50/90 leading-relaxed font-medium italic relative z-10">
+                            “{feed.summary}”
+                        </p>
+                        
+                        {/* Subtle Background Glow */}
+                        <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-orange-500/5 blur-[40px] rounded-full pointer-events-none" />
+                    </motion.div>
+                )}
+
                 {/* Main Content */}
                 <div className="prose prose-invert prose-sm md:prose-base max-w-none">
-                    {/* Summary Block */}
                     {loading || isProcessing ? (
                          <div className="space-y-6">
                             <div className="flex flex-col items-center justify-center py-12 space-y-4">
