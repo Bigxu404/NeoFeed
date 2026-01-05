@@ -84,12 +84,14 @@ export default function Workbench() {
     }
   }, [searchParams]);
 
-  const handleIngest = async (targetUrl?: string) => {
-    const finalUrl = targetUrl || url;
-    if (!finalUrl.trim()) return;
+  const handleIngest = async (targetUrl?: any) => {
+    // 🚀 安全检查：如果是从事件触发，targetUrl 可能是 Event 对象
+    const actualUrl = (typeof targetUrl === 'string') ? targetUrl : url;
     
-    const originalUrl = finalUrl;
-    if (!targetUrl) setUrl('');
+    if (!actualUrl || typeof actualUrl !== 'string' || !actualUrl.trim()) return;
+    
+    const originalUrl = actualUrl;
+    if (typeof targetUrl !== 'string') setUrl('');
     
     setStatus('scanning');
     setProgress(30);

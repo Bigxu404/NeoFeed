@@ -193,10 +193,24 @@ export default function HistoryPage() {
                 </div>
 
                 {/* 正文内容 */}
-                <div className="prose prose-invert prose-lg max-w-none text-white/70 font-light leading-relaxed">
-                  <p className="whitespace-pre-wrap">
-                    {contentLoading ? "Loading full neural record..." : fullContent || selectedItem.summary}
-                  </p>
+                <div className="space-y-6 text-white/70 font-light leading-relaxed">
+                  {contentLoading ? (
+                    <div className="flex flex-col items-center py-12 space-y-4">
+                      <Loader2 className="w-6 h-6 animate-spin text-white/20" />
+                      <p className="text-xs font-mono text-white/20 uppercase tracking-widest">Loading full neural record...</p>
+                    </div>
+                  ) : (
+                    (fullContent || selectedItem.summary).split('\n').filter(p => p.trim()).map((paragraph, idx) => (
+                      <motion.p
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(idx * 0.05, 1.5) }}
+                      >
+                        {paragraph}
+                      </motion.p>
+                    ))
+                  )}
                   <hr className="border-white/10 my-8" />
                   <p className="text-sm text-white/30 italic">
                     Source: Neural Interface / Deep Space Network

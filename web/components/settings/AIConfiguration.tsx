@@ -32,6 +32,7 @@ export default function AIConfiguration() {
     model: 'deepseek-ai/DeepSeek-V3',
     prompt: DEFAULT_PROMPT,
     apiKey: '',
+    baseURL: '',
     notificationEmail: ''
   });
 
@@ -96,6 +97,7 @@ export default function AIConfiguration() {
                 <option value="siliconflow">SiliconFlow (推荐)</option>
                 <option value="deepseek">DeepSeek 官方</option>
                 <option value="openai">OpenAI</option>
+                <option value="custom">Custom (自定义代理)</option>
             </select>
         </div>
         <div className="space-y-2">
@@ -112,7 +114,29 @@ export default function AIConfiguration() {
         </div>
       </div>
 
-              {/* API Key */}
+      {/* Base URL (Conditional) */}
+      <div className="space-y-2">
+          <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+              <Globe className="w-3 h-3" /> API 代理地址 (Base URL)
+          </label>
+          <input 
+              type="text" 
+              value={config.baseURL}
+              onChange={(e) => setConfig({ ...config, baseURL: e.target.value })}
+              placeholder={
+                config.provider === 'siliconflow' ? "https://api.siliconflow.cn/v1" :
+                config.provider === 'deepseek' ? "https://api.deepseek.com" :
+                config.provider === 'openai' ? "https://api.openai.com/v1" :
+                "https://your-proxy-api.com/v1"
+              }
+              className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+          />
+          <p className="text-[10px] text-white/30">
+            如果您使用 OneAPI、NewAPI 或其他中转服务，请在此填写代理地址。
+          </p>
+      </div>
+
+      {/* API Key */}
               <div className="space-y-2">
                   <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
                       <Key className="w-3 h-3" /> 自定义 API Key (可选)

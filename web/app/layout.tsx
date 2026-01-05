@@ -14,6 +14,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                const size = localStorage.getItem('neofeed_font_size') || 'medium';
+                const multiplier = size === 'small' ? '0.9' : size === 'large' ? '1.15' : '1';
+                document.documentElement.style.setProperty('--font-size-multiplier', multiplier);
+              } catch (e) {}
+            })();
+          `
+        }} />
+      </head>
       <body className="antialiased font-sans" suppressHydrationWarning>
         {children}
         <Toaster 

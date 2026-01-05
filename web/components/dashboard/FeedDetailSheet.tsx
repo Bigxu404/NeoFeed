@@ -103,8 +103,20 @@ export default function FeedDetailSheet({ feed, onClose }: FeedDetailSheetProps)
                             </div>
                          </div>
                     ) : (
-                        <div className="whitespace-pre-wrap text-white/80 font-light leading-relaxed">
-                            {content}
+                        <div className="space-y-6 text-white/80 font-light leading-relaxed">
+                            {content ? content.split('\n').filter(p => p.trim()).map((paragraph, idx) => (
+                                <motion.p 
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.05, duration: 0.5 }}
+                                    className="mb-4 last:mb-0"
+                                >
+                                    {paragraph}
+                                </motion.p>
+                            )) : (
+                                <p className="text-white/20 italic">No content available.</p>
+                            )}
                         </div>
                     )}
                 </div>

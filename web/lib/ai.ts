@@ -33,33 +33,37 @@ export async function analyzeContent(
     provider?: string;
     model?: string;
     apiKey?: string;
+    baseURL?: string;
   }
 ): Promise<AIAnalysisResult> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
-  let baseURL = 'https://api.siliconflow.cn/v1';
-  let model = "deepseek-ai/DeepSeek-V3"; 
+  let baseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
+  let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
 
-  // 优先级：用户配置 > 环境变量
+  // 优先级：用户配置的 Provider 预设地址
   if (userConfig?.provider === 'openai') {
-    baseURL = 'https://api.openai.com/v1';
-    model = userConfig.model || 'gpt-4o-mini';
+    baseURL = userConfig.baseURL || 'https://api.openai.com/v1';
+    if (!userConfig.model) model = 'gpt-4o-mini';
   } else if (userConfig?.provider === 'deepseek') {
-    baseURL = 'https://api.deepseek.com';
-    model = userConfig.model || 'deepseek-chat';
+    baseURL = userConfig.baseURL || 'https://api.deepseek.com';
+    if (!userConfig.model) model = 'deepseek-chat';
   } else if (userConfig?.provider === 'siliconflow') {
-    if (userConfig.model) model = userConfig.model;
+    baseURL = userConfig.baseURL || 'https://api.siliconflow.cn/v1';
+    if (!userConfig.model) model = 'deepseek-ai/DeepSeek-V3';
+  } else if (userConfig?.provider === 'custom') {
+    baseURL = userConfig.baseURL || baseURL;
   }
 
   if (!apiKey) {
     console.warn('⚠️ No AI API Key found, using fallback analysis');
     return {
       title: title || 'Untitled Feed',
-      summary: content.slice(0, 200),
+      summary: 'AI Key 缺失。请在“设置 -> 神经核心”中配置您的 API Key。',
       takeaways: [],
-      tags: ['uncategorized'],
+      tags: ['no-key'],
       category: 'other',
       emotion: 'neutral',
-      reading_time: Math.ceil(content.length / 500),
+      reading_time: 0,
       status: 'failed'
     };
   }
@@ -112,11 +116,19 @@ export async function analyzeContent(
       reading_time: parsed.reading_time || Math.ceil(content.length / 500),
       status: 'done'
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Analysis Failed:", error);
+    
+    // 💡 提取具体的错误信息返回给前端
+    let errorMessage = "AI 分析过程中出现未知错误。";
+    if (error?.status === 401) errorMessage = "API Key 错误或已过期 (401)。";
+    else if (error?.status === 402) errorMessage = "账户余额不足 (402)。";
+    else if (error?.status === 404) errorMessage = "模型名称或 API 地址错误 (404)。";
+    else if (error?.message) errorMessage = `API 报错: ${error.message}`;
+
     return {
       title: title || 'Analysis Failed',
-      summary: 'AI 分析过程中出现错误。',
+      summary: errorMessage,
       takeaways: [],
       tags: ['error'],
       category: 'other',

@@ -172,11 +172,26 @@ export default function SettingsPage() {
     highPerformance: true,
     particles: 80,
     bloom: 60,
+    fontSize: 'medium', // small, medium, large
     sound: false,
     notifications: true,
     language: 'ZH-CN',
     autoSave: true
   });
+
+  // 加载持久化设置
+  useEffect(() => {
+    const savedFontSize = localStorage.getItem('neofeed_font_size') || 'medium';
+    setSettings(prev => ({ ...prev, fontSize: savedFontSize }));
+    applyFontSize(savedFontSize);
+  }, []);
+
+  const applyFontSize = (size: string) => {
+    const root = document.documentElement;
+    const multiplier = size === 'small' ? '0.9' : size === 'large' ? '1.15' : '1';
+    root.style.setProperty('--font-size-multiplier', multiplier);
+    localStorage.setItem('neofeed_font_size', size);
+  };
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -284,6 +299,38 @@ export default function SettingsPage() {
                       value={settings.bloom} 
                       onChange={(val) => updateSetting('bloom', val)} 
                     />
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-white/5">
+                    <h3 className="text-xs font-bold text-green-500/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Terminal size={12} /> 界面缩放 Interface Scaling
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { id: 'small', label: '标准', desc: 'Compact' },
+                        { id: 'medium', label: '适中', desc: 'Balanced' },
+                        { id: 'large', label: '宽大', desc: 'Spacious' }
+                      ].map((size) => (
+                        <button 
+                          key={size.id}
+                          onClick={() => {
+                            updateSetting('fontSize', size.id);
+                            applyFontSize(size.id);
+                          }}
+                          className={`p-3 border flex flex-col items-center gap-1 transition-all rounded-lg
+                            ${settings.fontSize === size.id 
+                              ? 'border-green-500/50 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]' 
+                              : 'border-white/10 bg-white/[0.02] text-white/40 hover:border-white/30 hover:text-white'}
+                          `}
+                        >
+                          <span className="text-xs font-bold">{size.label}</span>
+                          <span className="text-[9px] font-mono opacity-50 uppercase">{size.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-white/20 font-mono mt-2 italic">
+                      调整系统全局字体缩放比例，以适配不同的显示设备。
+                    </p>
                   </div>
                 </div>
               )}
@@ -445,8 +492,8 @@ export default function SettingsPage() {
                         登出
                       </button>
                     </div>
-                  </div>
-                </div>
+          </div>
+          </div>
               )}
 
             </motion.div>

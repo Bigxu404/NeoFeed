@@ -36,45 +36,93 @@ export const processFeed = inngest.createFunction(
     });
 
     try {
-      // 2. 抓取 URL 内容 (动态加载轻量级 linkedom 以提高部署稳定性)
+      // 2. 🚀 升级版抓取引擎：使用 Jina Reader 网关 (处理动态渲染 & 微信反爬)
       const rawData = await step.run("scrape-url", async () => {
         console.log(`🕵️ [Inngest] Fetching: ${url}`);
         
-        // 动态导入 linkedom 和 readability
+        // 尝试使用 Jina Reader (优先)
+        try {
+          const jinaUrl = `https://r.jina.ai/${encodeURIComponent(url)}`;
+          console.log(`🕵️ [Inngest] Trying Jina Reader: ${jinaUrl}`);
+          
+          const response = await fetch(jinaUrl, {
+            headers: {
+              "Accept": "application/json",
+              "X-No-Cache": "true",
+              "X-With-Images-Summary": "true"
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            // Jina 的 JSON 结构通常是 { code: 200, status: 20000, data: { title, content, ... } }
+            const jinaData = result.data || result; 
+            
+            if (jinaData && jinaData.content && jinaData.content.length > 100) {
+              console.log(`✅ [Inngest] Jina Reader success: ${jinaData.title}`);
+              return {
+                title: jinaData.title || "Untitled",
+                content: jinaData.content.slice(0, 30000),
+              };
+            }
+          }
+          console.warn(`⚠️ [Inngest] Jina Reader returned status ${response.status} or low quality content.`);
+        } catch (e) {
+          console.error("❌ [Inngest] Jina Reader request failed:", e);
+        }
+
+        // --- 🛡️ 回退逻辑：如果 Jina 失败，使用本地抓取方案 ---
+        console.log(`🛡️ [Inngest] Using fallback scraper for: ${url}`);
         const { parseHTML } = await import("linkedom");
         const { Readability } = await import("@mozilla/readability");
 
-        const response = await fetch(url, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0",
-          },
-        });
+        const isWechat = url.includes('mp.weixin.qq.com');
+        const userAgent = isWechat 
+          ? "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 NetType/WIFI Language/zh_CN"
+          : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0";
 
+        const response = await fetch(url, { 
+          headers: { "User-Agent": userAgent },
+          next: { revalidate: 0 } // 禁用缓存
+        });
+        
         if (!response.ok) {
-          throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
+          throw new Error(`Fallback fetch failed: ${response.status} ${response.statusText}`);
+        }
+        
+        const html = await response.text();
+        const { document } = parseHTML(html);
+
+        let extractedContent = "";
+        let extractedTitle = "";
+
+        // 针对微信公众号的深度优化
+        if (isWechat) {
+          const contentNode = document.getElementById('js_content');
+          if (contentNode) {
+            // 移除干扰元素
+            contentNode.querySelectorAll('script, style, .mp_profile_owner, .related_article').forEach(el => el.remove());
+            extractedContent = contentNode.textContent?.replace(/\s+/g, ' ').trim() || "";
+            extractedTitle = document.querySelector('.rich_media_title')?.textContent?.trim() || "";
+          }
         }
 
-        const html = await response.text();
-        
-        // 使用 linkedom 解析 HTML
-        const { document } = parseHTML(html);
         const reader = new Readability(document as any);
         const article = reader.parse();
 
-        // Fallback: 如果 Readability 解析失败，尝试从 DOM 中提取文字
-        if (!article || !article.textContent) {
-          console.warn("⚠️ [Inngest] Readability failed, falling back to basic extraction.");
-          const title = document.title || "Untitled";
-          const bodyText = document.body.textContent || "";
-          return {
-            title: title,
-            content: bodyText.slice(0, 15000), 
-          };
+        const finalTitle = extractedTitle || article?.title || document.title || "Untitled";
+        const finalContent = (extractedContent && extractedContent.length > 200) 
+          ? extractedContent 
+          : (article?.textContent || document.body.textContent || "");
+
+        if (!finalContent || finalContent.length < 50) {
+          throw new Error("抓取到的内容过短或为空，可能被反爬虫拦截。");
         }
 
+        console.log(`✅ [Inngest] Fallback scrape complete: ${finalTitle} (${finalContent.length} chars)`);
         return {
-          title: article.title,
-          content: article.textContent,
+          title: finalTitle,
+          content: finalContent.slice(0, 30000),
         };
       });
 

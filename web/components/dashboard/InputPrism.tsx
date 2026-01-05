@@ -82,7 +82,7 @@ export default function InputPrism({
                         className="w-full bg-transparent border-none outline-none text-white px-6 py-5 placeholder:text-white/10 font-mono text-sm md:text-base disabled:cursor-not-allowed" 
                     />
                     <button 
-                        onClick={onIngest} 
+                        onClick={() => onIngest()} 
                         disabled={isProcessing} 
                         className={cn(
                             "p-4 rounded-xl transition-all duration-300 flex items-center justify-center min-w-[56px] shadow-2xl", 

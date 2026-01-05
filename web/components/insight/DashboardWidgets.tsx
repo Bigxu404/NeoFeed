@@ -26,7 +26,7 @@ const DEFAULT_SPARKS = [
     }
 ];
 
-// 📟 打字机效果组件 (增加绿色光晕)
+// 📟 打字机效果组件 (支持分段展示)
 export function TypingEffect({ text, speed = 30 }: { text: string; speed?: number }) {
   const [displayedText, setDisplayedText] = useState('');
 
@@ -45,10 +45,23 @@ export function TypingEffect({ text, speed = 30 }: { text: string; speed?: numbe
     return () => clearInterval(timer);
   }, [text, speed]);
 
+  const paragraphs = useMemo(() => {
+    return displayedText.split('\n').filter(p => p.trim());
+  }, [displayedText]);
+
   return (
-    <div className="font-serif text-xl md:text-2xl text-white/90 leading-relaxed tracking-wide drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]">
-      {displayedText}
-      <span className="animate-pulse ml-1 text-green-400">|</span>
+    <div className="font-serif text-lg md:text-xl text-white/90 leading-relaxed tracking-wide drop-shadow-[0_0_8px_rgba(34,197,94,0.3)] space-y-4">
+      {paragraphs.map((p, idx) => (
+        <p key={idx}>
+          {p}
+          {idx === paragraphs.length - 1 && displayedText.length < text.length && (
+            <span className="animate-pulse ml-1 text-green-400">|</span>
+          )}
+        </p>
+      ))}
+      {displayedText.length === text.length && paragraphs.length === 0 && (
+          <p className="text-white/20 italic">No content available.</p>
+      )}
     </div>
   );
 }

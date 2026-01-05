@@ -13,9 +13,10 @@ export interface GalaxyItem {
 }
 
 export interface AIConfig {
-  provider: 'openai' | 'deepseek' | 'siliconflow';
+  provider: 'openai' | 'deepseek' | 'siliconflow' | 'custom';
   model: string;
   apiKey?: string;
+  baseURL?: string;
   prompt: string;
   notificationEmail?: string;
 }
