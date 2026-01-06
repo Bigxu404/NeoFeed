@@ -1,9 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
 import { AIConfig } from '@/types/index'
+import OpenAI from 'openai'
 
 // ... existing code ...
 
@@ -176,5 +177,123 @@ export async function testAiConfig(config: AIConfig) {
   } catch (err: any) {
     console.error("Test Config Action Failed:", err);
     return { error: err.message || '连接测试过程中发生崩溃' };
+  }
+}
+
+export async function sendTestWeeklyReport(config: AIConfig) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+  if (!config.notificationEmail) return { error: '请先填写通知邮箱' };
+
+  try {
+    // 1. 获取过去一周的数据
+    const adminClient = createAdminClient();
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 7);
+
+    const { data: feeds, error: feedsError } = await adminClient
+      .from('feeds')
+      .select('title, summary, tags, category, created_at')
+      .eq('user_id', user.id)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (feedsError) throw feedsError;
+    if (!feeds || feeds.length === 0) {
+      return { error: '过去一周内没有抓取到任何内容，无法生成周报。' };
+    }
+
+    // 2. 调用 AI 生成汇总
+    let apiKey = config.apiKey || process.env.SILICONFLOW_API_KEY;
+    let rawBaseURL = config.baseURL || 'https://api.siliconflow.cn/v1';
+    let model = config.model || "deepseek-ai/DeepSeek-V3"; 
+    let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+    if (config.provider === 'openai') {
+      if (!config.baseURL) baseURL = 'https://api.openai.com/v1';
+      if (!config.model) model = 'gpt-4o-mini';
+    } else if (config.provider === 'deepseek') {
+      if (!config.baseURL) baseURL = 'https://api.deepseek.com';
+      if (!config.model) model = 'deepseek-chat';
+    } else if (config.provider === 'siliconflow') {
+      if (!config.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
+      if (!config.model) model = 'deepseek-ai/DeepSeek-V3';
+    }
+
+    if (!apiKey) return { error: '未配置 AI Key' };
+
+    const openai = new OpenAI({ apiKey, baseURL });
+    const feedsContext = feeds.map((f: any) => 
+      `- [${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary} (标签: ${f.tags?.join(', ') || '无'})`
+    ).join('\n');
+
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: config.prompt },
+        { role: "user", content: `这是我过去一周的信息消费记录，请为我生成周报：\n\n${feedsContext}` }
+      ],
+      model: model,
+      temperature: 0.7,
+    });
+
+    const reportContent = completion.choices[0].message.content || "生成失败。";
+
+    // 3. 发送邮件 (使用 Brevo API，因为 Resend 被封)
+    const brevoKey = process.env.BREVO_API_KEY;
+    
+    // 🔍 Debug Log: 检查环境变量读取情况
+    console.log('--- BREVO DEBUG START ---');
+    console.log('BREVO_API_KEY exists:', !!brevoKey);
+    if (brevoKey) {
+      console.log('BREVO_API_KEY length:', brevoKey.length);
+      console.log('BREVO_API_KEY prefix:', brevoKey.slice(0, 10) + '...');
+    }
+    console.log('--- BREVO DEBUG END ---');
+
+    if (!brevoKey) {
+      return { error: '系统未配置邮件服务密钥 (BREVO_API_KEY)。请联系管理员或在环境变量中配置。' };
+    }
+
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': brevoKey,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: "NeoFeed Intelligence", email: "bot@neofeed.cn" },
+        to: [{ email: config.notificationEmail }],
+        subject: "【测试】您的每周洞察报告已经准备就绪",
+        htmlContent: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 20px;">
+            <h1 style="color: #f97316; font-size: 24px; margin-bottom: 20px;">NeoFeed 神经周报 - 测试推送</h1>
+            <p style="color: rgba(255,255,255,0.6); font-size: 14px;">这是根据您当前的 AI 配置生成的测试周报。</p>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
+            <div style="line-height: 1.6; font-size: 16px;">
+              ${reportContent.replace(/\n/g, '<br/>')}
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
+            <p style="font-size: 12px; color: rgba(255,255,255,0.4);">
+              如果您收到了这封邮件，说明您的神经核心与通知系统已成功链入。
+            </p>
+          </div>
+        `
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { error: `邮件发送失败 (Brevo): ${errorData.message || response.statusText}` };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Test Weekly Report failed:', err);
+    return { error: err.message || '测试周报生成失败' };
   }
 }

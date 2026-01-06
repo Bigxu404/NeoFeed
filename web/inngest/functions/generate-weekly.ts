@@ -1,7 +1,6 @@
 import { inngest } from "@/inngest/client";
 import { createAdminClient } from "@/lib/supabase/server";
 import OpenAI from "openai";
-import { Resend } from 'resend';
 
 export const generateWeeklyReport = inngest.createFunction(
   { id: "generate-weekly-report" },
@@ -143,22 +142,39 @@ export const generateWeeklyReport = inngest.createFunction(
     // 4. Send Email Notification
     if (userConfig.notificationEmail && savedReport) {
       await step.run("send-email", async () => {
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        const brevoKey = process.env.BREVO_API_KEY;
+        if (!brevoKey) {
+          console.error("❌ [Inngest] BREVO_API_KEY is missing. Cannot send email.");
+          return;
+        }
         
-        await resend.emails.send({
-          from: 'NeoFeed Intelligence <bot@resend.dev>', // Update this with your verified domain
-          to: userConfig.notificationEmail,
-          subject: `Weekly Insight Report: ${new Date().toLocaleDateString()}`,
-          html: `
-            <h1>Your Weekly Intelligence Briefing is Ready</h1>
-            <p>NeoFeed has analyzed your information diet for the past week.</p>
-            <hr />
-            <div style="background: #f4f4f4; padding: 20px; border-radius: 8px;">
-              ${reportContent.replace(/\n/g, '<br/>')}
-            </div>
-            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/insight">View Full Interactive Report</a></p>
-          `
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'api-key': brevoKey,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            sender: { name: "NeoFeed Intelligence", email: "bot@neofeed.cn" },
+            to: [{ email: userConfig.notificationEmail }],
+            subject: `Weekly Insight Report: ${new Date().toLocaleDateString()}`,
+            htmlContent: `
+              <h1>Your Weekly Intelligence Briefing is Ready</h1>
+              <p>NeoFeed has analyzed your information diet for the past week.</p>
+              <hr />
+              <div style="background: #f4f4f4; padding: 20px; border-radius: 8px;">
+                ${reportContent.replace(/\n/g, '<br/>')}
+              </div>
+              <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/insight">View Full Interactive Report</a></p>
+            `
+          })
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("❌ [Inngest] Brevo email failed:", errorData.message);
+        }
       });
     }
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { updateAiConfig, getAiConfig, AIConfig, testAiConfig } from '@/app/settings/actions';
-import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle, Globe } from 'lucide-react';
+import { updateAiConfig, getAiConfig, AIConfig, testAiConfig, sendTestWeeklyReport } from '@/app/settings/actions';
+import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle, Globe, MailCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -25,6 +25,7 @@ export default function AIConfiguration() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false); // 🚀 Testing state
+  const [sendingReport, setSendingReport] = useState(false); // 🚀 Sending report state
   const [saved, setSaved] = useState(false); 
   const [testResult, setTestResult] = useState<{ success: boolean, msg: string } | null>(null);
   const [config, setConfig] = useState<AIConfig>({
@@ -72,6 +73,21 @@ export default function AIConfiguration() {
       setTestResult({ success: false, msg: res.error || '测试失败' });
     }
     setTimeout(() => setTestResult(null), 5000);
+  };
+
+  const handleTestWeeklyReport = async () => {
+    if (!config.notificationEmail) {
+      toast.error('请先填写通知邮箱');
+      return;
+    }
+    setSendingReport(true);
+    const res = await sendTestWeeklyReport(config);
+    setSendingReport(false);
+    if (res.success) {
+      toast.success('测试周报已发送', { description: `请检查您的邮箱: ${config.notificationEmail}` });
+    } else {
+      toast.error('发送失败', { description: res.error });
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-white/30"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;
@@ -202,11 +218,19 @@ export default function AIConfiguration() {
           <div className="flex gap-3">
             <button 
               onClick={handleTest}
-              disabled={testing || !config.apiKey}
+              disabled={testing || sendingReport || !config.apiKey}
               className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 transition-colors disabled:opacity-30 text-sm font-medium"
             >
               {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4 text-cyan-400" />}
               测试连接
+            </button>
+            <button 
+              onClick={handleTestWeeklyReport}
+              disabled={testing || sendingReport || !config.apiKey || !config.notificationEmail}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 transition-colors disabled:opacity-30 text-sm font-medium"
+            >
+              {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <MailCheck className="w-4 h-4 text-orange-400" />}
+              测试周报
             </button>
             <button 
               onClick={handleSave}
