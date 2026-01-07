@@ -54,20 +54,25 @@ export const rssProcessor = inngest.createFunction(
     // 1. 获取 RSS 内容
     const feedItems = await step.run("fetch-rss", async () => {
       try {
+        console.log(`📡 [Inngest] Fetching RSS: ${url}`);
         const feed = await parser.parseURL(url);
+        console.log(`✅ [Inngest] Fetched ${feed.items?.length} items from ${url}`);
         return feed.items.slice(0, 20).map(item => ({
           title: item.title || "Untitled",
           summary: item.contentSnippet || item.content || "",
           url: item.link || "",
           source_name: feed.title || "Unknown Source"
         }));
-      } catch (err) {
-        console.error(`Failed to parse RSS: ${url}`, err);
-        throw err;
+      } catch (err: any) {
+        console.error(`❌ [Inngest] Failed to parse RSS: ${url}`, err.message);
+        return []; // 返回空数组而不是抛错，防止任务卡死
       }
     });
 
-    if (!feedItems.length) return { status: "empty" };
+    if (!feedItems.length) {
+      console.warn(`⚠️ [Inngest] No items found for ${url}, skipping AI filter.`);
+      return { status: "empty" };
+    }
 
     // 2. 获取用户 AI 配置
     const { data: profile } = await supabase
@@ -78,11 +83,14 @@ export const rssProcessor = inngest.createFunction(
 
     // 3. AI 筛选 (Top 7)
     const selectedIndices = await step.run("ai-filter", async () => {
-      return await filterDiscoveryItems(
+      console.log(`🤖 [Inngest] Starting AI filter for ${feedItems.length} items. Themes: ${themes?.join(', ')}`);
+      const results = await filterDiscoveryItems(
         feedItems.map(it => ({ title: it.title, summary: it.summary })),
         themes,
-        profile?.ai_config as AIConfig // 🚀 强类型
+        profile?.ai_config as AIConfig
       );
+      console.log(`✅ [Inngest] AI selected ${results?.length} items.`);
+      return results;
     });
 
     if (!selectedIndices.length) return { status: "no_matches" };
