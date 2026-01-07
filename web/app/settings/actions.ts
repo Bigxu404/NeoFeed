@@ -242,18 +242,16 @@ export async function sendTestWeeklyReport(config: AIConfig) {
 
     const reportContent = completion.choices[0].message.content || "生成失败。";
 
+    // 💡 辅助函数：将 AI 返回的 Markdown 简单转化为 HTML 结构，避免源码暴露
+    const cleanContent = reportContent
+      .replace(/##\s?(.*)/g, '<h3 style="color: #f97316; font-size: 14px; text-transform: uppercase; margin: 24px 0 12px 0; border-bottom: 1px solid rgba(249,115,22,0.2); padding-bottom: 4px;">$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #ffffff;">$1</strong>')
+      .replace(/-\s(.*)/g, '<div style="margin-bottom: 8px; color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6;">• $1</div>')
+      .replace(/\n\n/g, '<br/>');
+
     // 3. 发送邮件 (使用 Brevo API，因为 Resend 被封)
     const brevoKey = process.env.BREVO_API_KEY;
     
-    // 🔍 Debug Log: 检查环境变量读取情况
-    console.log('--- BREVO DEBUG START ---');
-    console.log('BREVO_API_KEY exists:', !!brevoKey);
-    if (brevoKey) {
-      console.log('BREVO_API_KEY length:', brevoKey.length);
-      console.log('BREVO_API_KEY prefix:', brevoKey.slice(0, 10) + '...');
-    }
-    console.log('--- BREVO DEBUG END ---');
-
     if (!brevoKey) {
       return { error: '系统未配置邮件服务密钥 (BREVO_API_KEY)。请联系管理员或在环境变量中配置。' };
     }
@@ -270,44 +268,45 @@ export async function sendTestWeeklyReport(config: AIConfig) {
         to: [{ email: config.notificationEmail }],
         subject: `【测试】您的每周洞察报告已经准备就绪`,
         htmlContent: `
-          <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 24px;">
-            <!-- Header -->
-            <div style="margin-bottom: 40px; text-align: center;">
-              <div style="display: inline-block; padding: 6px 14px; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 100px; color: #f97316; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;">
-                Handshake Success: Test Briefing
-              </div>
-              <h1 style="font-size: 26px; font-weight: 800; margin: 0; color: #ffffff; letter-spacing: -0.5px;">
-                神经周报（测试版）
-              </h1>
-              <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 8px; font-family: ui-monospace, 'Cascadia Code', monospace;">
-                MODE: SIMULATION // TEST_DATE: ${new Date().toLocaleDateString('zh-CN')}
-              </p>
+          <div style="font-family: 'ui-monospace', 'Cascadia Code', monospace; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 0px; border: 1px solid #1a1a1a;">
+            <!-- 🌐 顶部状态栏 -->
+            <div style="border-bottom: 1px double rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: #f97316; font-size: 10px; font-weight: bold; letter-spacing: 2px;">NEURAL-LINK: ACTIVE</span>
+              <span style="color: rgba(255,255,255,0.3); font-size: 10px;">ID: ${Math.random().toString(36).slice(2, 10).toUpperCase()}</span>
             </div>
 
-            <!-- Main Content Card -->
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; margin-bottom: 32px; border-left: 4px solid #f97316;">
-              <h2 style="color: #f97316; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0;">
-                ✨ 核心叙事 Core Narrative
-              </h2>
-              <div style="font-size: 15px; line-height: 1.8; color: rgba(255,255,255,0.85); white-space: pre-wrap;">
-                ${reportContent}
+            <!-- 🌌 星系快报模块 -->
+            <div style="margin-bottom: 40px; background: linear-gradient(180deg, rgba(249,115,22,0.05) 0%, transparent 100%); padding: 20px; border-radius: 12px; border: 1px solid rgba(249,115,22,0.1);">
+              <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Weekly Galaxy Snapshot</div>
+              <div style="display: flex; gap: 20px;">
+                <div style="flex: 1;">
+                  <div style="font-size: 24px; font-weight: bold; color: #ffffff;">${feeds.length}</div>
+                  <div style="font-size: 9px; color: #f97316; text-transform: uppercase;">星体捕获 New Stars</div>
+                </div>
+                <div style="flex: 1; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+                  <div style="font-size: 24px; font-weight: bold; color: #ffffff;">100%</div>
+                  <div style="font-size: 9px; color: #f97316; text-transform: uppercase;">同步率 Sync Rate</div>
+                </div>
               </div>
             </div>
 
-            <!-- Action Section -->
-            <div style="text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
-              <p style="font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.6; margin-bottom: 24px;">
-                如果您收到了这封邮件，说明您的神经核心与通知系统已成功链入。
-              </p>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.cn'}/insight" style="display: inline-block; padding: 14px 32px; background: #ffffff; color: #000000; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 14px;">
-                测试链接成功 / View Live Center
+            <!-- 📝 核心报告区 -->
+            <h1 style="font-size: 22px; font-weight: 900; margin: 0 0 25px 0; color: #ffffff; text-transform: uppercase; letter-spacing: -0.5px;">
+              神经周报 <span style="color: #f97316;">SIMULATION_MODE</span>
+            </h1>
+
+            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 25px; border-left: 2px solid #f97316; line-height: 1.8;">
+              ${cleanContent}
+            </div>
+
+            <!-- 🔗 底部操作 -->
+            <div style="margin-top: 40px; text-align: center;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.cn'}/insight" 
+                 style="display: inline-block; padding: 15px 40px; background: #f97316; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(249,115,22,0.3);">
+                接入知识星系 / ENTER GALAXY
               </a>
-            </div>
-
-            <!-- Footer -->
-            <div style="margin-top: 48px; text-align: center;">
-              <p style="font-size: 10px; color: rgba(255,255,255,0.15); letter-spacing: 0.5px; text-transform: uppercase;">
-                Neural Interface Stable // Finalizing Test
+              <p style="color: rgba(255,255,255,0.2); font-size: 10px; margin-top: 25px;">
+                NEOFEED MATRIX // PROTOCOL 0.9.4 // END OF TRANSMISSION
               </p>
             </div>
           </div>
