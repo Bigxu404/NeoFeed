@@ -158,15 +158,49 @@ export const generateWeeklyReport = inngest.createFunction(
           body: JSON.stringify({
             sender: { name: "NeoFeed Intelligence", email: "bot@neofeed.cn" },
             to: [{ email: userConfig.notificationEmail }],
-            subject: `Weekly Insight Report: ${new Date().toLocaleDateString()}`,
+            subject: `Weekly Insight Report: ${new Date().toLocaleDateString('zh-CN')}`,
             htmlContent: `
-              <h1>Your Weekly Intelligence Briefing is Ready</h1>
-              <p>NeoFeed has analyzed your information diet for the past week.</p>
-              <hr />
-              <div style="background: #f4f4f4; padding: 20px; border-radius: 8px;">
-                ${reportContent.replace(/\n/g, '<br/>')}
+              <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 24px;">
+                <!-- Header -->
+                <div style="margin-bottom: 40px; text-align: center;">
+                  <div style="display: inline-block; padding: 6px 14px; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 100px; color: #f97316; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;">
+                    Weekly Intelligence Briefing
+                  </div>
+                  <h1 style="font-size: 26px; font-weight: 800; margin: 0; color: #ffffff; letter-spacing: -0.5px;">
+                    神经洞察周报
+                  </h1>
+                  <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 8px; font-family: ui-monospace, 'Cascadia Code', monospace;">
+                    DATE: ${new Date().toLocaleDateString('zh-CN')} // STATUS: STABLE
+                  </p>
+                </div>
+
+                <!-- Main Content Card -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; margin-bottom: 32px; border-left: 4px solid #f97316;">
+                  <h2 style="color: #f97316; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0;">
+                    ✨ 核心叙事 Core Narrative
+                  </h2>
+                  <div style="font-size: 15px; line-height: 1.8; color: rgba(255,255,255,0.85); white-space: pre-wrap;">
+                    ${reportContent}
+                  </div>
+                </div>
+
+                <!-- Action Section -->
+                <div style="text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                  <p style="font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.6; margin-bottom: 24px;">
+                    您的第二大脑已完成本周信息重组。<br/>点击下方按钮链入完整星系，探索深层关联。
+                  </p>
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL}/insight" style="display: inline-block; padding: 14px 32px; background: #ffffff; color: #000000; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 14px;">
+                    进入洞察中心 / Launch Insight
+                  </a>
+                </div>
+
+                <!-- Footer -->
+                <div style="margin-top: 48px; text-align: center;">
+                  <p style="font-size: 10px; color: rgba(255,255,255,0.15); letter-spacing: 0.5px; text-transform: uppercase;">
+                    Matrix Connection Established // NeoFeed Center
+                  </p>
+                </div>
               </div>
-              <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/insight">View Full Interactive Report</a></p>
             `
           })
         });
