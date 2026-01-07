@@ -327,27 +327,38 @@ export async function sendTestWeeklyReport(config: AIConfig) {
 }
 
 export async function triggerRssSync() {
-  const { createClient } = await import('@/lib/supabase/client');
+  const { createClient, createAdminClient } = await import('@/lib/supabase/server');
   const { inngest } = await import('@/inngest/client');
   
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) return { error: 'Unauthorized' };
-
   try {
-    // 获取该用户的所有订阅
-    const adminSupabase = (await import('@/lib/supabase/server')).createAdminClient();
-    const { data: subscriptions } = await adminSupabase
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    console.log('🔄 [RSS Sync] Triggered by user:', user?.id);
+
+    if (!user) {
+      console.warn('⚠️ [RSS Sync] Unauthorized attempt');
+      return { error: 'Unauthorized' };
+    }
+
+    const adminSupabase = createAdminClient();
+    const { data: subscriptions, error: subError } = await adminSupabase
       .from('subscriptions')
       .select('id, url, themes')
       .eq('user_id', user.id);
 
+    if (subError) {
+      console.error('❌ [RSS Sync] Database query error:', subError);
+      throw subError;
+    }
+
+    console.log('🔄 [RSS Sync] Found subscriptions:', subscriptions?.length);
+
     if (!subscriptions || subscriptions.length === 0) {
+      console.warn('⚠️ [RSS Sync] No subscriptions found for user');
       return { error: '您尚未添加任何 RSS 订阅。' };
     }
 
-    // 为每个订阅触发一次同步
     const events = subscriptions.map(sub => ({
       name: "sub/poll.rss" as const,
       data: {
@@ -359,11 +370,12 @@ export async function triggerRssSync() {
       }
     }));
 
-    await inngest.send(events);
+    const sendRes = await inngest.send(events);
+    console.log('✅ [RSS Sync] Inngest send result:', sendRes);
 
     return { success: true };
   } catch (err: any) {
-    console.error('RSS Sync Trigger failed:', err);
-    return { error: err.message || '触发同步失败' };
+    console.error('❌ [RSS Sync] Fatal error during trigger:', err);
+    return { error: err.message || '触发同步过程中发生系统错误' };
   }
 }

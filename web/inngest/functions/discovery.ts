@@ -87,7 +87,7 @@ export const rssProcessor = inngest.createFunction(
 
     if (!selectedIndices.length) return { status: "no_matches" };
 
-    // 4. 更新数据库 (清理旧的，插入新的)
+    // 4. 更新数据库 (清理该来源的旧发现，插入新的)
     await step.run("update-discovery-stream", async () => {
       // 获取选中的完整数据
       const toInsert = selectedIndices.map(sel => {
@@ -106,18 +106,28 @@ export const rssProcessor = inngest.createFunction(
 
       if (!toInsert.length) return;
 
-      // 简单策略：先删除该用户的所有旧发现，保持清新 (或者只保留最新的 7 条)
-      // 注意：这里可以根据需求调整，比如只删除该订阅源产生的发现
-      await supabase
-        .from('discovery_stream')
-        .delete()
-        .eq('user_id', userId);
+      console.log(`🔄 [Inngest] Updating discovery for user ${userId}, source: ${toInsert[0]?.source_name}`);
+
+      // 优化策略：只删除该用户下，且属于该订阅源（通过 source_name 匹配，或更严谨地用 url 匹配的前缀）的旧发现
+      // 这里为了简单，我们先按 source_name 删除
+      const sourceName = toInsert[0]?.source_name;
+      
+      if (sourceName) {
+        await supabase
+          .from('discovery_stream')
+          .delete()
+          .eq('user_id', userId)
+          .eq('source_name', sourceName);
+      }
 
       const { error } = await supabase
         .from('discovery_stream')
         .insert(toInsert);
 
-      if (error) throw error;
+      if (error) {
+        console.error("❌ [Inngest] Insert discovery stream failed:", error);
+        throw error;
+      }
     });
 
     return { processed: selectedIndices.length };
