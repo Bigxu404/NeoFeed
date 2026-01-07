@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Rss, Plus, Trash2, Globe, Tag, Loader2, AlertCircle } from 'lucide-react';
+import { Rss, Plus, Trash2, Globe, Tag, Loader2, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
 import { getSubscriptions, addSubscription, deleteSubscription } from '@/app/dashboard/discovery-actions';
+import { triggerRssSync } from '@/app/settings/actions';
 import { toast } from 'sonner';
 
 export default function SubscriptionSettings() {
     const [subscriptions, setSubscriptions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAdding, setIsAdding] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
     
     const [newUrl, setNewUrl] = useState('');
     const [newThemes, setNewThemes] = useState('');
@@ -56,6 +58,25 @@ export default function SubscriptionSettings() {
         } else {
             toast.success('已取消订阅');
             fetchSubs();
+        }
+    };
+
+    const handleManualSync = async () => {
+        setIsSyncing(true);
+        try {
+            const res = await triggerRssSync();
+            if (res.success) {
+                toast.success('信号同步指令已发出，AI 正在加急筛选...', {
+                    description: '请稍后在 Dashboard 或洞察中心查看最新发现。',
+                    duration: 5000,
+                });
+            } else {
+                toast.error(res.error || '同步失败');
+            }
+        } catch (err) {
+            toast.error('网络错误，请稍后再试');
+        } finally {
+            setIsSyncing(false);
         }
     };
 
@@ -158,6 +179,30 @@ export default function SubscriptionSettings() {
                     </p>
                 </div>
             </div>
+
+            {/* 手动同步按钮 */}
+            {subscriptions.length > 0 && (
+                <div className="pt-4 border-t border-white/5">
+                    <button
+                        onClick={handleManualSync}
+                        disabled={isSyncing}
+                        className="w-full group flex items-center justify-center gap-2 py-3 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 hover:border-orange-500/40 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSyncing ? (
+                            <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                        ) : (
+                            <RefreshCw className="w-4 h-4 text-orange-500 group-hover:rotate-180 transition-transform duration-700" />
+                        )}
+                        <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">
+                            {isSyncing ? '正在打捞信号 SYNCING...' : '同步所有信号 Sync All Signals'}
+                        </span>
+                        <Sparkles className="w-3 h-3 text-orange-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                    <p className="text-[9px] text-white/20 text-center mt-2 uppercase tracking-[0.1em] font-mono">
+                        Manual override will bypass 4-hour cycle
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

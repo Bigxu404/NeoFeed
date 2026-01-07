@@ -325,3 +325,45 @@ export async function sendTestWeeklyReport(config: AIConfig) {
     return { error: err.message || '测试周报生成失败' };
   }
 }
+
+export async function triggerRssSync() {
+  const { createClient } = await import('@/lib/supabase/client');
+  const { inngest } = await import('@/inngest/client');
+  
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  try {
+    // 获取该用户的所有订阅
+    const adminSupabase = (await import('@/lib/supabase/server')).createAdminClient();
+    const { data: subscriptions } = await adminSupabase
+      .from('subscriptions')
+      .select('id, url, themes')
+      .eq('user_id', user.id);
+
+    if (!subscriptions || subscriptions.length === 0) {
+      return { error: '您尚未添加任何 RSS 订阅。' };
+    }
+
+    // 为每个订阅触发一次同步
+    const events = subscriptions.map(sub => ({
+      name: "sub/poll.rss" as const,
+      data: {
+        subId: sub.id,
+        url: sub.url,
+        themes: sub.themes,
+        userId: user.id,
+        manual: true
+      }
+    }));
+
+    await inngest.send(events);
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('RSS Sync Trigger failed:', err);
+    return { error: err.message || '触发同步失败' };
+  }
+}
