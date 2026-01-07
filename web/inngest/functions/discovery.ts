@@ -51,53 +51,64 @@ export const rssProcessor = inngest.createFunction(
     const { url, themes, userId } = event.data;
     const supabase = createAdminClient();
 
+    console.log(`🚀 [Inngest] Starting processor for ${url} (User: ${userId})`);
+
     // 1. 获取 RSS 内容
     const feedItems = await step.run("fetch-rss", async () => {
       try {
-        console.log(`📡 [Inngest] Fetching RSS: ${url}`);
         const feed = await parser.parseURL(url);
-        console.log(`✅ [Inngest] Fetched ${feed.items?.length} items from ${url}`);
-        return feed.items.slice(0, 20).map(item => ({
+        console.log(`📡 [Inngest] Fetched ${feed.items?.length || 0} items from ${url}`);
+        return (feed.items || []).slice(0, 20).map(item => ({
           title: item.title || "Untitled",
           summary: item.contentSnippet || item.content || "",
           url: item.link || "",
           source_name: feed.title || "Unknown Source"
         }));
       } catch (err: any) {
-        console.error(`❌ [Inngest] Failed to parse RSS: ${url}`, err.message);
-        return []; // 返回空数组而不是抛错，防止任务卡死
+        console.error(`❌ [Inngest] RSS Fetch failed for ${url}:`, err.message);
+        return [];
       }
     });
 
-    if (!feedItems.length) {
-      console.warn(`⚠️ [Inngest] No items found for ${url}, skipping AI filter.`);
-      return { status: "empty" };
+    if (!feedItems || feedItems.length === 0) {
+      console.warn(`⚠️ [Inngest] No items to process for ${url}`);
+      return { status: "no_items" };
     }
 
     // 2. 获取用户 AI 配置
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('ai_config')
-      .eq('id', userId)
-      .single();
+    const profile = await step.run("get-user-config", async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('ai_config')
+        .eq('id', userId)
+        .single();
+      return data;
+    });
 
     // 3. AI 筛选 (Top 7)
     const selectedIndices = await step.run("ai-filter", async () => {
-      console.log(`🤖 [Inngest] Starting AI filter for ${feedItems.length} items. Themes: ${themes?.join(', ')}`);
-      const results = await filterDiscoveryItems(
-        feedItems.map(it => ({ title: it.title, summary: it.summary })),
-        themes,
-        profile?.ai_config as AIConfig
-      );
-      console.log(`✅ [Inngest] AI selected ${results?.length} items.`);
-      return results;
+      console.log(`🤖 [Inngest] Sending to AI filter... (Provider: ${profile?.ai_config?.provider || 'default'})`);
+      try {
+        const results = await filterDiscoveryItems(
+          feedItems.map(it => ({ title: it.title, summary: it.summary })),
+          themes || [],
+          profile?.ai_config as AIConfig
+        );
+        console.log(`✅ [Inngest] AI analysis complete. Selected: ${results?.length || 0}`);
+        return results;
+      } catch (err: any) {
+        console.error(`❌ [Inngest] AI Filter Crashed:`, err.message);
+        return [];
+      }
     });
 
-    if (!selectedIndices.length) return { status: "no_matches" };
+    if (!selectedIndices || selectedIndices.length === 0) {
+      console.warn(`⚠️ [Inngest] AI returned zero matches for ${url}`);
+      return { status: "no_matches" };
+    }
 
-    // 4. 更新数据库 (清理该来源的旧发现，插入新的)
+    // 4. 更新数据库
     await step.run("update-discovery-stream", async () => {
-      // 获取选中的完整数据
       const toInsert = selectedIndices.map(sel => {
         const original = feedItems[sel.index];
         if (!original) return null;
@@ -105,21 +116,18 @@ export const rssProcessor = inngest.createFunction(
           user_id: userId,
           title: original.title,
           url: original.url,
-          summary: original.summary.slice(0, 500),
+          summary: (original.summary || "").slice(0, 500),
           source_name: original.source_name,
           reason: sel.reason,
           created_at: new Date().toISOString()
         };
       }).filter(Boolean);
 
-      if (!toInsert.length) return;
+      if (toInsert.length === 0) return;
 
-      console.log(`🔄 [Inngest] Updating discovery for user ${userId}, source: ${toInsert[0]?.source_name}`);
-
-      // 优化策略：只删除该用户下，且属于该订阅源（通过 source_name 匹配，或更严谨地用 url 匹配的前缀）的旧发现
-      // 这里为了简单，我们先按 source_name 删除
       const sourceName = toInsert[0]?.source_name;
-      
+      console.log(`💾 [Inngest] Saving ${toInsert.length} items to DB for ${sourceName}`);
+
       if (sourceName) {
         await supabase
           .from('discovery_stream')
@@ -133,9 +141,10 @@ export const rssProcessor = inngest.createFunction(
         .insert(toInsert);
 
       if (error) {
-        console.error("❌ [Inngest] Insert discovery stream failed:", error);
+        console.error("❌ [Inngest] DB Insert Error:", error);
         throw error;
       }
+      console.log(`✅ [Inngest] DB Update Successful for ${sourceName}`);
     });
 
     return { processed: selectedIndices.length };

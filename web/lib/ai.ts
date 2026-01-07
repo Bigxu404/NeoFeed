@@ -162,23 +162,33 @@ export async function filterDiscoveryItems(
     provider?: string;
     model?: string;
     apiKey?: string;
+    baseURL?: string;
   }
 ): Promise<{ index: number; reason: string }[]> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
-  let baseURL = 'https://api.siliconflow.cn/v1';
-  let model = "deepseek-ai/DeepSeek-V3"; 
+  let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
+  let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
+
+  // 自动修正 Base URL
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
 
   if (userConfig?.provider === 'openai') {
-    baseURL = 'https://api.openai.com/v1';
+    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
     model = userConfig.model || 'gpt-4o-mini';
   } else if (userConfig?.provider === 'deepseek') {
-    baseURL = 'https://api.deepseek.com';
+    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
     model = userConfig.model || 'deepseek-chat';
   } else if (userConfig?.provider === 'siliconflow') {
+    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
     if (userConfig.model) model = userConfig.model;
   }
 
-  if (!apiKey) return [];
+  console.log(`🤖 [AI Filter] Config: Provider=${userConfig?.provider || 'default'}, Model=${model}, HasKey=${!!apiKey}`);
+
+  if (!apiKey) {
+    console.error("❌ [AI Filter] No API Key provided for filtering.");
+    return [];
+  }
 
   const openai = new OpenAI({ apiKey, baseURL });
 
