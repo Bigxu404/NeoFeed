@@ -213,21 +213,33 @@ export async function filterDiscoveryItems(
   const userContent = items.map((it, i) => `${i}. 标题: ${it.title}\n摘要: ${it.summary.slice(0, 100)}`).join('\n---\n');
 
   try {
-    const completion = await openai.chat.completions.create({
+    const params: any = {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userContent }
       ],
       model: model,
-      response_format: { type: "json_object" },
       temperature: 0.3,
-    });
+    };
 
+    // 💡 智能判断是否开启 JSON Mode
+    const isOfficialOpenAI = baseURL.includes('api.openai.com');
+    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
+    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
+
+    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
+      params.response_format = { type: "json_object" };
+    }
+
+    const completion = await openai.chat.completions.create(params);
     const content = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{"items":[]}';
+    
+    console.log(`🤖 [AI Filter] Raw Response for ${items.length} items:`, content.slice(0, 100) + '...');
+    
     const result = JSON.parse(content);
     return Array.isArray(result.items) ? result.items : [];
-  } catch (error) {
-    console.error("AI Filtering Failed:", error);
+  } catch (error: any) {
+    console.error("❌ [AI Filter] AI Filtering Failed:", error.message);
     return [];
   }
 }
