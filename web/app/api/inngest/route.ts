@@ -16,5 +16,11 @@ export const { GET, POST, PUT } = serve({
     rssProcessor,
     discoveryCleanup,
   ],
+  streaming: "allow", // 允许流式响应
 });
+
+// 💡 增加一个简单的 GET 调试，方便用户手动访问验证
+export async function PATCH() {
+  return Response.json({ status: "alive", timestamp: new Date().toISOString() });
+}
 
