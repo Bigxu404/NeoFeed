@@ -204,7 +204,7 @@ export async function filterDiscoveryItems(
     输出格式要求 (JSON Only):
     {
       "items": [
-        { "index": 0, "reason": "为什么推荐这条 (15字以内)" },
+        { "index": 0, "reason": "为什么推荐这条 (请务必使用中文，15字以内)" },
         ...
       ]
     }
