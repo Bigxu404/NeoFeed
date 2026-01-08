@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Telescope, RefreshCw, Plus, ExternalLink, Sparkles } from 'lucide-react';
 import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
 import { Skeleton } from '@/components/ui/Skeleton';
+import DiscoveryDetailModal from './DiscoveryDetailModal';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +17,7 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
     const [items, setItems] = useState<DiscoveryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [selectedItem, setSelectedItem] = useState<DiscoveryItem | null>(null);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -102,7 +104,8 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                             {displayItems.map((item) => (
                                 <div 
                                     key={item.id}
-                                    className="group/item relative p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all"
+                                    onClick={() => setSelectedItem(item)}
+                                    className="group/item relative p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all cursor-pointer"
                                 >
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="text-[8px] text-cyan-500/60 font-mono truncate max-w-[120px]">
@@ -131,7 +134,10 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                                     </div>
 
                                     <button 
-                                        onClick={() => onFeed(item.url)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onFeed(item.url);
+                                        }}
                                         className="w-full py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-black text-[9px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1.5 opacity-0 group-hover/item:opacity-100"
                                     >
                                         <Plus className="w-3 h-3" /> Feed to Matrix
@@ -156,6 +162,12 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                     ))}
                 </div>
             )}
+
+            <DiscoveryDetailModal 
+                item={selectedItem} 
+                onClose={() => setSelectedItem(null)} 
+                onFeed={onFeed}
+            />
         </div>
     );
 }

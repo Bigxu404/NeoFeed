@@ -145,8 +145,8 @@ export default function InsightStream({
     }, [feeds, searchQuery]);
 
     return (
-        <div className="flex flex-col h-full min-h-[400px]">
-            <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6 shrink-0">
                 <div className="flex items-center gap-2">
                     <Radio className="w-4 h-4 text-purple-500" />
                     <span className="text-xs font-bold tracking-widest uppercase text-white/40">洞察流 Insight Stream</span>
@@ -180,7 +180,7 @@ export default function InsightStream({
                     {[1, 2, 3].map(i => <FeedSkeleton key={i} />)}
                 </div>
             ) : (
-                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar -mr-2">
+                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar -mr-2 min-h-0">
                     <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
                         <AnimatePresence mode='popLayout'>
                             {filteredFeeds.length === 0 ? (
