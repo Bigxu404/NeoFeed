@@ -5,44 +5,30 @@ import OpenAI from "openai";
 export const generateWeeklyReport = inngest.createFunction(
   { id: "generate-weekly-report" },
   [
-    { event: "report/generate.weekly" }, // Manual trigger
-    { cron: "0 2 * * 1" } // Every Monday at 10:00 AM CST (02:00 UTC)
+    { event: "report/generate.weekly" }, // 仅由 scheduler 或手动测试触发
   ],
   async ({ event, step }) => {
-    // For Cron events, we might need to iterate ALL users who have enabled this
-    // But for MVP simplicity, we assume we fetch users here or pass userId in event
-    // ⚠️ Real-world: You'd have a separate 'scheduler' function that fans out events for each user.
-    // Here, if it's a cron, we might need to find a target user or handle bulk.
-    // For now, let's keep the logic simple: manual trigger carries userId.
-    // If Cron triggers, we need a way to know WHICH user. 
-    
-    // ⭐ IMPROVEMENT: Let's split this. 
-    // This function handles ONE user. We need a separate 'scheduler' function for the Cron.
-    // But for now, if 'event.data.userId' is missing (Cron), we can't run.
-    
     const { userId } = event.data || {};
-    if (!userId && event.name !== 'report/generate.weekly') {
-       // Ideally we fetch all users here and fan-out
-       return { status: "skipped", reason: "Cron logic requires fan-out implementation." };
+    if (!userId) {
+       console.error("❌ [Inngest] Missing userId in weekly report event.");
+       return { status: "error", reason: "userId is required" };
     }
 
-    // ... existing logic ...
-    const { userConfig, feeds } = await step.run("fetch-data", async () => {
+    console.log(`🚀 [Inngest] Generating weekly report for user: ${userId}`);
+
+    const { userConfig, feeds, notificationEmail } = await step.run("fetch-data", async () => {
       const supabase = createAdminClient();
       
-      // Get AI Config
       const { data: profile } = await supabase
         .from('profiles')
-        .select('ai_config')
+        .select('ai_config, notification_email')
         .eq('id', userId)
         .single();
         
-      // Calculate date range (Last 7 days)
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - 7);
       
-      // Fetch Feeds
       const { data: feedData } = await supabase
         .from('feeds')
         .select('id, title, summary, tags, created_at, category')
@@ -52,15 +38,19 @@ export const generateWeeklyReport = inngest.createFunction(
         .order('created_at', { ascending: false });
 
       return {
-        userConfig: profile?.ai_config || {},
+        userConfig: (profile?.ai_config as any) || {},
+        notificationEmail: (profile?.ai_config as any)?.notificationEmail || profile?.notification_email,
         feeds: feedData || [],
         range: { start: startDate, end: endDate }
       };
     });
 
     if (feeds.length === 0) {
-      return { status: "skipped", reason: "No feeds found for this week." };
+      console.warn(`⚠️ [Inngest] No feeds found for user ${userId} in the last 7 days.`);
+      return { status: "skipped", reason: "No feeds found." };
     }
+
+    console.log(`📡 [Inngest] Found ${feeds.length} feeds. Starting AI generation...`);
 
     // 2. AI Generation
     const reportContent = await step.run("ai-generate", async () => {
@@ -135,9 +125,10 @@ export const generateWeeklyReport = inngest.createFunction(
     });
 
     // 4. Send Email Notification
-    if (userConfig.notificationEmail && savedReport) {
+    if (notificationEmail && savedReport) {
       await step.run("send-email", async () => {
         const brevoKey = process.env.BREVO_API_KEY;
+        console.log(`✉️ [Inngest] Sending email to ${notificationEmail}...`);
         if (!brevoKey) {
           console.error("❌ [Inngest] BREVO_API_KEY is missing. Cannot send email.");
           return;

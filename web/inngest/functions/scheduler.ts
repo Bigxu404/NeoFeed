@@ -8,17 +8,18 @@ export const weeklyReportScheduler = inngest.createFunction(
   async ({ step }) => {
     const supabase = createAdminClient();
 
-    // 1. Fetch all users who have an AI config (implying they might want reports)
-    // Optimally, we should filter by users who have 'notificationEmail' set or a flag
-    // For now, let's fetch profiles with non-null ai_config
+    // 1. Fetch all users who have an AI config OR a notification email
     const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, ai_config')
-      .not('ai_config', 'is', null);
+      .select('id, ai_config, notification_email')
+      .or('ai_config.neq.null,notification_email.neq.null');
 
     if (error || !profiles) {
+      console.error("❌ [Scheduler] Failed to fetch target users:", error);
       return { status: "error", error: error?.message };
     }
+
+    console.log(`📡 [Scheduler] Found ${profiles.length} potential users for weekly reports.`);
 
     // 2. Fan-out: Trigger generation for each user
     const events = profiles.map((profile) => ({
@@ -31,6 +32,7 @@ export const weeklyReportScheduler = inngest.createFunction(
 
     if (events.length > 0) {
       await step.send("fan-out-reports", events);
+      console.log(`✅ [Scheduler] Dispatched ${events.length} report generation events.`);
     }
 
     return { scheduled: events.length };
