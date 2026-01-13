@@ -31,7 +31,9 @@ export const weeklyReportScheduler = inngest.createFunction(
     }));
 
     if (events.length > 0) {
-      await step.send("fan-out-reports", events);
+      await step.run("dispatch-events", async () => {
+        await inngest.send(events);
+      });
       console.log(`✅ [Scheduler] Dispatched ${events.length} report generation events.`);
     }
 

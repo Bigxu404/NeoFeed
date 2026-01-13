@@ -36,7 +36,8 @@ export const subscriptionPoller = inngest.createFunction(
     }));
 
     if (events.length > 0) {
-      await step.send("trigger-rss-polling", events);
+      // 💡 修复：改用全局 inngest.send 确保兼容性，不再使用不稳定的 step.send
+      await inngest.send(events);
     }
 
     return { scheduled: events.length };
