@@ -41,7 +41,7 @@ function LoginContent() {
       const password = formData.get('password') as string
       const confirmPassword = formData.get('confirmPassword') as string
       if (password !== confirmPassword) {
-        setError("Passwords do not match.")
+        setError("密码输入不一致。")
         setIsLoading(false)
         return
       }
@@ -67,35 +67,35 @@ function LoginContent() {
         className="absolute top-8 left-8 flex items-center gap-2 text-white/40 hover:text-white transition-colors z-20 group"
       >
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        <span className="text-sm tracking-wide">Back to Reality</span>
+        <span className="text-sm tracking-wide">返回现实</span>
       </Link>
 
       <motion.div 
         key={mode}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-8 relative z-10"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm p-8 relative z-10"
       >
-        <div className="flex flex-col items-center mb-12">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_-5px_rgba(255,255,255,0.1)]">
-             <Infinity className="w-6 h-6 text-white/80" />
+        <div className="flex flex-col items-center mb-10">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+             <Infinity className="w-5 h-5 text-white/80" />
           </div>
-          <h1 className="text-3xl font-light tracking-tight text-white mb-2">
-            {isLogin ? 'Access The Source' : 'Initialize User'}
+          <h1 className="text-2xl font-light tracking-tight text-white mb-2">
+            {isLogin ? '链入矩阵' : '初始化身份'}
           </h1>
-          <p className="text-white/40 text-sm text-center max-w-xs">
-            {isLogin ? 'Welcome back, Operator.' : 'Begin your journey into the galaxy.'}
+          <p className="text-white/30 text-xs text-center">
+            {isLogin ? '欢迎回来，操作员。' : '开启你的星系旅程。'}
           </p>
         </div>
 
-        <form action={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Email</label>
+        <form action={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-medium text-white/30 uppercase tracking-[0.2em] ml-1">Email</label>
             <input 
               name="email" type="email" required placeholder="neo@matrix.com"
               value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/5 transition-all"
+              className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-white/20 focus:bg-white/[0.02] transition-all"
             />
           </div>
           
@@ -103,23 +103,23 @@ function LoginContent() {
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="space-y-2 overflow-hidden"
+              className="space-y-1.5 overflow-hidden"
             >
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Nickname</label>
+              <label className="text-[10px] font-medium text-white/30 uppercase tracking-[0.2em] ml-1">Nickname</label>
               <input 
-                name="nickname" type="text" required placeholder="Neo"
+                name="nickname" type="text" required placeholder="你的称呼"
                 value={nickname} onChange={(e) => setNickname(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/5 transition-all"
+                className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-white/20 focus:bg-white/[0.02] transition-all"
               />
             </motion.div>
           )}
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Password</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-medium text-white/30 uppercase tracking-[0.2em] ml-1">Password</label>
             <input 
               name="password" type="password" required placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/5 transition-all"
+              className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-white/20 focus:bg-white/[0.02] transition-all"
             />
           </div>
 
@@ -127,19 +127,19 @@ function LoginContent() {
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="space-y-2 overflow-hidden"
+              className="space-y-1.5 overflow-hidden"
             >
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider ml-1">Confirm Password</label>
+              <label className="text-[10px] font-medium text-white/30 uppercase tracking-[0.2em] ml-1">Confirm Password</label>
               <input 
                 name="confirmPassword" type="password" required placeholder="••••••••"
                 value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/5 transition-all"
+                className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-white/20 focus:bg-white/[0.02] transition-all"
               />
             </motion.div>
           )}
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+            <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/10 text-red-400/80 text-[11px] text-center font-mono">
               {error}
             </div>
           )}
@@ -148,32 +148,31 @@ function LoginContent() {
             type="submit" 
             disabled={isLoading || !isValid}
             className={`
-              w-full h-12 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 mt-8
-              disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed
-              ${!isValid || isLoading ? '' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 active:scale-[0.98]'}
+              w-full h-11 rounded-xl font-medium text-xs transition-all flex items-center justify-center gap-2 mt-6
+              disabled:bg-white/[0.02] disabled:text-white/20 disabled:cursor-not-allowed
+              ${!isValid || isLoading ? '' : 'bg-white text-black hover:bg-white/90 active:scale-[0.98]'}
             `}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{isLogin ? '正在连接矩阵...' : '正在初始化神经元...'}</span>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>{isLogin ? '正在链入...' : '正在初始化...'}</span>
               </>
             ) : (
-              <span>{isLogin ? 'Sign In' : 'Sign Up'}</span>
+              <span className="tracking-[0.2em]">{isLogin ? '登 录' : '注 册'}</span>
             )}
           </button>
         </form>
 
-        <div className="mt-8 text-center flex flex-col items-center gap-4">
-          <p className="text-xs text-white/30 uppercase tracking-widest">Or</p>
+        <div className="mt-8 text-center">
           <button 
             onClick={() => {
               setMode(isLogin ? 'signup' : 'login')
               setError(null)
             }}
-            className="text-sm text-white/50 hover:text-white transition-colors border-b border-white/10 hover:border-white/50 pb-0.5"
+            className="text-[11px] text-white/20 hover:text-white/40 transition-colors uppercase tracking-widest border-b border-transparent hover:border-white/10 pb-0.5"
           >
-            {isLogin ? "Create an account" : "Log in to existing account"}
+            {isLogin ? "创建新账号" : "登录已有账号"}
           </button>
         </div>
       </motion.div>
