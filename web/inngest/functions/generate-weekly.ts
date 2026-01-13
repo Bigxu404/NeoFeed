@@ -21,7 +21,7 @@ export const generateWeeklyReport = inngest.createFunction(
       
       const { data: profile } = await supabase
         .from('profiles')
-        .select('ai_config, notification_email')
+        .select('ai_config') // 不再查询不存在的列
         .eq('id', userId)
         .single();
         
@@ -39,7 +39,7 @@ export const generateWeeklyReport = inngest.createFunction(
 
       return {
         userConfig: (profile?.ai_config as any) || {},
-        notificationEmail: (profile?.ai_config as any)?.notificationEmail || profile?.notification_email,
+        notificationEmail: (profile?.ai_config as any)?.notificationEmail,
         feeds: feedData || [],
         range: { start: startDate, end: endDate }
       };

@@ -8,18 +8,20 @@ export const weeklyReportScheduler = inngest.createFunction(
   async ({ step }) => {
     const supabase = createAdminClient();
 
-    // 1. Fetch all users who have an AI config OR a notification email
+    // 1. 核心修复：只查询存在的列，不再尝试读取不存在的 notification_email
     const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, ai_config, notification_email')
-      .or('ai_config.neq.null,notification_email.neq.null');
+      .select('id, ai_config')
+      .not('ai_config', 'is', null);
 
     if (error || !profiles) {
-      console.error("❌ [Scheduler] Failed to fetch target users:", error);
+      console.error("❌ [Scheduler] Database error:", error);
       return { status: "error", error: error?.message };
     }
 
-    console.log(`📡 [Scheduler] Found ${profiles.length} potential users for weekly reports.`);
+    // 过滤出那些在 ai_config 内部填了邮箱的用户
+    const targets = profiles.filter(p => (p.ai_config as any)?.notificationEmail);
+    console.log(`📡 [Scheduler] Found ${targets.length} users with valid notification emails.`);
 
     // 2. Fan-out: Trigger generation for each user
     const events = profiles.map((profile) => ({
