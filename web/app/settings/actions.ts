@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
 import { AIConfig } from '@/types/index'
 import OpenAI from 'openai'
+import { inngest } from '@/inngest/client'
 
 // ... existing code ...
 
@@ -203,8 +204,9 @@ export async function sendTestWeeklyReport(config: AIConfig) {
       .order('created_at', { ascending: false });
 
     if (feedsError) throw feedsError;
+
     if (!feeds || feeds.length === 0) {
-      return { error: '过去一周内没有抓取到任何内容，无法生成周报。' };
+      return { error: '过去一周内没有手动捕捉到任何内容，无法生成测试报告。' };
     }
 
     // 2. 调用 AI 生成汇总
@@ -227,14 +229,15 @@ export async function sendTestWeeklyReport(config: AIConfig) {
     if (!apiKey) return { error: '未配置 AI Key' };
 
     const openai = new OpenAI({ apiKey, baseURL });
-    const feedsContext = feeds.map((f: any) => 
-      `- [${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary} (标签: ${f.tags?.join(', ') || '无'})`
+    
+    const feedsContext = (feeds || []).map((f: any) => 
+      `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`
     ).join('\n');
 
     const completion = await openai.chat.completions.create({
       messages: [
-        { role: "system", content: config.prompt },
-        { role: "user", content: `这是我过去一周的信息消费记录，请为我生成周报：\n\n${feedsContext}` }
+        { role: "system", content: config.insightPrompt || config.prompt || "你是一个资深情报分析专家..." },
+        { role: "user", content: `这是我本周手动捕捉的信息消费记录，请为我生成深度洞察周报：\n\n${feedsContext}` }
       ],
       model: model,
       temperature: 0.7,
@@ -243,10 +246,11 @@ export async function sendTestWeeklyReport(config: AIConfig) {
     const reportContent = completion.choices[0].message.content || "生成失败。";
 
     // 💡 辅助函数：将 AI 返回的 Markdown 简单转化为 HTML 结构，避免源码暴露
+    const color = '#1ff40a';
     const cleanContent = reportContent
-      .replace(/##\s?(.*)/g, '<h3 style="color: #f97316; font-size: 14px; text-transform: uppercase; margin: 24px 0 12px 0; border-bottom: 1px solid rgba(249,115,22,0.2); padding-bottom: 4px;">$1</h3>')
+      .replace(/##\s?(.*)/g, `<h3 style="color: ${color}; font-size: 14px; text-transform: uppercase; margin: 24px 0 12px 0; border-bottom: 1px solid ${color}33; padding-bottom: 4px;">$1</h3>`)
       .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #ffffff;">$1</strong>')
-      .replace(/-\s(.*)/g, '<div style="margin-bottom: 8px; color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6;">• $1</div>')
+      .replace(/-\s(.*)/g, `<div style="margin-bottom: 8px; color: ${color}cc; font-size: 14px; line-height: 1.6;">• $1</div>`)
       .replace(/\n\n/g, '<br/>');
 
     // 3. 发送邮件 (使用 Brevo API，因为 Resend 被封)
@@ -266,46 +270,31 @@ export async function sendTestWeeklyReport(config: AIConfig) {
       body: JSON.stringify({
         sender: { name: "NeoFeed Intelligence", email: "bot@neofeed.cn" },
         to: [{ email: config.notificationEmail }],
-        subject: `【测试】您的每周洞察报告已经准备就绪`,
+        subject: `【测试】您的每周洞察报告 (Insight Report)`,
         htmlContent: `
-          <div style="font-family: 'ui-monospace', 'Cascadia Code', monospace; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 0px; border: 1px solid #1a1a1a;">
+          <div style="font-family: 'ui-monospace', 'Cascadia Code', monospace; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 0px; border: 1px solid ${color};">
             <!-- 🌐 顶部状态栏 -->
-            <div style="border-bottom: 1px double rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: #f97316; font-size: 10px; font-weight: bold; letter-spacing: 2px;">NEURAL-LINK: ACTIVE</span>
-              <span style="color: rgba(255,255,255,0.3); font-size: 10px;">ID: ${Math.random().toString(36).slice(2, 10).toUpperCase()}</span>
-            </div>
-
-            <!-- 🌌 星系快报模块 -->
-            <div style="margin-bottom: 40px; background: linear-gradient(180deg, rgba(249,115,22,0.05) 0%, transparent 100%); padding: 20px; border-radius: 12px; border: 1px solid rgba(249,115,22,0.1);">
-              <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Weekly Galaxy Snapshot</div>
-              <div style="display: flex; gap: 20px;">
-                <div style="flex: 1;">
-                  <div style="font-size: 24px; font-weight: bold; color: #ffffff;">${feeds.length}</div>
-                  <div style="font-size: 9px; color: #f97316; text-transform: uppercase;">星体捕获 New Stars</div>
-                </div>
-                <div style="flex: 1; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
-                  <div style="font-size: 24px; font-weight: bold; color: #ffffff;">100%</div>
-                  <div style="font-size: 9px; color: #f97316; text-transform: uppercase;">同步率 Sync Rate</div>
-                </div>
-              </div>
+            <div style="border-bottom: 1px double ${color}33; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: ${color}; font-size: 10px; font-weight: bold; letter-spacing: 2px;">NEURAL-LINK: ACTIVE</span>
+              <span style="color: ${color}80; font-size: 10px;">TYPE: TEST_INSIGHT</span>
             </div>
 
             <!-- 📝 核心报告区 -->
             <h1 style="font-size: 22px; font-weight: 900; margin: 0 0 25px 0; color: #ffffff; text-transform: uppercase; letter-spacing: -0.5px;">
-              神经周报 <span style="color: #f97316;">SIMULATION_MODE</span>
+              神经周报 <span style="color: ${color};">FALLOUT_PROTOCOL</span>
             </h1>
 
-            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 25px; border-left: 2px solid #f97316; line-height: 1.8;">
+            <div style="background: ${color}05; border-radius: 4px; padding: 25px; border-left: 2px solid ${color}; line-height: 1.8;">
               ${cleanContent}
             </div>
 
             <!-- 🔗 底部操作 -->
             <div style="margin-top: 40px; text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.cn'}/insight" 
-                 style="display: inline-block; padding: 15px 40px; background: #f97316; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(249,115,22,0.3);">
-                接入知识星系 / ENTER GALAXY
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.app'}/insight" 
+                 style="display: inline-block; padding: 15px 40px; background: ${color}; color: #000000; text-decoration: none; border-radius: 2px; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(31,244,10,0.3);">
+                进入洞察中心 / Launch Insight
               </a>
-              <p style="color: rgba(255,255,255,0.2); font-size: 10px; margin-top: 25px;">
+              <p style="color: ${color}33; font-size: 10px; margin-top: 25px;">
                 NEOFEED MATRIX // PROTOCOL 0.9.4 // END OF TRANSMISSION
               </p>
             </div>
@@ -327,9 +316,6 @@ export async function sendTestWeeklyReport(config: AIConfig) {
 }
 
 export async function triggerRssSync() {
-  const { createClient, createAdminClient } = await import('@/lib/supabase/server');
-  const { inngest } = await import('@/inngest/client');
-  
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -344,7 +330,7 @@ export async function triggerRssSync() {
     const adminSupabase = createAdminClient();
     const { data: subscriptions, error: subError } = await adminSupabase
       .from('subscriptions')
-      .select('id, url, themes')
+      .select('id, url')
       .eq('user_id', user.id);
 
     if (subError) {
@@ -364,7 +350,6 @@ export async function triggerRssSync() {
       data: {
         subId: sub.id,
         url: sub.url,
-        themes: sub.themes,
         userId: user.id,
         manual: true
       }
@@ -377,5 +362,25 @@ export async function triggerRssSync() {
   } catch (err: any) {
     console.error('❌ [RSS Sync] Fatal error during trigger:', err);
     return { error: err.message || '触发同步过程中发生系统错误' };
+  }
+}
+
+export async function triggerWeeklyReport(type: 'insight' | 'rss' = 'insight') {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Unauthorized' };
+
+  try {
+    await inngest.send({
+      name: `report/generate.${type}`,
+      data: {
+        userId: user.id,
+      },
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error(`❌ [${type} Report] Failed to trigger:`, err);
+    return { error: err.message || `触发${type === 'insight' ? '洞察' : 'RSS'}报告生成失败` };
   }
 }

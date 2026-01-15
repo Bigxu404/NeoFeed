@@ -98,7 +98,7 @@ function ScreenWall({ count = 1000 }) {
 }
 
 // ✨ 活跃屏幕层：模拟部分屏幕突然变亮变白
-function ActiveScreens({ basePositions, baseRotations, count }: { basePositions: Float32Array, baseRotations: Float32Array, count: number }) {
+function ActiveScreens({ basePositions, baseRotations, count }: any) {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
   const activeIndices = useMemo(() => {
       return Array.from({length: count}, () => Math.floor(Math.random() * 1000)); // 随机挑一些屏幕

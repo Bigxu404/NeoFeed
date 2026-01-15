@@ -18,7 +18,7 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
     <AnimatePresence>
       {item && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-          {/* Backdrop */}
+          {/* 背景遮罩 */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -27,90 +27,92 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
             className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
 
-          {/* Modal Content */}
+          {/* 弹窗主体 - 模仿知识星球/精美卡片样式 */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-2xl bg-[#0f1115] border border-white/10 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl"
           >
-            {/* Header / Accent Bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" />
-            
-            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar">
-              {/* Top Meta */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                    <Globe className="w-4 h-4 text-cyan-400" />
+            {/* 顶部操作条 */}
+            <div className="absolute top-4 right-4 z-20">
+              <button 
+                onClick={onClose}
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto custom-scrollbar flex-1">
+              <div className="p-8 md:p-12 space-y-8">
+                {/* 来源信息 */}
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                    <Globe className="w-5 h-5 text-cyan-400" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-cyan-500/60 uppercase tracking-widest leading-none mb-1">Source Signal</p>
-                    <p className="text-xs font-mono text-white/60">{item.source_name}</p>
+                    <h4 className="text-sm font-bold text-white/90">{item.source_name}</h4>
+                    <p className="text-[10px] text-white/20 uppercase tracking-widest font-mono">
+                      {new Date(item.created_at).toLocaleDateString()} · {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
                   </div>
                 </div>
-                <button 
-                  onClick={onClose}
-                  className="p-2 rounded-full hover:bg-white/5 text-white/20 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              {/* Title */}
-              <h2 className="text-xl md:text-3xl font-bold text-white mb-6 leading-tight">
-                {item.title}
-              </h2>
+                {/* 标题 */}
+                <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                  {item.title}
+                </h2>
 
-              {/* AI Recommendation Reason */}
-              <div className="mb-8 p-4 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 flex items-start gap-3 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5 relative z-10" />
-                <div className="relative z-10">
-                  <p className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-1.5 opacity-70">AI Intelligence Insight</p>
-                  <p className="text-sm text-cyan-100/80 italic leading-relaxed">
-                    “{item.reason}”
-                  </p>
+                {/* AI 推荐理由 */}
+                <div className="p-6 md:p-8 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 flex items-start gap-5">
+                  <div className="p-2.5 rounded-xl bg-cyan-500/10 shrink-0">
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-bold text-cyan-400/40 uppercase tracking-[0.2em] font-mono">AI 深度分析</p>
+                    <p className="text-lg md:text-xl text-white/80 italic leading-relaxed">
+                      “{item.reason}”
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Summary */}
-              <div className="space-y-4 mb-8">
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Signal Abstract</p>
-                <div className="text-base text-white/70 leading-relaxed font-light">
-                  {item.summary || "No summary available for this signal."}
+                {/* 正文摘要 */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-white/5" />
+                    <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.3em] font-mono px-2">正文摘要</span>
+                    <div className="h-px flex-1 bg-white/5" />
+                  </div>
+                  <div className="text-[18px] md:text-[20px] text-white/70 leading-loose font-serif whitespace-pre-wrap">
+                    {item.summary || "暂无详细内容摘要。"}
+                  </div>
                 </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col md:flex-row gap-4 pt-6 border-t border-white/5 mt-auto">
-                <button
-                  onClick={() => {
-                    onFeed(item.url);
-                    onClose();
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-cyan-500 text-black rounded-2xl font-bold hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] group"
-                >
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                  Feed to Neural Matrix
-                </button>
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl transition-all border border-white/10"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="text-sm font-medium whitespace-nowrap">View Source</span>
-                </a>
               </div>
             </div>
 
-            {/* Bottom Accent */}
-            <div className="p-4 bg-white/[0.02] border-t border-white/5 text-center">
-              <p className="text-[9px] font-mono text-white/10 tracking-[0.3em] uppercase">
-                Matrix Signal Interception // Protocol 0.9.4
-              </p>
+            {/* 底部固定操作区 */}
+            <div className="p-6 bg-[#16181d] border-t border-white/5 flex items-center justify-between gap-4">
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 text-white/40 hover:text-cyan-400 transition-colors text-sm font-medium"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>阅读原文</span>
+              </a>
+
+              <button
+                onClick={() => {
+                  onFeed(item.url);
+                  onClose();
+                }}
+                className="flex items-center gap-2 px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black rounded-full font-bold transition-all active:scale-95 shadow-lg shadow-cyan-500/20 text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                注入矩阵 FEED
+              </button>
             </div>
           </motion.div>
         </div>
@@ -118,4 +120,3 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
     </AnimatePresence>
   );
 }
-

@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Globe, Lightbulb, ChevronRight, RefreshCw, Plus, ExternalLink } from 'lucide-react';
 import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
 import { Skeleton } from '@/components/ui/Skeleton';
-import DiscoveryDetailModal from '../dashboard/DiscoveryDetailModal';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -72,7 +71,6 @@ export function DailyDiscovery({ onFeed }: { onFeed?: (url: string) => Promise<v
     const [items, setItems] = useState<DiscoveryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [selectedItem, setSelectedItem] = useState<DiscoveryItem | null>(null);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -137,7 +135,6 @@ export function DailyDiscovery({ onFeed }: { onFeed?: (url: string) => Promise<v
                             {displayItems.map((item) => (
                                 <div 
                                     key={item.id} 
-                                    onClick={() => setSelectedItem(item)}
                                     className="group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/40 hover:bg-green-900/10 transition-all cursor-pointer relative overflow-hidden"
                                 >
                                     <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -185,14 +182,6 @@ export function DailyDiscovery({ onFeed }: { onFeed?: (url: string) => Promise<v
                 <RefreshCw size={12} className={cn("group-hover:rotate-180 transition-transform duration-500", loading && "animate-spin")} /> 
                 {items.length > 3 ? 'SWAP_SIGNALS' : 'REFRESH_STREAM'}
             </button>
-
-            <DiscoveryDetailModal 
-                item={selectedItem} 
-                onClose={() => setSelectedItem(null)} 
-                onFeed={async (url) => {
-                    if (onFeed) await onFeed(url);
-                }}
-            />
         </div>
     );
 }

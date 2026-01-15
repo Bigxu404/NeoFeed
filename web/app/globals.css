@@ -3,7 +3,6 @@
 :root {
   --background: #05020a;
   --foreground: #ffffff;
-  --font-size-multiplier: 1;
 }
 
 @theme inline {
@@ -21,10 +20,6 @@
 }
 
 /* 基础设置 */
-html {
-  font-size: calc(16px * var(--font-size-multiplier, 1));
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -155,24 +150,91 @@ body {
   filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
 }
 
-.custom-caret {
+  .custom-caret {
   animation: blink 1s step-end infinite;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
+/* ☢️ Fallout Style Utilities */
+@layer utilities {
+  .fallout-green {
+    color: #1ff40a;
+    text-shadow: 0 0 5px rgba(31, 244, 10, 0.5);
+  }
+  
+  .fallout-bg {
+    background-color: #0a0a0a;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .crt-screen {
+    position: relative;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
+  .crt-screen::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    z-index: 2;
+    background-size: 100% 2px, 2px 100%;
+    pointer-events: none;
+    opacity: 0.6;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  .crt-screen::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: rgba(18, 16, 16, 0.05);
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+    animation: flicker 0.2s infinite;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 0.27861; }
+    5% { opacity: 0.34769; }
+    10% { opacity: 0.23604; }
+    15% { opacity: 0.90626; }
+    20% { opacity: 0.18128; }
+    25% { opacity: 0.83891; }
+    30% { opacity: 0.65583; }
+    35% { opacity: 0.57807; }
+    40% { opacity: 0.26559; }
+    45% { opacity: 0.84693; }
+    50% { opacity: 0.96019; }
+    55% { opacity: 0.08594; }
+    60% { opacity: 0.20313; }
+    65% { opacity: 0.71988; }
+    70% { opacity: 0.53455; }
+    75% { opacity: 0.37232; }
+    80% { opacity: 0.51471; }
+    85% { opacity: 0.01703; }
+    90% { opacity: 0.07034; }
+    95% { opacity: 0.66217; }
+    100% { opacity: 0.23087; }
+  }
+
+  .fallout-border {
+    border: 1px solid rgba(31, 244, 10, 0.3);
+    box-shadow: 0 0 10px rgba(31, 244, 10, 0.1);
+  }
+
+  .fallout-panel {
+    background: rgba(10, 25, 10, 0.8);
+    border: 2px solid #1ff40a;
+    box-shadow: inset 0 0 15px rgba(31, 244, 10, 0.2);
+    position: relative;
+  }
+
+  .fallout-panel::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(transparent 50%, rgba(31, 244, 10, 0.05) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+  }
 }

@@ -18,7 +18,16 @@ export interface AIConfig {
   apiKey?: string;
   baseURL?: string;
   prompt: string;
+  insightPrompt?: string;
+  rssPrompt?: string;
   notificationEmail?: string;
+  insightReportDays?: number[]; 
+  insightReportTime?: string;
+  rssReportDays?: number[];
+  rssReportTime?: string;
+  // Legacy fields for backward compatibility
+  reportDays?: number[]; 
+  reportTime?: string;
 }
 
 export interface UserProfile {

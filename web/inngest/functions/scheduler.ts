@@ -1,14 +1,14 @@
 import { inngest } from "@/inngest/client";
 import { createAdminClient } from "@/lib/supabase/server";
 
-// This function runs every Monday to schedule reports for all users
+// This function runs every 30 minutes to check if any user needs a report sent
 export const weeklyReportScheduler = inngest.createFunction(
   { id: "weekly-report-scheduler" },
-  { cron: "0 2 * * 1" }, // Every Monday at 10:00 AM CST
+  { cron: "*/30 * * * *" }, // Run every 30 minutes
   async ({ step }) => {
     const supabase = createAdminClient();
 
-    // 1. 核心修复：只查询存在的列，不再尝试读取不存在的 notification_email
+    // 1. 获取所有配置了 AI 和邮箱的用户
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('id, ai_config')
@@ -19,27 +19,63 @@ export const weeklyReportScheduler = inngest.createFunction(
       return { status: "error", error: error?.message };
     }
 
-    // 过滤出那些在 ai_config 内部填了邮箱的用户
-    const targets = profiles.filter(p => (p.ai_config as any)?.notificationEmail);
-    console.log(`📡 [Scheduler] Found ${targets.length} users with valid notification emails.`);
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 is Sunday
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-    // 2. Fan-out: Trigger generation for each user
-    const events = profiles.map((profile) => ({
-      name: "report/generate.weekly" as const,
-      data: {
-        userId: profile.id,
-        dateStr: new Date().toISOString()
-      },
-    }));
+    const insightEvents: any[] = [];
+    const rssEvents: any[] = [];
 
-    if (events.length > 0) {
+    profiles.forEach(p => {
+      const config = p.ai_config as any;
+      if (!config?.notificationEmail) return;
+
+      // --- 检查洞察报告 (Insight) ---
+      const insightDays = config.insightReportDays || config.reportDays || [1];
+      const insightTime = config.insightReportTime || config.reportTime || "09:00";
+      const [iHour, iMinute] = insightTime.split(':').map(Number);
+      const insightTotalMinutes = iHour * 60 + iMinute;
+
+      if (insightDays.includes(currentDay)) {
+        if (Math.abs(currentTotalMinutes - insightTotalMinutes) < 15) {
+          insightEvents.push({
+            name: "report/generate.insight",
+            data: { userId: p.id, dateStr: now.toISOString() }
+          });
+        }
+      }
+
+      // --- 检查订阅报告 (RSS) ---
+      const rssDays = config.rssReportDays || config.reportDays || [1];
+      const rssTime = config.rssReportTime || config.reportTime || "09:00";
+      const [rHour, rMinute] = rssTime.split(':').map(Number);
+      const rssTotalMinutes = rHour * 60 + rMinute;
+
+      if (rssDays.includes(currentDay)) {
+        if (Math.abs(currentTotalMinutes - rssTotalMinutes) < 15) {
+          rssEvents.push({
+            name: "report/generate.rss",
+            data: { userId: p.id, dateStr: now.toISOString() }
+          });
+        }
+      }
+    });
+
+    const allEvents = [...insightEvents, ...rssEvents];
+
+    if (allEvents.length > 0) {
       await step.run("dispatch-events", async () => {
-        await inngest.send(events);
+        await inngest.send(allEvents);
       });
-      console.log(`✅ [Scheduler] Dispatched ${events.length} report generation events.`);
+      console.log(`✅ [Scheduler] Dispatched ${insightEvents.length} insight and ${rssEvents.length} rss report events.`);
     }
 
-    return { scheduled: events.length };
+    return { 
+      scheduled: allEvents.length, 
+      insight: insightEvents.length, 
+      rss: rssEvents.length 
+    };
   }
 );
-

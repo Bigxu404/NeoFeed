@@ -8,7 +8,6 @@ import ProfileCard from '@/components/dashboard/ProfileCard';
 import QuickStatsCard from '@/components/dashboard/QuickStatsCard';
 import SystemStatusCard from '@/components/dashboard/SystemStatusCard';
 import InsightStream from '@/components/dashboard/InsightStream';
-import DiscoveryStream from '@/components/dashboard/DiscoveryStream';
 import FeedDetailSheet from '@/components/dashboard/FeedDetailSheet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
@@ -245,15 +244,8 @@ export default function Workbench() {
                   </ErrorBoundary>
                 </BentoCard>
 
-                {/* 5. 发现流 (New!) */}
-                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:row-span-3 bg-neutral-900/40 border-cyan-500/10">
-                  <ErrorBoundary name="DiscoveryStream">
-                    <DiscoveryStream onFeed={(targetUrl) => handleIngest(targetUrl)} />
-                  </ErrorBoundary>
-                </BentoCard>
-
-                {/* 6. 洞察流 (Mobile: Full Width, Desktop: col-3) */}
-                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-1 md:col-span-3 md:row-span-3">
+                {/* 6. 洞察流 (Mobile: Full Width, Desktop: col-4) */}
+                <BentoCard colSpan={1} rowSpan={3} className="md:col-span-4 md:row-span-3">
                   <ErrorBoundary name="InsightStream">
                     <InsightStream 
                         feeds={feeds} 

@@ -10,6 +10,7 @@ export interface DiscoveryItem {
   summary: string;
   source_name: string;
   reason: string;
+  category?: string;
   created_at: string;
 }
 
@@ -41,21 +42,21 @@ export async function getSubscriptions() {
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('*')
+    .select('id, url, themes, created_at')
     .eq('user_id', user.id);
 
   if (error) return { data: [], error: error.message };
   return { data, error: null };
 }
 
-export async function addSubscription(url: string, themes: string[]) {
+export async function addSubscription(url: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
 
   const { error } = await supabase
     .from('subscriptions')
-    .insert([{ user_id: user.id, url, themes }]);
+    .insert([{ user_id: user.id, url, themes: [] }]);
 
   if (error) return { error: error.message };
   revalidatePath('/settings');

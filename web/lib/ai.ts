@@ -157,14 +157,13 @@ export async function analyzeContent(
 
 export async function filterDiscoveryItems(
   items: { title: string; summary: string }[],
-  themes: string[],
   userConfig?: {
     provider?: string;
     model?: string;
     apiKey?: string;
     baseURL?: string;
   }
-): Promise<{ index: number; reason: string }[]> {
+): Promise<{ index: number; reason: string; category: string }[]> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
   let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
   let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
@@ -193,18 +192,21 @@ export async function filterDiscoveryItems(
   const openai = new OpenAI({ apiKey, baseURL });
 
   const systemPrompt = `
-    你是一个高级情报官。用户当前关注的主题有：[${themes.join(', ')}]。
-    请从以下 RSS 简讯列表中，挑选出最符合用户主题的 Top 7 条。
+    你是一个资深情报分析官。请从以下 RSS 简讯列表中，挑选出最具价值、最值得阅读的 Top 7 条内容。
     
-    判定准则：
-    1. 语义匹配：理解核心概念，并尽可能从提供的内容中寻找与用户主题相关的信号。
-    2. 宁缺毋滥，但也不要太吝啬：如果当前文章质量尚可，请尽可能填满 Top 3 到 Top 7。
-    3. 排除噪音：过滤广告和单纯的新闻简讯。
+    挑选准则：
+    1. 洞察力优先：优先选择那些能够提供独特视角、深度分析、行业趋势或跨学科思考的内容。
+    2. 质量过滤：剔除纯新闻简报、硬广告、低质量聚合内容或过于碎片化的信息。
+    3. 领域覆盖：尽量覆盖技术趋势、商业洞察、生活哲学、设计美学等不同领域。
 
     输出格式要求 (JSON Only):
     {
       "items": [
-        { "index": 0, "reason": "为什么推荐这条 (请务必使用中文，15字以内)" },
+        { 
+          "index": 0, 
+          "reason": "为什么推荐这条 (请务必使用中文，15字以内)",
+          "category": "该内容的AI分类 (如：前沿技术、商业洞察、生活哲学、设计美学等，简短，4个字以内)"
+        },
         ...
       ]
     }

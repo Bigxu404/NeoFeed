@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { updateAiConfig, getAiConfig, AIConfig, testAiConfig, sendTestWeeklyReport } from '@/app/settings/actions';
-import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle, Globe, MailCheck } from 'lucide-react';
+import { Loader2, Save, Cpu, MessageSquare, Key, Mail, Check, PlayCircle, Globe, MailCheck, Calendar, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -170,35 +170,88 @@ export default function AIConfiguration() {
               </div>
 
               {/* Notification Email */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+                        <Mail className="w-3 h-3" /> 通知邮箱
+                    </label>
+                    <input 
+                        type="email" 
+                        value={config.notificationEmail || ''}
+                        onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
+                        placeholder="neo@matrix.org"
+                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+                        <Clock className="w-3 h-3" /> 洞察报告发送时间
+                    </label>
+                    <input 
+                        type="time" 
+                        value={config.insightReportTime || config.reportTime || '09:00'}
+                        onChange={(e) => setConfig({ ...config, insightReportTime: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+                    />
+                </div>
+              </div>
+
+              {/* Insight Report Days */}
               <div className="space-y-2">
                   <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
-                      <Mail className="w-3 h-3" /> 通知邮箱
+                      <Calendar className="w-3 h-3" /> 洞察报告发送日期
                   </label>
-                  <input 
-                      type="email" 
-                      value={config.notificationEmail || ''}
-                      onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
-                      placeholder="neo@matrix.org"
-                      className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '周一', value: 1 },
+                      { label: '周二', value: 2 },
+                      { label: '周三', value: 3 },
+                      { label: '周四', value: 4 },
+                      { label: '周五', value: 5 },
+                      { label: '周六', value: 6 },
+                      { label: '周日', value: 0 },
+                    ].map((day) => {
+                      const days = config.insightReportDays || config.reportDays || [1];
+                      const isSelected = days.includes(day.value);
+                      return (
+                        <button
+                          key={day.value}
+                          onClick={() => {
+                            const newDays = isSelected 
+                              ? days.filter(d => d !== day.value)
+                              : [...days, day.value].sort();
+                            setConfig({ ...config, insightReportDays: newDays });
+                          }}
+                          className={cn(
+                            "px-3 py-1.5 rounded-md text-xs font-mono border transition-all",
+                            isSelected
+                              ? "bg-white/10 border-white/30 text-white"
+                              : "bg-transparent border-white/5 text-white/30 hover:border-white/10"
+                          )}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <p className="text-[10px] text-white/30">
-                    在每周一早上接收您的“每周洞察报告”。
+                    选择您希望接收“每周洞察报告”的日期。RSS 情报报告的日期请在“洞察”页面配置。
                   </p>
               </div>
 
-      {/* System Prompt */}
+      {/* System Prompts */}
       <div className="space-y-2">
           <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
-              <MessageSquare className="w-3 h-3" /> 系统提示词 (System Prompt)
+              <MessageSquare className="w-3 h-3" /> 洞察报告提示词 (Insight Report Prompt)
           </label>
           <textarea 
-              value={config.prompt}
-              onChange={(e) => setConfig({ ...config, prompt: e.target.value })}
-              rows={10}
+              value={config.insightPrompt || config.prompt}
+              onChange={(e) => setConfig({ ...config, insightPrompt: e.target.value })}
+              rows={8}
               className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-3 text-white/80 text-sm focus:border-white/30 outline-none font-mono leading-relaxed resize-y"
           />
           <p className="text-[10px] text-white/30">
-            此提示词将指导 AI 如何格式化和撰写您的周报。
+            此提示词将指导 AI 如何格式化和撰写您的手动捕捉周报。RSS 情报周报的提示词请在“洞察”页面的“周报协议”中配置。
           </p>
       </div>
 

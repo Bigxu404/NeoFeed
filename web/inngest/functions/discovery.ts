@@ -19,7 +19,7 @@ export const subscriptionPoller = inngest.createFunction(
 
     const { data: subscriptions, error } = await supabase
       .from('subscriptions')
-      .select('id, url, themes, user_id');
+      .select('id, url, user_id');
 
     if (error || !subscriptions) {
       return { status: "error", error: error?.message };
@@ -30,7 +30,6 @@ export const subscriptionPoller = inngest.createFunction(
       data: {
         subId: sub.id,
         url: sub.url,
-        themes: sub.themes,
         userId: sub.user_id,
       },
     }));
@@ -49,7 +48,7 @@ export const rssProcessor = inngest.createFunction(
   { id: "rss-processor" },
   { event: "sub/poll.rss" },
   async ({ event, step }) => {
-    const { url, themes, userId } = event.data;
+    const { url, userId } = event.data;
     const supabase = createAdminClient();
 
     console.log(`🚀 [Inngest] Starting processor for ${url} (User: ${userId})`);
@@ -92,7 +91,6 @@ export const rssProcessor = inngest.createFunction(
       try {
         const results = await filterDiscoveryItems(
           feedItems.map(it => ({ title: it.title, summary: it.summary })),
-          themes || [],
           profile?.ai_config as AIConfig
         );
         console.log(`✅ [Inngest] AI analysis complete. Selected: ${results?.length || 0}`);
@@ -107,9 +105,9 @@ export const rssProcessor = inngest.createFunction(
     if (!selectedIndices || selectedIndices.length === 0) {
       console.warn(`⚠️ [Inngest] AI returned zero matches for ${url}. Using fallback (Top 3 items).`);
       selectedIndices = [
-        { index: 0, reason: "系统推荐：发现该信号源有新动态 (自动接入)" },
-        { index: 1, reason: "系统推荐：此信号源近期热度较高" },
-        { index: 2, reason: "系统推荐：新信号链入，等待深度解析" }
+        { index: 0, reason: "系统推荐：发现该信号源有新动态 (自动接入)", category: "情报拦截" },
+        { index: 1, reason: "系统推荐：此信号源近期热度较高", category: "热门趋势" },
+        { index: 2, reason: "系统推荐：新信号链入，等待深度解析", category: "待读精选" }
       ].slice(0, Math.min(3, feedItems.length));
     }
 
@@ -125,6 +123,7 @@ export const rssProcessor = inngest.createFunction(
           summary: (original.summary || "").slice(0, 500),
           source_name: original.source_name,
           reason: sel.reason,
+          category: sel.category,
           created_at: new Date().toISOString()
         };
       }).filter(Boolean);
@@ -133,6 +132,24 @@ export const rssProcessor = inngest.createFunction(
 
       const sourceName = toInsert[0]?.source_name;
       console.log(`💾 [Inngest] Saving ${toInsert.length} items to DB for ${sourceName}`);
+
+      // 💡 额外步骤：尝试为订阅源本身生成一个 AI 分类并更新到 subscriptions 表
+      if (toInsert.length > 0) {
+        const categories = toInsert.map(it => it.category).filter(Boolean);
+        // 简单统计出现次数最多的分类作为源分类
+        const categoryCounts = categories.reduce((acc: any, cat: any) => {
+          acc[cat] = (acc[cat] || 0) + 1;
+          return acc;
+        }, {});
+        const topCategory = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a])[0];
+        
+        if (topCategory && event.data.subId) {
+          await supabase
+            .from('subscriptions')
+            .update({ themes: [topCategory] }) // 仍然使用 themes 字段存储，但在 UI 上按分类显示
+            .eq('id', event.data.subId);
+        }
+      }
 
       if (sourceName) {
         await supabase

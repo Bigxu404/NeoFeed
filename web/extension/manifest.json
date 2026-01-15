@@ -6,8 +6,7 @@
   "permissions": [
     "activeTab",
     "storage",
-    "contextMenus",
-    "scripting"
+    "contextMenus"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -18,7 +17,6 @@
   },
   "host_permissions": [
     "http://localhost:3000/*",
-    "https://neofeed.vercel.app/*",
-    "https://neofeed.cn/*"
+    "https://neofeed.vercel.app/*"
   ]
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "NeoFeed",
@@ -13,10 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className="antialiased font-sans">
         {children}
-        <Toaster position="top-right" richColors theme="dark" />
+        <Toaster position="bottom-right" richColors closeButton theme="dark" />
       </body>
     </html>
   );
