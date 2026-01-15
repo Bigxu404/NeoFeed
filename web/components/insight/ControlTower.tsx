@@ -28,11 +28,19 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 // --- 弹窗组件：RSS 设置 ---
-function RSSSettingsModal({ isOpen, onClose, onUpdate }: { isOpen: boolean, onClose: () => void, onUpdate: () => void }) {
+function RSSSettingsModal({ isOpen, onClose, aiConfig, onUpdate }: { isOpen: boolean, onClose: () => void, aiConfig: AIConfig | null, onUpdate: () => void }) {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newUrl, setNewUrl] = useState('');
+  const [rssPollFrequency, setRssPollFrequency] = useState<'daily' | 'weekly'>('daily');
+  const [savingFreq, setSavingFreq] = useState(false);
+
+  useEffect(() => {
+    if (aiConfig?.rssPollFrequency) {
+      setRssPollFrequency(aiConfig.rssPollFrequency);
+    }
+  }, [aiConfig]);
 
   const fetchSubs = async () => {
     setLoading(true);
@@ -42,6 +50,20 @@ function RSSSettingsModal({ isOpen, onClose, onUpdate }: { isOpen: boolean, onCl
   };
 
   useEffect(() => { if (isOpen) fetchSubs(); }, [isOpen]);
+
+  const handleUpdateFrequency = async (freq: 'daily' | 'weekly') => {
+    if (!aiConfig) return;
+    setSavingFreq(true);
+    setRssPollFrequency(freq);
+    const res = await updateAiConfig({ ...aiConfig, rssPollFrequency: freq });
+    if (!res.error) {
+      toast.success('更新频率已同步');
+      onUpdate();
+    } else {
+      toast.error('同步失败');
+    }
+    setSavingFreq(false);
+  };
 
   const handleAdd = async () => {
     if (!newUrl) return;
@@ -80,11 +102,39 @@ function RSSSettingsModal({ isOpen, onClose, onUpdate }: { isOpen: boolean, onCl
           <button onClick={onClose} className="p-1 hover:bg-[#1ff40a]/10 rounded text-[#1ff40a]/40 hover:text-[#1ff40a] transition-all"><X size={18} /></button>
         </div>
         <div className="p-6 space-y-6">
-          <div className="flex gap-2">
+          {/* 📡 更新频率设置 */}
+          <div className="space-y-3 p-4 bg-[#1ff40a]/5 border border-[#1ff40a]/20 rounded-sm">
+            <div className="flex items-center gap-2 text-[#1ff40a]/60 font-mono text-[10px] uppercase tracking-widest">
+              <RefreshCw size={12} className={cn(savingFreq && "animate-spin")} />
+              AUTO_SYNC_FREQUENCY 自动更新频率
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: '每天 (10AM)', value: 'daily' as const },
+                { label: '每周 (Mon 9AM)', value: 'weekly' as const },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleUpdateFrequency(opt.value)}
+                  disabled={savingFreq}
+                  className={cn(
+                    "py-2 px-1 text-[9px] font-mono border transition-all text-center leading-tight",
+                    rssPollFrequency === opt.value
+                      ? "bg-[#1ff40a]/20 border-[#1ff40a] text-[#1ff40a]"
+                      : "bg-black border-[#1ff40a]/20 text-[#1ff40a]/40 hover:border-[#1ff40a]/40"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
             <input type="text" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="ENTER_RSS_URL..." className="flex-1 bg-black border border-[#1ff40a]/30 px-3 py-2 text-xs text-[#1ff40a] focus:border-[#1ff40a] outline-none transition-all font-mono" />
             <button onClick={handleAdd} disabled={isAdding || !newUrl} className="px-4 py-2 bg-[#1ff40a]/20 border border-[#1ff40a] text-[#1ff40a] hover:bg-[#1ff40a] hover:text-black transition-all disabled:opacity-30 font-mono text-[10px] font-bold">[ADD]</button>
           </div>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+          <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
             {loading ? <div className="py-10 text-center"><Loader2 className="animate-spin text-[#1ff40a] mx-auto" size={20} /></div> :
               subscriptions.map(sub => (
                 <div key={sub.id} className="flex items-center justify-between p-2.5 rounded bg-[#1ff40a]/5 border border-[#1ff40a]/20 group">
@@ -350,7 +400,7 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
       </section>
 
       {/* 弹窗实例 */}
-      <RSSSettingsModal isOpen={isRSSModalOpen} onClose={() => setIsRSSModalOpen(false)} onUpdate={fetchControlData} />
+      <RSSSettingsModal isOpen={isRSSModalOpen} onClose={() => setIsRSSModalOpen(false)} aiConfig={aiConfig} onUpdate={fetchControlData} />
       <WeeklyReportSettingsModal isOpen={isWeeklyModalOpen} onClose={() => setIsWeeklyModalOpen(false)} aiConfig={aiConfig} onUpdate={fetchControlData} />
 
     </div>

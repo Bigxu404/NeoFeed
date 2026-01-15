@@ -13,19 +13,53 @@ const parser = new Parser({
 // 1. 定时巡逻员：扫描所有活跃订阅
 export const subscriptionPoller = inngest.createFunction(
   { id: "subscription-poller" },
-  { cron: "0 */4 * * *" }, // 每4小时运行一次
+  { cron: "*/30 * * * *" }, // 每30分钟运行一次，检查是否命中用户的更新频率
   async ({ step }) => {
     const supabase = createAdminClient();
 
+    // 获取所有订阅以及对应的用户配置
     const { data: subscriptions, error } = await supabase
       .from('subscriptions')
-      .select('id, url, user_id');
+      .select(`
+        id, 
+        url, 
+        user_id,
+        profiles!inner (
+          ai_config
+        )
+      `);
 
     if (error || !subscriptions) {
       return { status: "error", error: error?.message };
     }
 
-    const events = subscriptions.map((sub) => ({
+    const now = new Date();
+    // 转换为北京时间 (UTC+8) 进行判断
+    const bjTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+    const day = bjTime.getUTCDay(); // 0 is Sunday, 1 is Monday
+    const hour = bjTime.getUTCHours();
+    const minute = bjTime.getUTCMinutes();
+
+    console.log(`🕒 [Poller] Checking subscriptions at BJ Time: ${hour}:${minute}, Day: ${day}`);
+
+    const filteredSubs = subscriptions.filter(sub => {
+      const config = (sub.profiles as any)?.ai_config as AIConfig;
+      const freq = config?.rssPollFrequency || 'daily';
+
+      if (freq === 'daily') {
+        // 每天早上10点
+        return hour === 10 && minute < 30;
+      }
+
+      if (freq === 'weekly') {
+        // 每周一早上9点 (day 1 为周一)
+        return day === 1 && hour === 9 && minute < 30;
+      }
+
+      return false;
+    });
+
+    const events = filteredSubs.map((sub) => ({
       name: "sub/poll.rss",
       data: {
         subId: sub.id,
@@ -35,11 +69,15 @@ export const subscriptionPoller = inngest.createFunction(
     }));
 
     if (events.length > 0) {
-      // 💡 修复：改用全局 inngest.send 确保兼容性，不再使用不稳定的 step.send
       await inngest.send(events);
+      console.log(`📡 [Poller] Dispatched ${events.length} poll events`);
     }
 
-    return { scheduled: events.length };
+    return { 
+      total: subscriptions.length,
+      scheduled: events.length,
+      time: `${hour}:${minute}`
+    };
   }
 );
 

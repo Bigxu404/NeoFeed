@@ -25,6 +25,7 @@ export interface AIConfig {
   insightReportTime?: string;
   rssReportDays?: number[];
   rssReportTime?: string;
+  rssPollFrequency?: 'daily' | 'weekly';
   // Legacy fields for backward compatibility
   reportDays?: number[]; 
   reportTime?: string;
