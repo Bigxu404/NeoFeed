@@ -11,23 +11,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Trigger Inngest Events for both reports
-    await inngest.send([
-      {
-        name: "report/generate.insight",
-        data: {
-          userId: user.id,
-          dateStr: new Date().toISOString()
-        },
+    // Trigger Inngest Event
+    await inngest.send({
+      name: "report/generate.weekly",
+      data: {
+        userId: user.id,
+        dateStr: new Date().toISOString()
       },
-      {
-        name: "report/generate.rss",
-        data: {
-          userId: user.id,
-          dateStr: new Date().toISOString()
-        },
-      }
-    ]);
+    });
 
     return NextResponse.json({ 
       success: true, 

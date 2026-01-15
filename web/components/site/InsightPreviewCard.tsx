@@ -51,7 +51,7 @@ export default function InsightPreviewCard() {
             <p className="text-white/80 text-sm leading-relaxed font-sans">
               本周你的关注点集中在 <span className="text-white border-b border-white/20">生成式 AI 的伦理边界</span> 与 <span className="text-white border-b border-white/20">Web3 社交协议</span>。
               <br/><br/>
-              系统检测到你本周对“数字生命与意识”主题表现出浓厚兴趣。建议下周深入研究 <span className="text-green-400">Baudrillard 的拟像理论</span>。
+              系统检测到你收藏了 12 篇关于 "Agent Smith" 的讨论，这似乎与你正在构建的 "NeoFeed" 产品哲学产生了共鸣。建议下周深入研究 <span className="text-green-400">Baudrillard 的拟像理论</span>。
             </p>
          </div>
 
