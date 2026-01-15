@@ -34,7 +34,8 @@ export async function analyzeContent(
     model?: string;
     apiKey?: string;
     baseURL?: string;
-  }
+  },
+  isVideo?: boolean
 ): Promise<AIAnalysisResult> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
   let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
@@ -71,17 +72,20 @@ export async function analyzeContent(
   const openai = new OpenAI({ apiKey, baseURL });
 
   const systemPrompt = `
-    你是一个资深的信息分析专家。
-    请分析用户提供的网页内容，并严格以 JSON 格式返回以下字段：
+    你是一个资深的信息分析专家。${isVideo ? '当前处理的内容是一个视频的转录稿或描述。' : ''}
+    请分析用户提供的网页内容${isVideo ? '（视频内容）' : ''}，并严格以 JSON 格式返回以下字段：
     {
       "title": "概括性标题",
-      "summary": "一段约 300 字的深度精华摘要，要求逻辑清晰，涵盖文章的核心论点、背景和结论。",
+      "summary": "一段约 300 字的深度精华摘要，要求逻辑清晰，涵盖${isVideo ? '视频的核心观点、背景和结论' : '文章的核心论点、背景和结论'}。",
       "takeaways": ["关键洞察1", "2", "3"],
       "tags": ["标签1", "2"],
       "category": "tech/life/idea/art/other",
       "emotion": "基调描述",
-      "reading_time": 预计分钟数
+      "reading_time": 10
     }
+    注意：
+    1. reading_time 请返回一个整数数字。
+    ${isVideo ? '2. 如果内容包含时间戳，请在摘要中适当提及关键时间点的突破性观点。' : ''}
   `;
 
   const userPrompt = `

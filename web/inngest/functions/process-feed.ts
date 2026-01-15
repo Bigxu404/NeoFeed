@@ -36,20 +36,24 @@ export const processFeed = inngest.createFunction(
     });
 
     try {
-      // 2. 🚀 升级版抓取引擎：使用 Jina Reader 网关 (处理动态渲染 & 微信反爬)
+      // 2. 🚀 升级版抓取引擎：使用 Jina Reader 网关 (处理动态渲染 & 微信反爬 & 视频转录)
       const rawData = await step.run("scrape-url", async () => {
         console.log(`🕵️ [Inngest] Fetching: ${url}`);
+        
+        const isVideo = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('bilibili.com');
         
         // 尝试使用 Jina Reader (优先)
         try {
           const jinaUrl = `https://r.jina.ai/${encodeURIComponent(url)}`;
-          console.log(`🕵️ [Inngest] Trying Jina Reader: ${jinaUrl}`);
+          console.log(`🕵️ [Inngest] Trying Jina Reader: ${jinaUrl} (isVideo: ${isVideo})`);
           
           const response = await fetch(jinaUrl, {
             headers: {
               "Accept": "application/json",
               "X-No-Cache": "true",
-              "X-With-Images-Summary": "true"
+              "X-With-Images-Summary": "true",
+              // 如果是视频，告诉 Jina 尝试抓取字幕/转录
+              ...(isVideo ? { "X-Target-Selector": "#transcript, .subtitle-item, .video-desc, #video-description" } : {})
             },
           });
 
@@ -63,6 +67,7 @@ export const processFeed = inngest.createFunction(
               return {
                 title: jinaData.title || "Untitled",
                 content: jinaData.content.slice(0, 30000),
+                isVideo: isVideo
               };
             }
           }
@@ -123,6 +128,7 @@ export const processFeed = inngest.createFunction(
         return {
           title: finalTitle,
           content: finalContent.slice(0, 30000),
+          isVideo: isVideo
         };
       });
 
@@ -137,12 +143,13 @@ export const processFeed = inngest.createFunction(
           .eq('id', userId)
           .single();
 
-        console.log(`🧠 [Inngest] Analyzing content with AI (using user config if available)...`);
+        console.log(`🧠 [Inngest] Analyzing content with AI (using user config if available, isVideo: ${(rawData as any).isVideo})...`);
         return await analyzeContent(
           rawData.content, 
           url, 
           rawData.title, 
-          profile?.ai_config as AIConfig
+          profile?.ai_config as AIConfig,
+          (rawData as any).isVideo
         );
       });
 

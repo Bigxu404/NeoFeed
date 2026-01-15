@@ -195,11 +195,13 @@ export async function summarizeFeed(feedId: string) {
 
   try {
     // 2. Run AI Analysis
+    const isVideo = feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be') || feed.url?.includes('bilibili.com');
     const analysis = await analyzeContent(
       feed.content_raw, 
       feed.url, 
       feed.title, 
-      profile?.ai_config as AIConfig // 🚀 强类型
+      profile?.ai_config as AIConfig, // 🚀 强类型
+      isVideo
     );
 
     // 3. Update DB
