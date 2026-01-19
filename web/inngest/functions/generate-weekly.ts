@@ -7,16 +7,10 @@ export const generateWeeklyReport = inngest.createFunction(
   [
     { event: "report/generate.insight" },
     { event: "report/generate.rss" },
-    { event: "report/generate.weekly" }, // 💡 兼容旧版触发器
   ],
   async ({ event, step }) => {
     const { userId } = event.data || {};
-    let reportType = event.name.split('.')[1] as 'insight' | 'rss' | 'weekly';
-    
-    // 💡 路由纠偏：将旧版 'weekly' 统一归类为 'rss'
-    if (reportType === 'weekly') {
-      (reportType as any) = 'rss';
-    }
+    const reportType = event.name.split('.')[1] as 'insight' | 'rss';
     
     if (!userId) {
        console.error(`❌ [Inngest] Missing userId in ${reportType} report event.`);
