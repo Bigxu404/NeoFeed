@@ -96,18 +96,17 @@ export const generateWeeklyReport = inngest.createFunction(
 -------------------`).join('\n');
 
       const customPrompt = reportType === 'insight' ? userConfig.insightPrompt : userConfig.rssPrompt;
-      const systemPrompt = `${customPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...'}
-      请注意以下**强制性**排版要求，违反任何一项都将导致报告解析错误：
-      1. **严禁**输出 "Subject:" 或 "Body:" 等标签。
-      2. **严禁**使用一级标题 (#)。请使用 # 加粗大标题组织分类（例如：# 教育科技前沿）。
-      3. **每一条** RSS 情报必须严格遵循以下格式（不要带列表符号 '-'）：
-         ### [数字编号]. [文章标题]
-         **一句话总结**：[主体]做了[什么]，解决了[什么]（必须包含这四个字，必须分行）
-         **文章亮点**：提炼该内容的 1 个核心创新点（必须包含这四个字，必须分行）
-         [阅读原文](URL)
-      4. **严禁**使用“情报简述”、“信号链路”等陈旧标签，必须使用上面指定的加粗标签。
-      5. 字体风格：英文部分请保持 Times New Roman 的优雅感。
-      6. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
+      const systemPrompt = `${customPrompt || 'You are NeoFeed Intelligence, an elite information analyst.'}
+
+      [OUTPUT STRUCTURE REQUISITES]
+      为了确保报告排版正确，请务必在输出中遵守以下 Markdown 锚点：
+      1. 分类标题：使用 # 前缀（例如：# 科技前沿）。
+      2. 条目名称：使用 ### 前缀，并带上数字编号（例如：### 1. 标题内容）。
+      3. 结构化标签：每条情报必须包含两个加粗标签：
+         **一句话总结**：[内容]
+         **文章亮点**：[内容]
+      4. 原文链接：使用标准格式 [阅读原文](URL)。
+      5. 严禁使用列表符号（如 - 或 *）作为条目开头。`;
 
       const completion = await openai.chat.completions.create({
         messages: [
