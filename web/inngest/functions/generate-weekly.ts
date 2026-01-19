@@ -108,7 +108,30 @@ export const generateWeeklyReport = inngest.createFunction(
 
         // 2. 构建 Markdown 字符串 (作为数据库存档)
         let md = "";
-        Object.entries(grouped).forEach(([source, items]) => {
+        
+        // 💡 排序逻辑：根据用户指定的期刊顺序进行排列
+        const sortOrder = [
+          "Computers & Education",
+          "Computers in Human Behavior",
+          "British Journal of Educational Technology",
+          "British Journal of computer in education",
+          "Educational technology research and development",
+          "Journal of Computers in Education",
+          "smart learning environments"
+        ];
+
+        const sortedSources = Object.keys(grouped).sort((a, b) => {
+          const indexA = sortOrder.findIndex(name => a.toLowerCase().includes(name.toLowerCase()));
+          const indexB = sortOrder.findIndex(name => b.toLowerCase().includes(name.toLowerCase()));
+          
+          if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        });
+
+        sortedSources.forEach((source) => {
+          const items = grouped[source];
           md += `# ${source}\n\n`;
           items.forEach((it, idx) => {
             md += `### ${idx + 1}. ${it.title}\n`;
@@ -197,8 +220,8 @@ export const generateWeeklyReport = inngest.createFunction(
             .replace(/主题：/g, '研究主题：')
             .replace(/方式：/g, '研究方法：')
             .replace(/结果：/g, '研究结果：')
-            // 6. 处理链接 (紧凑排列)
-            .replace(/\[阅读原文\]\((https?:\/\/.*?)\)/g, `</div><div style="margin-top: 8px; margin-bottom: 20px;"><a href="$1" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-family: sans-serif;">READ FULL ARTICLE »</a></div>`)
+            // 6. 处理链接 (紧凑排列) - 改为蓝色
+            .replace(/\[阅读原文\]\((https?:\/\/.*?)\)/g, `</div><div style="margin-top: 8px; margin-bottom: 20px;"><a href="$1" style="color: #0066cc; text-decoration: none; font-size: 13px; font-weight: bold; font-family: sans-serif;">READ FULL ARTICLE »</a></div>`)
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
