@@ -153,15 +153,32 @@ export const generateWeeklyReport = inngest.createFunction(
           return { error: "Missing BREVO_API_KEY" };
         }
         
-        const color = '#1ff40a';
-        // 💡 增强型 Markdown 渲染：支持更复杂的结构化排版
-        const cleanContent = reportContent
-          .replace(/###\s?(.*)/g, `<h3 style="color: ${color}; font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 32px 0 16px 0; border-left: 4px solid ${color}; padding-left: 12px; letter-spacing: 1px;">$1</h3>`)
-          .replace(/\*\*(研究主题|研究方式|研究结果|闭环总结)\*\*/g, `<span style="color: ${color}; font-size: 12px; font-weight: bold; background: ${color}22; padding: 2px 6px; border-radius: 2px; margin-right: 8px; font-family: monospace;">$1</span>`)
-          .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #ffffff; border-bottom: 1px dotted ${color}66;">$1</strong>`)
-          .replace(/\[原文链接\]\((.*?)\)/g, `<a href="$1" style="color: ${color}; text-decoration: none; font-size: 12px; border: 1px solid ${color}44; padding: 2px 8px; border-radius: 4px; margin-top: 8px; display: inline-block;">查看原文 SOURCE_LINK ↗</a>`)
-          .replace(/-\s(.*)/g, `<div style="margin-bottom: 12px; color: #bbbbbb; font-size: 14px; line-height: 1.6; padding-left: 16px; border-left: 1px solid ${color}22;">$1</div>`)
-          .replace(/\n/g, '<br/>');
+        const isRss = reportType === 'rss';
+        const mainColor = isRss ? '#000000' : '#1ff40a';
+        const bgColor = isRss ? '#fbfaf8' : '#050505';
+        const accentColor = isRss ? '#cc0000' : '#1ff40a';
+        
+        // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
+        let cleanContent = '';
+        if (isRss) {
+          // 📖 纽约客风格渲染逻辑
+          cleanContent = reportContent
+            .replace(/###\s?(.*)/g, `<h3 style="color: #000000; font-size: 24px; font-weight: bold; margin: 40px 0 10px 0; font-family: 'Georgia', serif; line-height: 1.2;">$1</h3>`)
+            .replace(/\*\*(研究主题|研究方式|研究结果|闭环总结)\*\*/g, `<span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif; display: block; margin-top: 15px;">$1</span>`)
+            .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #000000;">$1</strong>`)
+            .replace(/\[查看原文 SOURCE_LINK ↗\]\((.*?)\)/g, `<a href="$1" style="color: #000000; text-decoration: underline; font-size: 13px; font-style: italic; display: block; margin-top: 10px; font-family: 'Georgia', serif;">Continue reading »</a>`)
+            .replace(/-\s(.*)/g, `<div style="margin-bottom: 15px; color: #1a1a1a; font-size: 16px; line-height: 1.8; font-family: 'Georgia', serif;">$1</div>`)
+            .replace(/\n/g, '<br/>');
+        } else {
+          // ☢️ 辐射风格渲染逻辑 (保留原样)
+          cleanContent = reportContent
+            .replace(/###\s?(.*)/g, `<h3 style="color: ${mainColor}; font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 32px 0 16px 0; border-left: 4px solid ${mainColor}; padding-left: 12px; letter-spacing: 1px;">$1</h3>`)
+            .replace(/\*\*(研究主题|研究方式|研究结果|闭环总结)\*\*/g, `<span style="color: ${mainColor}; font-size: 12px; font-weight: bold; background: ${mainColor}22; padding: 2px 6px; border-radius: 2px; margin-right: 8px; font-family: monospace;">$1</span>`)
+            .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #ffffff; border-bottom: 1px dotted ${mainColor}66;">$1</strong>`)
+            .replace(/\[查看原文 SOURCE_LINK ↗\]\((.*?)\)/g, `<a href="$1" style="color: ${mainColor}; text-decoration: none; font-size: 12px; border: 1px solid ${mainColor}44; padding: 2px 8px; border-radius: 4px; margin-top: 8px; display: inline-block;">查看原文 SOURCE_LINK ↗</a>`)
+            .replace(/-\s(.*)/g, `<div style="margin-bottom: 12px; color: #bbbbbb; font-size: 14px; line-height: 1.6; padding-left: 16px; border-left: 1px solid ${mainColor}22;">$1</div>`)
+            .replace(/\n/g, '<br/>');
+        }
 
         console.log(`📧 [Inngest] Sending ${reportType} report to ${notificationEmail}...`);
 
@@ -176,7 +193,51 @@ export const generateWeeklyReport = inngest.createFunction(
             sender: { name: "NeoFeed Intelligence", email: "bot@neofeed.cn" },
             to: [{ email: notificationEmail }],
             subject: reportType === 'insight' ? `Weekly Insight Report: ${new Date().toLocaleDateString('zh-CN')}` : `Weekly RSS Intelligence: ${new Date().toLocaleDateString('zh-CN')}`,
-            htmlContent: `
+            htmlContent: isRss ? `
+              <!DOCTYPE html>
+              <html>
+              <body style="margin: 0; padding: 0; background-color: #f4f4f0;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f0;">
+                  <tr>
+                    <td align="center" style="padding: 40px 10px;">
+                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #fbfaf8; border-top: 3px solid #000000; border-bottom: 1px solid #d2d2d2;">
+                        <!-- Header -->
+                        <tr>
+                          <td style="padding: 50px 50px 20px 50px; text-align: center;">
+                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 4px; color: #cc0000; margin-bottom: 20px; text-transform: uppercase;">
+                              Intelligence Report
+                            </div>
+                            <h1 style="font-family: 'Georgia', serif; font-size: 42px; font-weight: normal; color: #000000; margin: 0; line-height: 1;">
+                              NeoFeed
+                            </h1>
+                            <div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; margin-top: 25px; padding: 8px 0; display: flex; justify-content: space-between; font-family: 'Georgia', serif; font-style: italic; font-size: 13px;">
+                              <span>New York, NY</span>
+                              <span>${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                              <span>Weekly Edition</span>
+                            </div>
+                          </td>
+                        </tr>
+                        <!-- Content -->
+                        <tr>
+                          <td style="padding: 10px 50px 50px 50px;">
+                            <div style="font-family: 'Georgia', serif; color: #1a1a1a; border-bottom: 1px solid #eee; padding-bottom: 30px;">
+                              ${cleanContent}
+                            </div>
+                          </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr>
+                          <td style="padding: 30px 50px; text-align: center; font-family: sans-serif; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">
+                            Published by NeoFeed Neural Network // All Rights Reserved
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+              </html>
+            ` : `
               <!DOCTYPE html>
               <html>
               <head>
@@ -188,19 +249,19 @@ export const generateWeeklyReport = inngest.createFunction(
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #000000; font-family: 'Fira Code', 'Courier New', monospace;">
                   <tr>
                     <td align="center" style="padding: 40px 10px;">
-                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #050505; border: 1px solid ${color}33; border-top: 4px solid ${color};">
+                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #050505; border: 1px solid ${mainColor}33; border-top: 4px solid ${mainColor};">
                         <!-- Header Area -->
                         <tr>
                           <td style="padding: 40px 40px 20px 40px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                              <span style="color: ${color}; font-size: 11px; font-weight: bold; letter-spacing: 3px; font-family: monospace;">NEOFEED_INTEL_REPORT</span>
-                              <span style="color: ${color}66; font-size: 11px; font-family: monospace;">V3.0_STABLE</span>
+                              <span style="color: ${mainColor}; font-size: 11px; font-weight: bold; letter-spacing: 3px; font-family: monospace;">NEOFEED_INTEL_REPORT</span>
+                              <span style="color: ${mainColor}66; font-size: 11px; font-family: monospace;">V3.0_STABLE</span>
                             </div>
                             <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: -1px; line-height: 1.1;">
-                              ${reportType === 'insight' ? '神经洞察' : 'RSS 订阅情报'} <br/>
-                              <span style="color: ${color};">WEEKLY_DIGEST</span>
+                              神经洞察 <br/>
+                              <span style="color: ${mainColor};">WEEKLY_DIGEST</span>
                             </h1>
-                            <div style="margin-top: 15px; font-size: 11px; color: ${color}88; font-family: monospace;">
+                            <div style="margin-top: 15px; font-size: 11px; color: ${mainColor}88; font-family: monospace;">
                               TIMESTAMP: ${new Date().toISOString()} // STATUS: DECODED
                             </div>
                           </td>
@@ -209,8 +270,8 @@ export const generateWeeklyReport = inngest.createFunction(
                         <!-- Content Area -->
                         <tr>
                           <td style="padding: 20px 40px 40px 40px;">
-                            <div style="background: linear-gradient(180deg, ${color}08 0%, transparent 100%); border-radius: 8px; padding: 1px;">
-                              <div style="background: #080808; border-radius: 8px; padding: 30px; border: 1px solid ${color}11;">
+                            <div style="background: linear-gradient(180deg, ${mainColor}08 0%, transparent 100%); border-radius: 8px; padding: 1px;">
+                              <div style="background: #080808; border-radius: 8px; padding: 30px; border: 1px solid ${mainColor}11;">
                                 <div style="color: #dddddd; font-size: 15px; line-height: 1.8;">
                                   ${cleanContent}
                                 </div>
@@ -222,12 +283,12 @@ export const generateWeeklyReport = inngest.createFunction(
                         <!-- Footer Area -->
                         <tr>
                           <td style="padding: 0 40px 40px 40px; text-align: center;">
-                            <div style="height: 1px; background: linear-gradient(90deg, transparent, ${color}33, transparent); margin-bottom: 30px;"></div>
+                            <div style="height: 1px; background: linear-gradient(90deg, transparent, ${mainColor}33, transparent); margin-bottom: 30px;"></div>
                             <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.app'}/insight" 
-                               style="display: inline-block; padding: 18px 44px; background: ${color}; color: #000000; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; border-radius: 2px; box-shadow: 0 4px 20px ${color}44;">
+                               style="display: inline-block; padding: 18px 44px; background: ${mainColor}; color: #000000; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; border-radius: 2px; box-shadow: 0 4px 20px ${mainColor}44;">
                               进入控制塔 ANALYZE_FULL_DATA
                             </a>
-                            <p style="margin-top: 30px; color: ${color}44; font-size: 10px; font-family: monospace; text-transform: uppercase; letter-spacing: 1px;">
+                            <p style="margin-top: 30px; color: ${mainColor}44; font-size: 10px; font-family: monospace; text-transform: uppercase; letter-spacing: 1px;">
                               © 2026 NEOFEED NEURAL NETWORK // ALL DATA ENCRYPTED
                             </p>
                           </td>
