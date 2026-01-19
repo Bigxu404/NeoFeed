@@ -94,9 +94,14 @@ export const generateWeeklyReport = inngest.createFunction(
       请注意：
       1. 严禁在正文中输出 "Subject:" 或 "Body:" 等标签。
       2. 严禁使用一级标题 (#)。
-      3. 请使用二、三级标题 (##, ###) 组织结构。
-      4. 核心洞察请使用列表格式 (- )。
-      5. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
+      3. 请使用三级标题 (###) 组织每一条情报的标题。
+      4. 对于 RSS 订阅情报，请务必保留每一项的结构化分析：
+         - **研究主题**
+         - **研究方式**
+         - **研究结果**
+         - **闭环总结**（一句话总结：xx做了xx事情，解决了xx问题）
+      5. 必须附带原文 URL 链接。
+      6. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
 
       const completion = await openai.chat.completions.create({
         messages: [
@@ -149,11 +154,14 @@ export const generateWeeklyReport = inngest.createFunction(
         }
         
         const color = '#1ff40a';
+        // 💡 增强型 Markdown 渲染：支持更复杂的结构化排版
         const cleanContent = reportContent
-          .replace(/##\s?(.*)/g, `<h3 style="color: ${color}; font-size: 14px; text-transform: uppercase; margin: 24px 0 12px 0; border-bottom: 1px solid ${color}33; padding-bottom: 4px;">$1</h3>`)
-          .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #ffffff;">$1</strong>')
-          .replace(/-\s(.*)/g, `<div style="margin-bottom: 8px; color: ${color}cc; font-size: 14px; line-height: 1.6;">• $1</div>`)
-          .replace(/\n\n/g, '<br/>');
+          .replace(/###\s?(.*)/g, `<h3 style="color: ${color}; font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 32px 0 16px 0; border-left: 4px solid ${color}; padding-left: 12px; letter-spacing: 1px;">$1</h3>`)
+          .replace(/\*\*(研究主题|研究方式|研究结果|闭环总结)\*\*/g, `<span style="color: ${color}; font-size: 12px; font-weight: bold; background: ${color}22; padding: 2px 6px; border-radius: 2px; margin-right: 8px; font-family: monospace;">$1</span>`)
+          .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #ffffff; border-bottom: 1px dotted ${color}66;">$1</strong>`)
+          .replace(/\[原文链接\]\((.*?)\)/g, `<a href="$1" style="color: ${color}; text-decoration: none; font-size: 12px; border: 1px solid ${color}44; padding: 2px 8px; border-radius: 4px; margin-top: 8px; display: inline-block;">查看原文 SOURCE_LINK ↗</a>`)
+          .replace(/-\s(.*)/g, `<div style="margin-bottom: 12px; color: #bbbbbb; font-size: 14px; line-height: 1.6; padding-left: 16px; border-left: 1px solid ${color}22;">$1</div>`)
+          .replace(/\n/g, '<br/>');
 
         console.log(`📧 [Inngest] Sending ${reportType} report to ${notificationEmail}...`);
 
@@ -169,24 +177,67 @@ export const generateWeeklyReport = inngest.createFunction(
             to: [{ email: notificationEmail }],
             subject: reportType === 'insight' ? `Weekly Insight Report: ${new Date().toLocaleDateString('zh-CN')}` : `Weekly RSS Intelligence: ${new Date().toLocaleDateString('zh-CN')}`,
             htmlContent: `
-              <div style="font-family: 'ui-monospace', 'Cascadia Code', monospace; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border: 1px solid ${color};">
-                <div style="border-bottom: 1px double ${color}33; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-                  <span style="color: ${color}; font-size: 10px; font-weight: bold; letter-spacing: 2px;">NEURAL-LINK: STABLE</span>
-                  <span style="color: ${color}80; font-size: 10px;">TYPE: ${reportType.toUpperCase()}</span>
-                </div>
-                <h1 style="font-size: 22px; font-weight: 900; margin: 0 0 25px 0; color: #ffffff; text-transform: uppercase;">
-                  ${reportType === 'insight' ? '神经洞察周报' : 'RSS 订阅情报汇总'} <span style="color: ${color};">FALLOUT_PROTOCOL</span>
-                </h1>
-                <div style="background: ${color}05; border-radius: 4px; padding: 25px; border-left: 2px solid ${color}; line-height: 1.8;">
-                  ${cleanContent}
-                </div>
-                <div style="margin-top: 40px; text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.app'}/insight" 
-                     style="display: inline-block; padding: 15px 40px; background: ${color}; color: #000000; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">
-                    LAUNCH INSIGHT
-                  </a>
-                </div>
-              </div>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <style>
+                  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+                </style>
+              </head>
+              <body style="margin: 0; padding: 0; background-color: #000000;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #000000; font-family: 'Fira Code', 'Courier New', monospace;">
+                  <tr>
+                    <td align="center" style="padding: 40px 10px;">
+                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #050505; border: 1px solid ${color}33; border-top: 4px solid ${color};">
+                        <!-- Header Area -->
+                        <tr>
+                          <td style="padding: 40px 40px 20px 40px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                              <span style="color: ${color}; font-size: 11px; font-weight: bold; letter-spacing: 3px; font-family: monospace;">NEOFEED_INTEL_REPORT</span>
+                              <span style="color: ${color}66; font-size: 11px; font-family: monospace;">V3.0_STABLE</span>
+                            </div>
+                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: -1px; line-height: 1.1;">
+                              ${reportType === 'insight' ? '神经洞察' : 'RSS 订阅情报'} <br/>
+                              <span style="color: ${color};">WEEKLY_DIGEST</span>
+                            </h1>
+                            <div style="margin-top: 15px; font-size: 11px; color: ${color}88; font-family: monospace;">
+                              TIMESTAMP: ${new Date().toISOString()} // STATUS: DECODED
+                            </div>
+                          </td>
+                        </tr>
+
+                        <!-- Content Area -->
+                        <tr>
+                          <td style="padding: 20px 40px 40px 40px;">
+                            <div style="background: linear-gradient(180deg, ${color}08 0%, transparent 100%); border-radius: 8px; padding: 1px;">
+                              <div style="background: #080808; border-radius: 8px; padding: 30px; border: 1px solid ${color}11;">
+                                <div style="color: #dddddd; font-size: 15px; line-height: 1.8;">
+                                  ${cleanContent}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+
+                        <!-- Footer Area -->
+                        <tr>
+                          <td style="padding: 0 40px 40px 40px; text-align: center;">
+                            <div style="height: 1px; background: linear-gradient(90deg, transparent, ${color}33, transparent); margin-bottom: 30px;"></div>
+                            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.app'}/insight" 
+                               style="display: inline-block; padding: 18px 44px; background: ${color}; color: #000000; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; border-radius: 2px; box-shadow: 0 4px 20px ${color}44;">
+                              进入控制塔 ANALYZE_FULL_DATA
+                            </a>
+                            <p style="margin-top: 30px; color: ${color}44; font-size: 10px; font-family: monospace; text-transform: uppercase; letter-spacing: 1px;">
+                              © 2026 NEOFEED NEURAL NETWORK // ALL DATA ENCRYPTED
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+              </html>
             `
           })
         });
