@@ -136,7 +136,10 @@ export const generateWeeklyReport = inngest.createFunction(
     if (notificationEmail && savedReport) {
       await step.run("send-email", async () => {
         const brevoKey = process.env.BREVO_API_KEY;
-        if (!brevoKey) return;
+        if (!brevoKey) {
+          console.error("❌ [Inngest] Missing BREVO_API_KEY. Cannot send email.");
+          return { error: "Missing BREVO_API_KEY" };
+        }
         
         const color = '#1ff40a';
         const cleanContent = reportContent
@@ -145,7 +148,9 @@ export const generateWeeklyReport = inngest.createFunction(
           .replace(/-\s(.*)/g, `<div style="margin-bottom: 8px; color: ${color}cc; font-size: 14px; line-height: 1.6;">• $1</div>`)
           .replace(/\n\n/g, '<br/>');
 
-        await fetch('https://api.brevo.com/v3/smtp/email', {
+        console.log(`📧 [Inngest] Sending ${reportType} report to ${notificationEmail}...`);
+
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
           method: 'POST',
           headers: {
             'accept': 'application/json',
@@ -178,6 +183,15 @@ export const generateWeeklyReport = inngest.createFunction(
             `
           })
         });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          console.error("❌ [Inngest] Brevo API Error:", errData);
+          throw new Error(`Brevo Error: ${errData.message || response.statusText}`);
+        }
+
+        console.log("✅ [Inngest] Email sent successfully via Brevo.");
+        return { success: true };
       });
     }
 
