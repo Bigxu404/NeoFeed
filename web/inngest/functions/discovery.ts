@@ -17,22 +17,6 @@ export const subscriptionPoller = inngest.createFunction(
   async ({ step }) => {
     const supabase = createAdminClient();
 
-    // 获取所有订阅以及对应的用户配置
-    const { data: subscriptions, error } = await supabase
-      .from('subscriptions')
-      .select(`
-        id, 
-        url, 
-        user_id,
-        profiles!inner (
-          ai_config
-        )
-      `);
-
-    if (error || !subscriptions) {
-      return { status: "error", error: error?.message };
-    }
-
     const now = new Date();
     // 💡 改进时间判断逻辑：获取当前北京时间的小时和分钟
     // 使用 Intl API 获取，这比手动加 8 小时更稳健，尤其在处理夏令时或不同服务器环境时
