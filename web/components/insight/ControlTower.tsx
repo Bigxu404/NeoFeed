@@ -319,7 +319,7 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
 
       const reportRes = await triggerWeeklyReport(type);
       if (reportRes.success) {
-        toast.success(`${label}任务已下达`, { 
+        toast.success(`${label}任务已下达，预计1分钟后送达`, { 
           description: `报告将发送至: ${aiConfig?.notificationEmail || '您的邮箱'}`,
           duration: 5000
         });

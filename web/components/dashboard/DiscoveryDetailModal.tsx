@@ -64,17 +64,12 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
                   {item.title}
                 </h2>
 
-                {/* AI 推荐理由 */}
-                <div className="p-6 md:p-8 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 flex items-start gap-5">
-                  <div className="p-2.5 rounded-xl bg-cyan-500/10 shrink-0">
-                    <Sparkles className="w-5 h-5 text-cyan-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-bold text-cyan-400/40 uppercase tracking-[0.2em] font-mono">AI 深度分析</p>
-                    <p className="text-lg md:text-xl text-white/80 italic leading-relaxed">
-                      “{item.reason}”
-                    </p>
-                  </div>
+                {/* AI 一句话总结 */}
+                <div className="p-6 md:p-8 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 space-y-2">
+                  <p className="text-[11px] font-bold text-cyan-400/40 uppercase tracking-[0.2em] font-mono">一句话总结</p>
+                  <p className="text-lg md:text-xl text-white/80 italic leading-relaxed">
+                    “{item.reason}”
+                  </p>
                 </div>
 
                 {/* 正文摘要 */}
