@@ -183,26 +183,45 @@ export const generateWeeklyReport = inngest.createFunction(
         let cleanContent = '';
         if (isRss) {
           // 📖 纽约客升级版渲染逻辑 - 更加鲁棒的解析引擎
-          cleanContent = reportContent
-            // 1. 处理大分类标题 # 
-            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 45px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 8px;">$1</h2>`)
-            // 2. 处理文章标题 ### 或 数字编号开头
-            .replace(/^(?:###\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
-            // 3. 处理关键标签 (支持一句话总结、文章亮点，以及旧版的条目)
-            .replace(/\*\*(一句话总结|文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
-              `<div style="margin-top: 10px; margin-bottom: 4px;">
-                <strong style="color: ${accentColor}; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
-                <span style="color: #1a1a1a; font-size: 16px; line-height: 1.6;">$2</span>
+          // 1. 首先处理大分类标题 (不在卡片内)
+          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 50px 0 25px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
+
+          // 2. 将每一条情报识别为一个块，并包裹在卡片容器中
+          // 正则匹配：从 ### 或 数字开头，直到下一个标题或文档末尾
+          cleanContent = cleanContent.replace(/^(?:###\s?|\d+\.\s?)([\s\S]*?)(?=\n(?:###|\d+\.|#|$)|$)/gm, (match) => {
+            const lines = match.trim().split('\n');
+            const title = lines[0].replace(/^(?:###\s?|\d+\.\s?)/, '');
+            const body = lines.slice(1).join('\n');
+
+            return `
+              <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 0 0 15px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">${title}</h3>
+                <div style="font-family: 'Times New Roman', serif; color: #1a1a1a; line-height: 1.6;">
+                  ${body}
+                </div>
+              </div>
+            `;
+          });
+
+          // 3. 处理卡片内部的标签和链接
+          cleanContent = cleanContent
+            // 一句话总结：去掉红色，改为深灰色加粗
+            .replace(/\*\*(一句话总结)\*\*\s*[：:]?\s*(.*)/gm, 
+              `<div style="margin-top: 12px; margin-bottom: 6px;">
+                <strong style="color: #333333; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
+                <span style="color: #1a1a1a; font-size: 16px;">$2</span>
               </div>`)
-            // 5. 彻底解决链接双重渲染问题：匹配 [文字](链接) 并转为单个超链接
-            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 15px;"><a href="$2" style="color: #0000ee; text-decoration: underline; font-size: 14px; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
-            // 6. 清理可能残留在链接后的冗余 URL 括号 (URL)
+            // 文章亮点：可以保留一点强调色（比如深灰色或稍微明显的颜色）
+            .replace(/\*\*(文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
+              `<div style="margin-top: 10px; margin-bottom: 4px;">
+                <strong style="color: #555555; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
+                <span style="color: #1a1a1a; font-size: 16px;">$2</span>
+              </div>`)
+            // 链接处理
+            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 14px; font-weight: bold; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px;">$1 READ_MORE »</a></div>`)
             .replace(/\s*\(https?:\/\/.*?\)/g, '')
-            // 7. 清理残留的加粗星号（针对未被匹配到的加粗文本）
             .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #000000;">$1</strong>`)
-            // 8. 清理多余的列表符号
             .replace(/^\s*[-•]\s*/gm, '')
-            // 9. 换行符转为 HTML 换行
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
