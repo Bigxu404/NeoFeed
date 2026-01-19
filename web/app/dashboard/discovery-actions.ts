@@ -89,6 +89,9 @@ export async function triggerAllSubscriptionsSync() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
 
+  console.log(`🚀 [Inngest] Manually triggering full RSS sync for user: ${user.id}`);
+  console.log(`📡 [Inngest] Event Key Present: ${!!process.env.INNGEST_EVENT_KEY}`);
+
   // 获取该用户所有的订阅
   const { data: subs, error } = await supabase
     .from('subscriptions')
@@ -109,9 +112,11 @@ export async function triggerAllSubscriptionsSync() {
   }));
 
   try {
-    await inngest.send(events);
+    const res = await inngest.send(events);
+    console.log(`✅ [Inngest] RSS Sync Events sent. IDs:`, res.ids);
     return { success: true, count: subs.length };
   } catch (err: any) {
+    console.error(`❌ [Inngest] RSS Sync trigger failed:`, err);
     return { error: err.message };
   }
 }

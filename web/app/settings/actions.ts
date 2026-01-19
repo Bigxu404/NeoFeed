@@ -370,14 +370,18 @@ export async function triggerWeeklyReport(type: 'insight' | 'rss' = 'insight') {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
 
+  console.log(`🚀 [Inngest] Manually triggering ${type} report for user: ${user.id}`);
+  console.log(`📡 [Inngest] Using Event Key: ${process.env.INNGEST_EVENT_KEY ? 'EXISTS' : 'MISSING'}`);
+
   try {
-    await inngest.send({
+    const res = await inngest.send({
       name: `report/generate.${type}`,
       data: {
         userId: user.id,
       },
     });
 
+    console.log(`✅ [Inngest] Event sent successfully. Event ID:`, res.ids?.[0]);
     return { success: true };
   } catch (err: any) {
     console.error(`❌ [${type} Report] Failed to trigger:`, err);
