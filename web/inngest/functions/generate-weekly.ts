@@ -94,14 +94,15 @@ export const generateWeeklyReport = inngest.createFunction(
       请注意：
       1. 严禁在正文中输出 "Subject:" 或 "Body:" 等标签。
       2. 严禁使用一级标题 (#)。
-      3. 请使用三级标题 (###) 组织每一条情报的标题。
-      4. 对于 RSS 订阅情报，请务必保留每一项的结构化分析：
-         - **研究主题**
-         - **研究方式**
-         - **研究结果**
-         - **闭环总结**（一句话总结：xx做了xx事情，解决了xx问题）
-      5. 必须附带原文 URL 链接。
-      6. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
+      3. 请按照以下格式组织 RSS 订阅情报：
+         - 使用 # 加粗大标题组织分类（例如：# 教育科技前沿）
+         - 每一条具体情报标题前加上数字编号（例如：1. 批判性忽略）
+         - 每一项必须包含：
+           - **一句话总结**：[主体]做了[什么事情]，解决了[什么问题]
+           - **文章亮点**：提炼该内容的 1 个核心创新点或差异化特征
+           - **原文链接**：使用格式 [点击阅读](URL)
+      4. 字体风格：英文部分请保持 Times New Roman 的优雅感。
+      5. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
 
       const completion = await openai.chat.completions.create({
         messages: [
@@ -161,13 +162,12 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 纽约客风格渲染逻辑
+          // 📖 纽约客升级版渲染逻辑
           cleanContent = reportContent
-            .replace(/###\s?(.*)/g, `<h3 style="color: #000000; font-size: 24px; font-weight: bold; margin: 40px 0 10px 0; font-family: 'Georgia', serif; line-height: 1.2;">$1</h3>`)
-            .replace(/\*\*(研究主题|研究方式|研究结果|闭环总结)\*\*/g, `<span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif; display: block; margin-top: 15px;">$1</span>`)
-            .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #000000;">$1</strong>`)
-            .replace(/\[查看原文 SOURCE_LINK ↗\]\((.*?)\)/g, `<a href="$1" style="color: #000000; text-decoration: underline; font-size: 13px; font-style: italic; display: block; margin-top: 10px; font-family: 'Georgia', serif;">Continue reading »</a>`)
-            .replace(/-\s(.*)/g, `<div style="margin-bottom: 15px; color: #1a1a1a; font-size: 16px; line-height: 1.8; font-family: 'Georgia', serif;">$1</div>`)
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 28px; font-weight: bold; margin: 50px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px;">$1</h2>`)
+            .replace(/^\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 22px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
+            .replace(/\*\*(一句话总结|文章亮点)\*\*/g, `<span style="color: ${accentColor}; font-size: 13px; font-weight: bold; font-family: sans-serif; margin-right: 8px;">$1:</span>`)
+            .replace(/\[点击阅读\]\((.*?)\)/g, `<a href="$1" style="color: #0000ee; text-decoration: underline; font-size: 15px; font-style: italic; font-family: 'Times New Roman', serif; margin-top: 10px; display: inline-block;">点击阅读 READ_MORE »</a>`)
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
@@ -200,35 +200,39 @@ export const generateWeeklyReport = inngest.createFunction(
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f0;">
                   <tr>
                     <td align="center" style="padding: 40px 10px;">
-                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #fbfaf8; border-top: 3px solid #000000; border-bottom: 1px solid #d2d2d2;">
+                      <table role="presentation" width="750" cellspacing="0" cellpadding="0" border="0" style="background-color: #fbfaf8; border-top: 4px solid #000000; border-bottom: 1px solid #d2d2d2; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
                         <!-- Header -->
                         <tr>
-                          <td style="padding: 50px 50px 20px 50px; text-align: center;">
-                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 4px; color: #cc0000; margin-bottom: 20px; text-transform: uppercase;">
-                              Intelligence Report
+                          <td style="padding: 60px 60px 20px 60px; text-align: center;">
+                            <div style="font-family: sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 5px; color: #cc0000; margin-bottom: 25px; text-transform: uppercase;">
+                              INSIGHT REPORT
                             </div>
-                            <h1 style="font-family: 'Georgia', serif; font-size: 42px; font-weight: normal; color: #000000; margin: 0; line-height: 1;">
+                            <h1 style="font-family: 'Times New Roman', serif; font-size: 52px; font-weight: normal; color: #000000; margin: 0; line-height: 1; letter-spacing: -1px;">
                               NeoFeed
                             </h1>
-                            <div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; margin-top: 25px; padding: 8px 0; display: flex; justify-content: space-between; font-family: 'Georgia', serif; font-style: italic; font-size: 13px;">
-                              <span>New York, NY</span>
-                              <span>${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                              <span>Weekly Edition</span>
+                            <div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; margin-top: 30px; padding: 10px 0; display: flex; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; font-size: 15px; color: #666;">
+                              <span>${new Date().toISOString().split('T')[0]}</span>
                             </div>
                           </td>
                         </tr>
                         <!-- Content -->
                         <tr>
-                          <td style="padding: 10px 50px 50px 50px;">
-                            <div style="font-family: 'Georgia', serif; color: #1a1a1a; border-bottom: 1px solid #eee; padding-bottom: 30px;">
+                          <td style="padding: 10px 60px 60px 60px;">
+                            <div style="font-family: 'Times New Roman', serif; color: #1a1a1a; line-height: 1.8;">
                               ${cleanContent}
                             </div>
                           </td>
                         </tr>
                         <!-- Footer -->
                         <tr>
-                          <td style="padding: 30px 50px; text-align: center; font-family: sans-serif; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">
-                            Published by NeoFeed Neural Network // All Rights Reserved
+                          <td style="padding: 40px 60px; text-align: center; border-top: 1px solid #eee;">
+                            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://neofeed.app'}/insight" 
+                               style="display: inline-block; padding: 15px 50px; background: #000000; color: #ffffff; text-decoration: none; font-family: sans-serif; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; border-radius: 2px;">
+                              ENTER NEOFEED
+                            </a>
+                            <p style="margin-top: 30px; font-family: 'Times New Roman', serif; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px;">
+                              © 2026 NEOFEED NEURAL NETWORK // INTELLIGENCE DECODED
+                            </p>
                           </td>
                         </tr>
                       </table>
