@@ -87,20 +87,20 @@ export const generateWeeklyReport = inngest.createFunction(
       
       const context = reportType === 'insight'
         ? dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n')
-        : dataItems.map((d: any) => `- [RSS订阅][${(d.category || '情报拦截').toUpperCase()}] 来自 ${d.source_name}: ${d.title}\n一句话总结: ${d.reason}\n深度解析: ${d.summary}\n原文链接: ${d.url}`).join('\n');
+        : dataItems.map((d: any) => `- [RSS订阅] 标题: ${d.title}\n  来源: ${d.source_name}\n  核心摘要: ${d.reason}\n  深度背景: ${d.summary}\n  原始地址: ${d.url}`).join('\n');
 
       const customPrompt = reportType === 'insight' ? userConfig.insightPrompt : userConfig.rssPrompt;
       const systemPrompt = `${customPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...'}
       请注意：
       1. 严禁在正文中输出 "Subject:" 或 "Body:" 等标签。
       2. 严禁使用一级标题 (#)。
-      3. 请按照以下格式组织 RSS 订阅情报：
+      3. 对于 RSS 订阅情报，请务必遵循以下**严格 Markdown 格式**进行排版，确保包含加粗星号：
          - 使用 # 加粗大标题组织分类（例如：# 教育科技前沿）
          - 每一条具体情报标题前加上数字编号（例如：1. 批判性忽略）
-         - 每一项必须包含：
-           - **一句话总结**：[主体]做了[什么事情]，解决了[什么问题]
-           - **文章亮点**：提炼该内容的 1 个核心创新点或差异化特征
-           - **原文链接**：使用格式 [点击阅读](URL)
+         - 每一项内容必须分行书写，格式如下：
+           **一句话总结**：在此处写下闭环总结（[主体]做了[什么]，解决了[什么]）
+           **文章亮点**：提炼该内容的 1 个核心创新点
+           [点击阅读](URL)
       4. 字体风格：英文部分请保持 Times New Roman 的优雅感。
       5. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
 
@@ -134,6 +134,22 @@ export const generateWeeklyReport = inngest.createFunction(
 
       if (error) throw new Error(error.message);
 
+      // 💡 关键改进：仅保留最近 10 封周报
+      const { data: allReports } = await supabase
+        .from('weekly_reports')
+        .select('id')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (allReports && allReports.length > 10) {
+        const idsToDelete = allReports.slice(10).map(r => r.id);
+        await supabase
+          .from('weekly_reports')
+          .delete()
+          .in('id', idsToDelete);
+        console.log(`♻️ [Cleanup] Deleted ${idsToDelete.length} old reports for user ${userId}`);
+      }
+
       if (report && reportType === 'insight') {
         const links = dataItems.map((f: any) => ({
           report_id: report.id,
@@ -164,10 +180,10 @@ export const generateWeeklyReport = inngest.createFunction(
         if (isRss) {
           // 📖 纽约客升级版渲染逻辑
           cleanContent = reportContent
-            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 28px; font-weight: bold; margin: 50px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px;">$1</h2>`)
-            .replace(/^\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 22px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
-            .replace(/\*\*(一句话总结|文章亮点)\*\*/g, `<span style="color: ${accentColor}; font-size: 13px; font-weight: bold; font-family: sans-serif; margin-right: 8px;">$1:</span>`)
-            .replace(/\[点击阅读\]\((.*?)\)/g, `<a href="$1" style="color: #0000ee; text-decoration: underline; font-size: 15px; font-style: italic; font-family: 'Times New Roman', serif; margin-top: 10px; display: inline-block;">点击阅读 READ_MORE »</a>`)
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 45px 0 15px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 8px;">$1</h2>`)
+            .replace(/^\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 25px 0 12px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
+            .replace(/\*\*(一句话总结|文章亮点)\*\*\s*[：:]?\s*(.*)\n?/gm, `<div style="margin-top: 8px;"><strong style="color: ${accentColor}; font-size: 14px; font-family: sans-serif;">$1:</strong> <span style="color: #1a1a1a; font-size: 16px;">$2</span></div>`)
+            .replace(/\[点击阅读\]\((.*?)\)/g, `<div style="margin-top: 12px;"><a href="$1" style="color: #0000ee; text-decoration: underline; font-size: 14px; font-style: italic; font-family: 'Times New Roman', serif;">点击阅读 READ_MORE »</a></div>`)
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
