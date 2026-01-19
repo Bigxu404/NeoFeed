@@ -17,7 +17,14 @@ export const generateWeeklyReport = inngest.createFunction(
        return { status: "error", reason: "userId is required" };
     }
 
-    console.log(`🚀 [Inngest] Generating ${reportType} report for user: ${userId}`);
+    // 💡 关键改进：引入 30s 等待机制
+    // 如果是手动触发的 RSS 周报，需要给 RSS 抓取任务留出足够的 AI 处理时间
+    if (reportType === 'rss') {
+      console.log(`⏳ [Inngest] Waiting 30s for RSS sync to complete before generating report...`);
+      await step.sleep("wait-for-rss-sync", "30s");
+    }
+
+    console.log(`🚀 [Inngest] Starting ${reportType} report generation for user: ${userId}`);
 
     const { userConfig, dataItems, notificationEmail } = await step.run("fetch-data", async () => {
       const supabase = createAdminClient();
