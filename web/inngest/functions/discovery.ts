@@ -162,7 +162,7 @@ export const rssProcessor = inngest.createFunction(
         await supabase
           .from('discovery_stream')
           .delete()
-          .eq('user_id', userId)
+          .eq('user_id', userId) // 🛡️ 必须同时校验用户ID，防止误删其他用户的数据
           .eq('source_name', sourceName);
       }
 
