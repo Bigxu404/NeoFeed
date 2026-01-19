@@ -170,12 +170,12 @@ export const rssProcessor = inngest.createFunction(
         const original = feedItems[res.index];
         if (!original) return null;
 
-        // 💡 格式化四段式总结存入 summary
-        const structuredSummary = `
-主题：${res.structured_summary.topic}
-方式：${res.structured_summary.method}
-结果：${res.structured_summary.result}
-        `.trim();
+               // 💡 格式化四段式总结存入 summary
+               const structuredSummary = `
+研究主题：${res.structured_summary.topic}
+研究方法：${res.structured_summary.method}
+研究结果：${res.structured_summary.result}
+               `.trim();
 
         return {
           user_id: userId,

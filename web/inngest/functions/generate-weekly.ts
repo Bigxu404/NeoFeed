@@ -112,9 +112,8 @@ export const generateWeeklyReport = inngest.createFunction(
           md += `# ${source}\n\n`;
           items.forEach((it, idx) => {
             md += `### ${idx + 1}. ${it.title}\n`;
-            md += `**分类**: ${it.category || '情报拦截'}\n`;
-            md += `**一句话总结**: ${it.reason}\n`;
-            md += `**深度解析**:\n${it.summary}\n`;
+            md += `**SUMMARY**: ${it.reason}\n`;
+            md += `**DETAIL**:\n${it.summary}\n`;
             md += `[阅读原文](${it.url})\n\n`;
           });
         });
@@ -184,20 +183,22 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 极简直通车渲染逻辑 - 直接解析手动构建的 MD
+          // 📖 极简直通车渲染逻辑 - 压缩间距、按源分组、移除关键词、专业标签
           cleanContent = reportContent
-            // 1. 处理大分类 (源名称)
-            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 50px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`)
-            // 2. 处理文章标题
-            .replace(/^###\s?\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 19px; font-weight: bold; margin: 30px 0 8px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
-            // 3. 处理分类标签
-            .replace(/^\*\*分类\*\*:\s*(.*)/gm, `<div style="margin-bottom: 10px;"><span style="background: #f0f0f0; color: #666; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; text-transform: uppercase;">$1</span></div>`)
-            // 4. 处理一句话总结 (去除颜色，紧凑排版)
-            .replace(/^\*\*一句话总结\*\*:\s*(.*)/gm, `<div style="margin-bottom: 8px;"><strong style="color: #000000; font-size: 14px; font-family: sans-serif;">SUMMARY:</strong> <span style="color: #333; font-size: 15px; line-height: 1.6;">$1</span></div>`)
-            // 5. 处理深度解析 (包含主题、方式、结果)
-            .replace(/^\*\*深度解析\*\*:\s*/gm, `<div style="margin-top: 12px; border-left: 2px solid #eee; padding-left: 15px; color: #555; font-size: 14px; line-height: 1.7; font-style: italic;">`)
-            // 6. 处理链接
-            .replace(/\[阅读原文\]\((https?:\/\/.*?)\)/g, `</div><div style="margin-top: 12px;"><a href="$1" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-family: sans-serif;">READ FULL ARTICLE »</a></div>`)
+            // 1. 处理大分类 (源名称 - 期刊名)
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 20px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif; border-left: 4px solid #cc0000; padding-left: 12px; text-transform: uppercase; letter-spacing: 1px;">$1</h2>`)
+            // 2. 处理文章标题 (去除所有 Markdown 符号)
+            .replace(/^###\s?\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 18px; font-weight: bold; margin: 15px 0 8px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
+            // 3. 处理一句话总结 (SUMMARY)
+            .replace(/^\*\*SUMMARY\*\*:\s*(.*)/gm, `<div style="margin-bottom: 10px;"><strong style="color: #000000; font-size: 13px; font-family: sans-serif; letter-spacing: 0.5px;">SUMMARY:</strong> <span style="color: #333; font-size: 15px; line-height: 1.5;">$1</span></div>`)
+            // 4. 处理深度解析 (标签更名 + 压缩间距)
+            .replace(/^\*\*DETAIL\*\*:\s*/gm, `<div style="margin: 10px 0; border-left: 1px solid #ddd; padding-left: 15px; color: #666; font-size: 14px; line-height: 1.6; font-style: italic;">`)
+            // 5. 替换旧标签为新专业标签 (处理存量数据)
+            .replace(/主题：/g, '研究主题：')
+            .replace(/方式：/g, '研究方法：')
+            .replace(/结果：/g, '研究结果：')
+            // 6. 处理链接 (紧凑排列)
+            .replace(/\[阅读原文\]\((https?:\/\/.*?)\)/g, `</div><div style="margin-top: 8px; margin-bottom: 20px;"><a href="$1" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-family: sans-serif;">READ FULL ARTICLE »</a></div>`)
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
