@@ -88,7 +88,8 @@ export const generateWeeklyReport = inngest.createFunction(
       const context = reportType === 'insight'
         ? dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n')
         : dataItems.map((d: any) => `
-### [源: ${d.source_name}] ${d.title}
+### [原文标题 - 必须翻译为中文]: ${d.title}
+源: ${d.source_name}
 一句话总结: ${d.reason}
 核心亮点: ${d.category || '情报拦截'}
 详细背景: ${d.summary}
@@ -182,27 +183,28 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 纽约客升级版渲染逻辑 - 极简排版引擎 (去线框、去##、标题中文)
-          // 1. 首先处理大分类标题
-          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 60px 0 30px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 12px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
+          // 📖 纽约客升级版渲染逻辑 - 极简排版引擎 (去线框、去##、标题中文、压缩间距)
+          // 1. 处理大分类标题
+          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 40px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
 
-          // 2. 清理正文中的 Markdown 符号
+          // 2. 处理正文内容
           cleanContent = cleanContent
-            // 彻底去除条目开头的 ## 或 ###
-            .replace(/^(?:###\s?|##\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 22px; font-weight: bold; margin: 40px 0 15px 0; font-family: 'Times New Roman', serif; line-height: 1.4;">$1</h3>`)
-            // 处理标签：分行、加粗标签名、正文普通字重
+            // 彻底去除条目开头的 ## 或 ###，压缩标题边距
+            .replace(/^(?:###\s?|##\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 19px; font-weight: bold; margin: 25px 0 5px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
+            // 处理标签：分行、加粗标签名、大幅度压缩间距 (margin 从 15px 降到 2px)
             .replace(/\*\*(一句话总结|文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
-              `<div style="margin-top: 15px; margin-bottom: 8px;">
-                <strong style="color: #000000; font-size: 15px; font-family: sans-serif; letter-spacing: 0.5px;">$1:</strong> 
-                <span style="color: #333333; font-size: 16px; line-height: 1.7;">$2</span>
+              `<div style="margin-top: 2px; margin-bottom: 2px;">
+                <strong style="color: #000000; font-size: 14px; font-family: sans-serif;">$1:</strong> 
+                <span style="color: #333333; font-size: 15px; line-height: 1.5;">$2</span>
               </div>`)
-            // 处理阅读原文链接：去掉括号重复显示
-            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 15px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 14px; font-weight: bold; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
-            // 清理多余的 URL 括号
+            // 处理阅读原文链接：紧贴上方内容
+            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 8px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
+            // 清理多余符号
             .replace(/\s*\(https?:\/\/.*?\)/g, '')
-            // 清理多余的星号和列表符
             .replace(/\*\*(.*?)\*\*/g, `$1`)
             .replace(/^\s*[-•]\s*/gm, '')
+            // 压缩多余换行
+            .replace(/\n\n/g, '\n')
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
