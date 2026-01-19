@@ -87,22 +87,27 @@ export const generateWeeklyReport = inngest.createFunction(
       
       const context = reportType === 'insight'
         ? dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n')
-        : dataItems.map((d: any) => `- [RSS订阅] 标题: ${d.title}\n  来源: ${d.source_name}\n  核心摘要: ${d.reason}\n  深度背景: ${d.summary}\n  原始地址: ${d.url}`).join('\n');
+        : dataItems.map((d: any) => `
+### [源: ${d.source_name}] ${d.title}
+一句话总结: ${d.reason}
+核心亮点: ${d.category || '情报拦截'}
+详细背景: ${d.summary}
+原文链接: ${d.url}
+-------------------`).join('\n');
 
       const customPrompt = reportType === 'insight' ? userConfig.insightPrompt : userConfig.rssPrompt;
       const systemPrompt = `${customPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...'}
-      请注意：
-      1. 严禁在正文中输出 "Subject:" 或 "Body:" 等标签。
-      2. 严禁使用一级标题 (#)。
-      3. 对于 RSS 订阅情报，请务必遵循以下**严格 Markdown 格式**进行排版，确保包含加粗星号：
-         - 使用 # 加粗大标题组织分类（例如：# 教育科技前沿）
-         - 每一条具体情报标题前加上数字编号（例如：1. 批判性忽略）
-         - 每一项内容必须分行书写，格式如下：
-           **一句话总结**：在此处写下闭环总结（[主体]做了[什么]，解决了[什么]）
-           **文章亮点**：提炼该内容的 1 个核心创新点
-           [点击阅读](URL)
-      4. 字体风格：英文部分请保持 Times New Roman 的优雅感。
-      5. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
+      请注意以下**强制性**排版要求，违反任何一项都将导致报告解析错误：
+      1. **严禁**输出 "Subject:" 或 "Body:" 等标签。
+      2. **严禁**使用一级标题 (#)。请使用 # 加粗大标题组织分类（例如：# 教育科技前沿）。
+      3. **每一条** RSS 情报必须严格遵循以下格式（不要带列表符号 '-'）：
+         ### [数字编号]. [文章标题]
+         **一句话总结**：[主体]做了[什么]，解决了[什么]（必须包含这四个字，必须分行）
+         **文章亮点**：提炼该内容的 1 个核心创新点（必须包含这四个字，必须分行）
+         [阅读原文](URL)
+      4. **严禁**使用“情报简述”、“信号链路”等陈旧标签，必须使用上面指定的加粗标签。
+      5. 字体风格：英文部分请保持 Times New Roman 的优雅感。
+      6. 当前报告类型：${reportType === 'insight' ? '手动捕捉内容深度洞察' : 'RSS 订阅情报汇总'}。`;
 
       const completion = await openai.chat.completions.create({
         messages: [
@@ -178,12 +183,27 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 纽约客升级版渲染逻辑
+          // 📖 纽约客升级版渲染逻辑 - 更加鲁棒的解析引擎
           cleanContent = reportContent
-            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 45px 0 15px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 8px;">$1</h2>`)
-            .replace(/^\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 25px 0 12px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
-            .replace(/\*\*(一句话总结|文章亮点)\*\*\s*[：:]?\s*(.*)\n?/gm, `<div style="margin-top: 8px;"><strong style="color: ${accentColor}; font-size: 14px; font-family: sans-serif;">$1:</strong> <span style="color: #1a1a1a; font-size: 16px;">$2</span></div>`)
-            .replace(/\[点击阅读\]\((.*?)\)/g, `<div style="margin-top: 12px;"><a href="$1" style="color: #0000ee; text-decoration: underline; font-size: 14px; font-style: italic; font-family: 'Times New Roman', serif;">点击阅读 READ_MORE »</a></div>`)
+            // 1. 处理大分类标题 # 
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 45px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 8px;">$1</h2>`)
+            // 2. 处理文章标题 ### 或 数字编号开头
+            .replace(/^(?:###\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif;">$1</h3>`)
+            // 3. 处理关键标签 (支持一句话总结、文章亮点，以及旧版的条目)
+            .replace(/\*\*(一句话总结|文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
+              `<div style="margin-top: 10px; margin-bottom: 4px;">
+                <strong style="color: ${accentColor}; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
+                <span style="color: #1a1a1a; font-size: 16px; line-height: 1.6;">$2</span>
+              </div>`)
+            // 5. 彻底解决链接双重渲染问题：匹配 [文字](链接) 并转为单个超链接
+            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 15px;"><a href="$2" style="color: #0000ee; text-decoration: underline; font-size: 14px; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
+            // 6. 清理可能残留在链接后的冗余 URL 括号 (URL)
+            .replace(/\s*\(https?:\/\/.*?\)/g, '')
+            // 7. 清理残留的加粗星号（针对未被匹配到的加粗文本）
+            .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #000000;">$1</strong>`)
+            // 8. 清理多余的列表符号
+            .replace(/^\s*[-•]\s*/gm, '')
+            // 9. 换行符转为 HTML 换行
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
