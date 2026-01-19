@@ -75,50 +75,51 @@ export const generateWeeklyReport = inngest.createFunction(
 
     console.log(`📡 [Inngest] Found ${dataItems.length} items. Starting AI generation...`);
 
-    // 2. AI Generation
-    const reportContent = await step.run("ai-generate", async () => {
-      let apiKey = userConfig.apiKey || process.env.SILICONFLOW_API_KEY;
-      let baseURL = userConfig.baseURL?.trim().replace(/\/+$/, '') || "https://api.siliconflow.cn/v1";
-      let model = userConfig.model || "deepseek-ai/DeepSeek-V3";
+    // 2. Generation logic
+    const reportContent = await step.run("generate-content", async () => {
+      if (reportType === 'insight') {
+        // [Insight Report] 依然需要 AI 深度总结，因为它是散乱的手动笔记
+        let apiKey = userConfig.apiKey || process.env.SILICONFLOW_API_KEY;
+        let baseURL = userConfig.baseURL?.trim().replace(/\/+$/, '') || "https://api.siliconflow.cn/v1";
+        let model = userConfig.model || "deepseek-ai/DeepSeek-V3";
+        if (!apiKey) throw new Error("No API Key available for generation.");
+        const openai = new OpenAI({ apiKey, baseURL });
+        
+        const context = dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n');
+        const customPrompt = userConfig.insightPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...';
+        
+        const completion = await openai.chat.completions.create({
+          messages: [
+            { role: "system", content: customPrompt },
+            { role: "user", content: `请根据以下手动捕捉内容生成每周洞察报告：\n\n${context}` }
+          ],
+          model: model,
+          temperature: 0.7,
+        });
+        return completion.choices[0].message.content || "Failed to generate report.";
+      } else {
+        // [RSS Report] 🚀 简化：直接从数据库构建，不再调用 AI
+        // 1. 按 source_name 分组
+        const grouped: Record<string, any[]> = {};
+        dataItems.forEach((item: any) => {
+          if (!grouped[item.source_name]) grouped[item.source_name] = [];
+          grouped[item.source_name].push(item);
+        });
 
-      if (!apiKey) throw new Error("No API Key available for generation.");
-
-      const openai = new OpenAI({ apiKey, baseURL });
-      
-      const context = reportType === 'insight'
-        ? dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n')
-        : dataItems.map((d: any) => `
-### [原文标题 - 必须翻译为中文]: ${d.title}
-源: ${d.source_name}
-一句话总结: ${d.reason}
-核心亮点: ${d.category || '情报拦截'}
-详细背景: ${d.summary}
-原文链接: ${d.url}
--------------------`).join('\n');
-
-      const customPrompt = reportType === 'insight' ? userConfig.insightPrompt : userConfig.rssPrompt;
-      const systemPrompt = `${customPrompt || 'You are NeoFeed Intelligence, an elite information analyst.'}
-
-      [OUTPUT STRUCTURE REQUISITES]
-      1. 分类标题：使用 # 前缀（例如：# 科技前沿）。
-      2. 条目名称：使用 [数字编号]. [文章标题] 格式，不要带任何 ### 或 ## 前缀。
-      3. 标题语言：请务必将文章标题翻译为简洁、地道的中文。
-      4. 结构化标签：每条情报必须包含两个加粗标签，且必须分行：
-         **一句话总结**：[内容]
-         **文章亮点**：[内容]
-      5. 原文链接：使用标准格式 [阅读原文](URL)。
-      6. 严禁使用列表符号（如 - 或 *）作为条目开头。`;
-
-      const completion = await openai.chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `请根据以下内容生成${reportType === 'insight' ? '每周洞察报告' : '每周订阅情报汇总'}：\n\n${context}` }
-        ],
-        model: model,
-        temperature: 0.7,
-      });
-
-      return completion.choices[0].message.content || "Failed to generate report.";
+        // 2. 构建 Markdown 字符串 (作为数据库存档)
+        let md = "";
+        Object.entries(grouped).forEach(([source, items]) => {
+          md += `# ${source}\n\n`;
+          items.forEach((it, idx) => {
+            md += `### ${idx + 1}. ${it.title}\n`;
+            md += `**分类**: ${it.category || '情报拦截'}\n`;
+            md += `**一句话总结**: ${it.reason}\n`;
+            md += `**深度解析**:\n${it.summary}\n`;
+            md += `[阅读原文](${it.url})\n\n`;
+          });
+        });
+        return md;
+      }
     });
 
     // 3. Save Report
@@ -183,28 +184,20 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 纽约客升级版渲染逻辑 - 极简排版引擎 (去线框、去##、标题中文、压缩间距)
-          // 1. 处理大分类标题
-          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 40px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
-
-          // 2. 处理正文内容
-          cleanContent = cleanContent
-            // 彻底去除条目开头的 ## 或 ###，压缩标题边距
-            .replace(/^(?:###\s?|##\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 19px; font-weight: bold; margin: 25px 0 5px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
-            // 处理标签：分行、加粗标签名、大幅度压缩间距 (margin 从 15px 降到 2px)
-            .replace(/\*\*(一句话总结|文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
-              `<div style="margin-top: 2px; margin-bottom: 2px;">
-                <strong style="color: #000000; font-size: 14px; font-family: sans-serif;">$1:</strong> 
-                <span style="color: #333333; font-size: 15px; line-height: 1.5;">$2</span>
-              </div>`)
-            // 处理阅读原文链接：紧贴上方内容
-            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 8px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
-            // 清理多余符号
-            .replace(/\s*\(https?:\/\/.*?\)/g, '')
-            .replace(/\*\*(.*?)\*\*/g, `$1`)
-            .replace(/^\s*[-•]\s*/gm, '')
-            // 压缩多余换行
-            .replace(/\n\n/g, '\n')
+          // 📖 极简直通车渲染逻辑 - 直接解析手动构建的 MD
+          cleanContent = reportContent
+            // 1. 处理大分类 (源名称)
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 50px 0 20px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`)
+            // 2. 处理文章标题
+            .replace(/^###\s?\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 19px; font-weight: bold; margin: 30px 0 8px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
+            // 3. 处理分类标签
+            .replace(/^\*\*分类\*\*:\s*(.*)/gm, `<div style="margin-bottom: 10px;"><span style="background: #f0f0f0; color: #666; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; text-transform: uppercase;">$1</span></div>`)
+            // 4. 处理一句话总结 (去除颜色，紧凑排版)
+            .replace(/^\*\*一句话总结\*\*:\s*(.*)/gm, `<div style="margin-bottom: 8px;"><strong style="color: #000000; font-size: 14px; font-family: sans-serif;">SUMMARY:</strong> <span style="color: #333; font-size: 15px; line-height: 1.6;">$1</span></div>`)
+            // 5. 处理深度解析 (包含主题、方式、结果)
+            .replace(/^\*\*深度解析\*\*:\s*/gm, `<div style="margin-top: 12px; border-left: 2px solid #eee; padding-left: 15px; color: #555; font-size: 14px; line-height: 1.7; font-style: italic;">`)
+            // 6. 处理链接
+            .replace(/\[阅读原文\]\((https?:\/\/.*?)\)/g, `</div><div style="margin-top: 12px;"><a href="$1" style="color: #cc0000; text-decoration: none; font-size: 13px; font-weight: bold; font-family: sans-serif;">READ FULL ARTICLE »</a></div>`)
             .replace(/\n/g, '<br/>');
         } else {
           // ☢️ 辐射风格渲染逻辑 (保留原样)
