@@ -34,26 +34,59 @@ export const subscriptionPoller = inngest.createFunction(
     }
 
     const now = new Date();
-    // 转换为北京时间 (UTC+8) 进行判断
-    const bjTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-    const day = bjTime.getUTCDay(); // 0 is Sunday, 1 is Monday
-    const hour = bjTime.getUTCHours();
-    const minute = bjTime.getUTCMinutes();
+    // 💡 改进时间判断逻辑：获取当前北京时间的小时和分钟
+    // 使用 Intl API 获取，这比手动加 8 小时更稳健，尤其在处理夏令时或不同服务器环境时
+    const bjTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" });
+    const bjDate = new Date(bjTimeStr);
+    
+    const day = bjDate.getDay(); // 0 is Sunday, 1 is Monday
+    const hour = bjDate.getHours();
+    const minute = bjDate.getMinutes();
 
-    console.log(`🕒 [Poller] Checking subscriptions at BJ Time: ${hour}:${minute}, Day: ${day}`);
+    console.log(`🕒 [Poller] Current Server Time: ${now.toISOString()}`);
+    console.log(`🕒 [Poller] Computed Beijing Time: ${hour}:${minute}, Day: ${day}`);
+
+    // 获取所有订阅
+    const { data: subscriptions, error } = await supabase
+      .from('subscriptions')
+      .select(`
+        id, 
+        url, 
+        user_id,
+        profiles (
+          ai_config
+        )
+      `);
+
+    if (error) {
+      console.error("❌ [Poller] Database error:", error);
+      return { status: "error", error: error.message };
+    }
+
+    if (!subscriptions || subscriptions.length === 0) {
+      console.log("ℹ️ [Poller] No subscriptions found in database.");
+      return { status: "no_subscriptions" };
+    }
+
+    console.log(`ℹ️ [Poller] Checking ${subscriptions.length} subscriptions...`);
 
     const filteredSubs = subscriptions.filter(sub => {
       const config = (sub.profiles as any)?.ai_config as AIConfig;
       const freq = config?.rssPollFrequency || 'daily';
 
+      // 💡 更加宽松的判断逻辑：只要在目标小时内运行，且是该小时的第一次尝试（或者简单的 30 分钟窗口）
       if (freq === 'daily') {
-        // 每天早上10点
-        return hour === 10 && minute < 30;
+        // 每天早上 9 点 (BJ Time)
+        const isMatch = hour === 9;
+        if (isMatch) console.log(`🎯 [Poller] Match found (Daily 9AM) for sub: ${sub.url}`);
+        return isMatch;
       }
 
       if (freq === 'weekly') {
-        // 每周一早上9点 (day 1 为周一)
-        return day === 1 && hour === 9 && minute < 30;
+        // 每周一早上9点
+        const isMatch = day === 1 && hour === 9;
+        if (isMatch) console.log(`🎯 [Poller] Match found (Weekly Mon 9AM) for sub: ${sub.url}`);
+        return isMatch;
       }
 
       return false;

@@ -20,9 +20,10 @@ import {
 import { 
   getSubscriptions, 
   addSubscription, 
-  deleteSubscription 
+  deleteSubscription,
+  triggerAllSubscriptionsSync
 } from '@/app/dashboard/discovery-actions';
-import { triggerRssSync, getAiConfig, updateAiConfig, triggerWeeklyReport } from '@/app/settings/actions';
+import { getAiConfig, updateAiConfig, triggerWeeklyReport } from '@/app/settings/actions';
 import { AIConfig } from '@/types/index';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -110,7 +111,7 @@ function RSSSettingsModal({ isOpen, onClose, aiConfig, onUpdate }: { isOpen: boo
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: '每天 (10AM)', value: 'daily' as const },
+                { label: '每天 (9AM)', value: 'daily' as const },
                 { label: '每周 (Mon 9AM)', value: 'weekly' as const },
               ].map((opt) => (
                 <button
@@ -312,8 +313,8 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
     
     try {
       if (type === 'rss') {
-        // RSS 报告需要先尝试同步
-        await triggerRssSync();
+        // RSS 报告需要先尝试同步最新内容
+        await triggerAllSubscriptionsSync();
       }
 
       const reportRes = await triggerWeeklyReport(type);
@@ -330,6 +331,20 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
     } finally {
       setSyncing(false);
     }
+  };
+
+  const handleManualSync = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    toast.info('正在扫描所有信号源...', { icon: <RefreshCw className="animate-spin text-[#1ff40a]" /> });
+    
+    const res = await triggerAllSubscriptionsSync();
+    if (res.success) {
+      toast.success(`扫描完成，共扫描 ${res.count} 个源`, { description: '新发现的情报稍后将出现在列表中' });
+    } else {
+      toast.error('扫描失败', { description: res.error });
+    }
+    setSyncing(false);
   };
 
   return (
@@ -376,9 +391,19 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
             <Rss size={14} className="text-[#1ff40a]/70" />
             SIGNAL_SOURCES 信号源
           </h3>
-          <button onClick={() => setIsRSSModalOpen(true)} className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30">
-            <Settings2 size={14} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={handleManualSync} 
+              disabled={syncing}
+              title="立即扫描所有信号源"
+              className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30"
+            >
+              <RefreshCw size={14} className={cn(syncing && "animate-spin")} />
+            </button>
+            <button onClick={() => setIsRSSModalOpen(true)} className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30">
+              <Settings2 size={14} />
+            </button>
+          </div>
         </div>
 
         <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-10">

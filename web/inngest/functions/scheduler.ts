@@ -20,10 +20,17 @@ export const weeklyReportScheduler = inngest.createFunction(
     }
 
     const now = new Date();
-    const currentDay = now.getDay(); // 0 is Sunday
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    // 💡 统一使用北京时间进行判断
+    const bjTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" });
+    const bjDate = new Date(bjTimeStr);
+    
+    const currentDay = bjDate.getDay(); // 0 is Sunday
+    const currentHour = bjDate.getHours();
+    const currentMinute = bjDate.getMinutes();
     const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+    console.log(`🕒 [Scheduler] Current Server Time: ${now.toISOString()}`);
+    console.log(`🕒 [Scheduler] Computed Beijing Time: ${currentHour}:${currentMinute}, Day: ${currentDay}`);
 
     const insightEvents: any[] = [];
     const rssEvents: any[] = [];

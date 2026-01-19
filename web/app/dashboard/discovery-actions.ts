@@ -2,6 +2,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { inngest } from '@/inngest/client';
 
 export interface DiscoveryItem {
   id: string;
@@ -54,13 +55,65 @@ export async function addSubscription(url: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
 
-  const { error } = await supabase
+  const { data: newSub, error } = await supabase
     .from('subscriptions')
-    .insert([{ user_id: user.id, url, themes: [] }]);
+    .insert([{ user_id: user.id, url, themes: [] }])
+    .select()
+    .single();
 
   if (error) return { error: error.message };
+
+  // 💡 关键改进：添加新订阅后，立即触发一次 Inngest 抓取任务，避免界面一直为空
+  if (newSub) {
+    try {
+      await inngest.send({
+        name: "sub/poll.rss",
+        data: {
+          subId: newSub.id,
+          url: newSub.url,
+          userId: user.id,
+        },
+      });
+    } catch (err) {
+      console.error('Failed to trigger initial RSS poll:', err);
+    }
+  }
+
   revalidatePath('/settings');
+  revalidatePath('/insight');
   return { success: true };
+}
+
+export async function triggerAllSubscriptionsSync() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Unauthorized' };
+
+  // 获取该用户所有的订阅
+  const { data: subs, error } = await supabase
+    .from('subscriptions')
+    .select('id, url')
+    .eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  if (!subs || subs.length === 0) return { success: true, count: 0 };
+
+  // 批量发送同步请求
+  const events = subs.map(sub => ({
+    name: "sub/poll.rss",
+    data: {
+      subId: sub.id,
+      url: sub.url,
+      userId: user.id
+    }
+  }));
+
+  try {
+    await inngest.send(events);
+    return { success: true, count: subs.length };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function deleteSubscription(id: string) {
