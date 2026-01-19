@@ -185,10 +185,10 @@ export const generateWeeklyReport = inngest.createFunction(
         if (isRss) {
           // 📖 极简直通车渲染逻辑 - 压缩间距、按源分组、移除关键词、专业标签
           cleanContent = reportContent
-            // 1. 处理大分类 (源名称 - 期刊名)
-            .replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 20px; font-weight: bold; margin: 30px 0 15px 0; font-family: 'Times New Roman', serif; border-left: 4px solid #cc0000; padding-left: 12px; text-transform: uppercase; letter-spacing: 1px;">$1</h2>`)
-            // 2. 处理文章标题 (去除所有 Markdown 符号)
-            .replace(/^###\s?\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 18px; font-weight: bold; margin: 15px 0 8px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
+            // 1. 处理大分类 (源名称 - 期刊名) - 改为红色，压缩下边距
+            .replace(/^#\s?(.*)/gm, `<h2 style="color: #cc0000; font-size: 20px; font-weight: bold; margin: 30px 0 5px 0; font-family: 'Times New Roman', serif; border-left: 4px solid #cc0000; padding-left: 12px; text-transform: uppercase; letter-spacing: 1px;">$1</h2>`)
+            // 2. 处理文章标题 (去除所有 Markdown 符号) - 缩小字号，压缩上边距
+            .replace(/^###\s?\d+\.\s?(.*)/gm, `<h3 style="color: #000000; font-size: 16px; font-weight: bold; margin: 5px 0 8px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">$1</h3>`)
             // 3. 处理一句话总结 (SUMMARY)
             .replace(/^\*\*SUMMARY\*\*:\s*(.*)/gm, `<div style="margin-bottom: 10px;"><strong style="color: #000000; font-size: 13px; font-family: sans-serif; letter-spacing: 0.5px;">SUMMARY:</strong> <span style="color: #333; font-size: 15px; line-height: 1.5;">$1</span></div>`)
             // 4. 处理深度解析 (标签更名 + 压缩间距)
