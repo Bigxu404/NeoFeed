@@ -99,14 +99,14 @@ export const generateWeeklyReport = inngest.createFunction(
       const systemPrompt = `${customPrompt || 'You are NeoFeed Intelligence, an elite information analyst.'}
 
       [OUTPUT STRUCTURE REQUISITES]
-      为了确保报告排版正确，请务必在输出中遵守以下 Markdown 锚点：
       1. 分类标题：使用 # 前缀（例如：# 科技前沿）。
-      2. 条目名称：使用 ### 前缀，并带上数字编号（例如：### 1. 标题内容）。
-      3. 结构化标签：每条情报必须包含两个加粗标签：
+      2. 条目名称：使用 [数字编号]. [文章标题] 格式，不要带任何 ### 或 ## 前缀。
+      3. 标题语言：请务必将文章标题翻译为简洁、地道的中文。
+      4. 结构化标签：每条情报必须包含两个加粗标签，且必须分行：
          **一句话总结**：[内容]
          **文章亮点**：[内容]
-      4. 原文链接：使用标准格式 [阅读原文](URL)。
-      5. 严禁使用列表符号（如 - 或 *）作为条目开头。`;
+      5. 原文链接：使用标准格式 [阅读原文](URL)。
+      6. 严禁使用列表符号（如 - 或 *）作为条目开头。`;
 
       const completion = await openai.chat.completions.create({
         messages: [
@@ -182,45 +182,26 @@ export const generateWeeklyReport = inngest.createFunction(
         // 💡 增强型渲染引擎：根据报告类型切换“纽约客”或“辐射”风格
         let cleanContent = '';
         if (isRss) {
-          // 📖 纽约客升级版渲染逻辑 - 更加鲁棒的解析引擎
-          // 1. 首先处理大分类标题 (不在卡片内)
-          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 24px; font-weight: bold; margin: 50px 0 25px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
+          // 📖 纽约客升级版渲染逻辑 - 极简排版引擎 (去线框、去##、标题中文)
+          // 1. 首先处理大分类标题
+          cleanContent = reportContent.replace(/^#\s?(.*)/gm, `<h2 style="color: #000000; font-size: 26px; font-weight: bold; margin: 60px 0 30px 0; font-family: 'Times New Roman', serif; border-bottom: 2px solid #000000; padding-bottom: 12px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">$1</h2>`);
 
-          // 2. 将每一条情报识别为一个块，并包裹在卡片容器中
-          // 正则匹配：从 ### 或 数字开头，直到下一个标题或文档末尾
-          cleanContent = cleanContent.replace(/^(?:###\s?|\d+\.\s?)([\s\S]*?)(?=\n(?:###|\d+\.|#|$)|$)/gm, (match) => {
-            const lines = match.trim().split('\n');
-            const title = lines[0].replace(/^(?:###\s?|\d+\.\s?)/, '');
-            const body = lines.slice(1).join('\n');
-
-            return `
-              <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <h3 style="color: #000000; font-size: 20px; font-weight: bold; margin: 0 0 15px 0; font-family: 'Times New Roman', serif; line-height: 1.3;">${title}</h3>
-                <div style="font-family: 'Times New Roman', serif; color: #1a1a1a; line-height: 1.6;">
-                  ${body}
-                </div>
-              </div>
-            `;
-          });
-
-          // 3. 处理卡片内部的标签和链接
+          // 2. 清理正文中的 Markdown 符号
           cleanContent = cleanContent
-            // 一句话总结：去掉红色，改为深灰色加粗
-            .replace(/\*\*(一句话总结)\*\*\s*[：:]?\s*(.*)/gm, 
-              `<div style="margin-top: 12px; margin-bottom: 6px;">
-                <strong style="color: #333333; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
-                <span style="color: #1a1a1a; font-size: 16px;">$2</span>
+            // 彻底去除条目开头的 ## 或 ###
+            .replace(/^(?:###\s?|##\s?|\d+\.\s?)(.*)/gm, `<h3 style="color: #000000; font-size: 22px; font-weight: bold; margin: 40px 0 15px 0; font-family: 'Times New Roman', serif; line-height: 1.4;">$1</h3>`)
+            // 处理标签：分行、加粗标签名、正文普通字重
+            .replace(/\*\*(一句话总结|文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
+              `<div style="margin-top: 15px; margin-bottom: 8px;">
+                <strong style="color: #000000; font-size: 15px; font-family: sans-serif; letter-spacing: 0.5px;">$1:</strong> 
+                <span style="color: #333333; font-size: 16px; line-height: 1.7;">$2</span>
               </div>`)
-            // 文章亮点：可以保留一点强调色（比如深灰色或稍微明显的颜色）
-            .replace(/\*\*(文章亮点|情报简述|研究主题|研究方式|研究结果)\*\*\s*[：:]?\s*(.*)/gm, 
-              `<div style="margin-top: 10px; margin-bottom: 4px;">
-                <strong style="color: #555555; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">$1:</strong> 
-                <span style="color: #1a1a1a; font-size: 16px;">$2</span>
-              </div>`)
-            // 链接处理
-            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 14px; font-weight: bold; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px;">$1 READ_MORE »</a></div>`)
+            // 处理阅读原文链接：去掉括号重复显示
+            .replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, `<div style="margin-top: 15px;"><a href="$2" style="color: #cc0000; text-decoration: none; font-size: 14px; font-weight: bold; font-style: italic; font-family: 'Times New Roman', serif;">$1 READ_MORE »</a></div>`)
+            // 清理多余的 URL 括号
             .replace(/\s*\(https?:\/\/.*?\)/g, '')
-            .replace(/\*\*(.*?)\*\*/g, `<strong style="color: #000000;">$1</strong>`)
+            // 清理多余的星号和列表符
+            .replace(/\*\*(.*?)\*\*/g, `$1`)
             .replace(/^\s*[-•]\s*/gm, '')
             .replace(/\n/g, '<br/>');
         } else {
