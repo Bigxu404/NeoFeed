@@ -159,6 +159,99 @@ export async function analyzeContent(
   }
 }
 
+export async function summarizeDiscoveryItems(
+  items: { title: string; summary: string; url: string; source_name: string }[],
+  userConfig?: {
+    provider?: string;
+    model?: string;
+    apiKey?: string;
+    baseURL?: string;
+  }
+): Promise<{ 
+  index: number; 
+  structured_summary: {
+    topic: string;
+    method: string;
+    result: string;
+    one_sentence: string;
+  };
+  tags: string[];
+}[]> {
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
+  let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  if (userConfig?.provider === 'openai') {
+    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
+    model = userConfig.model || 'gpt-4o-mini';
+  } else if (userConfig?.provider === 'deepseek') {
+    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
+    model = userConfig.model || 'deepseek-chat';
+  } else if (userConfig?.provider === 'siliconflow') {
+    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
+    if (userConfig.model) model = userConfig.model;
+  }
+
+  if (!apiKey || items.length === 0) return [];
+
+  const openai = new OpenAI({ apiKey, baseURL });
+
+  const systemPrompt = `
+    你是一个资深科研情报分析官。请对以下 RSS 文章列表进行结构化深度分析。
+    
+    输出格式要求 (JSON Only):
+    {
+      "results": [
+        {
+          "index": 0,
+          "structured_summary": {
+            "topic": "该论文/文章的研究主题",
+            "method": "该研究采用的研究方式/技术路径",
+            "result": "该研究得出的主要结果/发现",
+            "one_sentence": "一句话总结：[主体]做了[什么事情]，解决了[什么问题]"
+          },
+          "tags": ["关键词1", "关键词2", "关键词3"]
+        }
+      ]
+    }
+    注意：
+    1. 请务必使用中文。
+    2. 总结要精炼、准确，特别是“一句话总结”要具有闭环逻辑。
+    3. tags 请返回 3-5 个反映内容核心的关键词标签。
+  `;
+
+  const userContent = items.map((it, i) => `${i}. 标题: ${it.title}\n摘要: ${it.summary.slice(0, 500)}`).join('\n---\n');
+
+  try {
+    const params: any = {
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent }
+      ],
+      model: model,
+      temperature: 0.3,
+    };
+
+    const isOfficialOpenAI = baseURL.includes('api.openai.com');
+    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
+    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
+
+    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
+      params.response_format = { type: "json_object" };
+    }
+
+    const completion = await openai.chat.completions.create(params);
+    const resContent = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{"results":[]}';
+    const parsed = JSON.parse(resContent);
+    
+    return Array.isArray(parsed.results) ? parsed.results : [];
+  } catch (error: any) {
+    console.error("❌ [AI Summarize] Failed:", error.message);
+    return [];
+  }
+}
+
 export async function filterDiscoveryItems(
   items: { title: string; summary: string }[],
   userConfig?: {

@@ -1,6 +1,6 @@
 import { inngest } from "@/inngest/client";
 import { createAdminClient } from "@/lib/supabase/server";
-import { filterDiscoveryItems } from "@/lib/ai";
+import { summarizeDiscoveryItems } from "@/lib/ai";
 import { AIConfig } from "@/types/index"; // 🚀 引入类型
 import Parser from 'rss-parser';
 
@@ -98,7 +98,7 @@ export const subscriptionPoller = inngest.createFunction(
   }
 );
 
-// 2. RSS 处理器：解析、AI 筛选并入库
+// 2. RSS 处理器：解析、AI 总结并入库
 export const rssProcessor = inngest.createFunction(
   { id: "rss-processor" },
   { event: "sub/poll.rss" },
@@ -140,78 +140,66 @@ export const rssProcessor = inngest.createFunction(
       return data;
     });
 
-    // 3. AI 筛选 (Top 7)
-    let selectedIndices = await step.run("ai-filter", async () => {
-      console.log(`🤖 [Inngest] Sending to AI filter... (Provider: ${profile?.ai_config?.provider || 'default'})`);
+    // 3. AI 结构化总结 (不再筛选 Top 7，全量处理)
+    const summarizedResults = await step.run("ai-summarize", async () => {
+      console.log(`🤖 [Inngest] Sending to AI summarizer... (Items: ${feedItems.length})`);
       try {
-        const results = await filterDiscoveryItems(
-          feedItems.map(it => ({ title: it.title, summary: it.summary })),
+        return await summarizeDiscoveryItems(
+          feedItems,
           profile?.ai_config as AIConfig
         );
-        console.log(`✅ [Inngest] AI analysis complete. Selected: ${results?.length || 0}`);
-        return results;
       } catch (err: any) {
-        console.error(`❌ [Inngest] AI Filter Crashed:`, err.message);
+        console.error(`❌ [Inngest] AI Summarize Crashed:`, err.message);
         return [];
       }
     });
 
-    // 💡 增加“破冰”兜底逻辑：如果 AI 没选出任何内容，为了展示效果，强制选取前 3 条作为默认发现
-    if (!selectedIndices || selectedIndices.length === 0) {
-      console.warn(`⚠️ [Inngest] AI returned zero matches for ${url}. Using fallback (Top 3 items).`);
-      selectedIndices = [
-        { index: 0, reason: "系统推荐：发现该信号源有新动态 (自动接入)", category: "情报拦截" },
-        { index: 1, reason: "系统推荐：此信号源近期热度较高", category: "热门趋势" },
-        { index: 2, reason: "系统推荐：新信号链入，等待深度解析", category: "待读精选" }
-      ].slice(0, Math.min(3, feedItems.length));
-    }
-
     // 4. 更新数据库
     await step.run("update-discovery-stream", async () => {
-      const toInsert = selectedIndices.map(sel => {
-        const original = feedItems[sel.index];
-        if (!original) return null;
-        return {
-          user_id: userId,
-          title: original.title,
-          url: original.url,
-          summary: (original.summary || "").slice(0, 500),
-          source_name: original.source_name,
-          reason: sel.reason,
-          category: sel.category,
-          created_at: new Date().toISOString()
-        };
-      }).filter(Boolean);
-
-      if (toInsert.length === 0) return;
-
-      const sourceName = toInsert[0]?.source_name;
-      console.log(`💾 [Inngest] Saving ${toInsert.length} items to DB for ${sourceName}`);
-
-      // 💡 额外步骤：尝试为订阅源本身生成一个 AI 分类并更新到 subscriptions 表
-      if (toInsert.length > 0) {
-        const categories = toInsert.map(it => it.category).filter(Boolean);
-        // 简单统计出现次数最多的分类作为源分类
-        const categoryCounts = categories.reduce((acc: any, cat: any) => {
-          acc[cat] = (acc[cat] || 0) + 1;
-          return acc;
-        }, {});
-        const topCategory = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a])[0];
-        
-        if (topCategory && event.data.subId) {
-          await supabase
-            .from('subscriptions')
-            .update({ themes: [topCategory] }) // 仍然使用 themes 字段存储，但在 UI 上按分类显示
-            .eq('id', event.data.subId);
-        }
-      }
-
+      // 💡 关键改动：先清空该用户该来源的旧数据，防止重复堆砌
+      const sourceName = feedItems[0]?.source_name;
       if (sourceName) {
         await supabase
           .from('discovery_stream')
           .delete()
           .eq('user_id', userId)
           .eq('source_name', sourceName);
+      }
+
+      const toInsert = summarizedResults.map(res => {
+        const original = feedItems[res.index];
+        if (!original) return null;
+
+        // 💡 格式化四段式总结存入 summary
+        const structuredSummary = `
+主题：${res.structured_summary.topic}
+方式：${res.structured_summary.method}
+结果：${res.structured_summary.result}
+        `.trim();
+
+        return {
+          user_id: userId,
+          title: original.title,
+          url: original.url,
+          summary: structuredSummary,
+          source_name: original.source_name,
+          reason: res.structured_summary.one_sentence, // 一句话总结存入 reason
+          category: res.tags?.[0] || "科研情报", // 使用第一个标签作为分类显示
+          created_at: new Date().toISOString()
+        };
+      }).filter(Boolean);
+
+      if (toInsert.length === 0) return;
+
+      console.log(`💾 [Inngest] Saving ${toInsert.length} items to DB for ${sourceName}`);
+
+      // 更新订阅源的 AI 标签 (取所有条目标签的合集)
+      if (toInsert.length > 0 && event.data.subId) {
+        const allTags = Array.from(new Set(summarizedResults.flatMap(r => r.tags))).slice(0, 5);
+        await supabase
+          .from('subscriptions')
+          .update({ themes: allTags })
+          .eq('id', event.data.subId);
       }
 
       const { error } = await supabase
@@ -225,7 +213,7 @@ export const rssProcessor = inngest.createFunction(
       console.log(`✅ [Inngest] DB Update Successful for ${sourceName}`);
     });
 
-    return { processed: selectedIndices.length };
+    return { processed: summarizedResults.length };
   }
 );
 

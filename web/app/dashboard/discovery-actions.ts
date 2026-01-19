@@ -24,8 +24,7 @@ export async function getDiscoveryItems() {
     .from('discovery_stream')
     .select('*')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(7);
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching discovery items:', error);

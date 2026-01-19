@@ -50,12 +50,12 @@ export const generateWeeklyReport = inngest.createFunction(
           .order('created_at', { ascending: false });
         items = feedData || [];
       } else {
+        // 💡 关键改进：RSS 报告直接抓取当前数据库中的全部拦截内容
+        // 因为数据库已经实现了“同步即清空”逻辑，所以当前库内存放的就是最新的全量情报
         const { data: discoveryData } = await supabase
           .from('discovery_stream')
-          .select('id, title, summary, source_name, created_at, category')
+          .select('id, title, summary, source_name, created_at, category, reason, url')
           .eq('user_id', userId)
-          .gte('created_at', startDate.toISOString())
-          .lte('created_at', endDate.toISOString())
           .order('created_at', { ascending: false });
         items = discoveryData || [];
       }
@@ -87,7 +87,7 @@ export const generateWeeklyReport = inngest.createFunction(
       
       const context = reportType === 'insight'
         ? dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n')
-        : dataItems.map((d: any) => `- [RSS订阅][${(d.category || '情报拦截').toUpperCase()}] 来自 ${d.source_name}: ${d.title} - ${d.summary.slice(0, 200)}`).join('\n');
+        : dataItems.map((d: any) => `- [RSS订阅][${(d.category || '情报拦截').toUpperCase()}] 来自 ${d.source_name}: ${d.title}\n一句话总结: ${d.reason}\n深度解析: ${d.summary}\n原文链接: ${d.url}`).join('\n');
 
       const customPrompt = reportType === 'insight' ? userConfig.insightPrompt : userConfig.rssPrompt;
       const systemPrompt = `${customPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...'}

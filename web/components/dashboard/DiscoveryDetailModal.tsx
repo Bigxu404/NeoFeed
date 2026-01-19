@@ -81,11 +81,33 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-white/5" />
-                    <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.3em] font-mono px-2">正文摘要</span>
+                    <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.3em] font-mono px-2">结构化深度分析</span>
                     <div className="h-px flex-1 bg-white/5" />
                   </div>
-                  <div className="text-[18px] md:text-[20px] text-white/70 leading-loose font-serif whitespace-pre-wrap">
-                    {item.summary || "暂无详细内容摘要。"}
+                  
+                  {/* 分段展示研究主题、方式、结果 */}
+                  <div className="space-y-8">
+                    {item.summary.includes('主题：') ? (
+                      item.summary.split('\n').map((line, i) => {
+                        const [label, content] = line.split('：');
+                        if (!content) return null;
+                        return (
+                          <div key={i} className="space-y-2">
+                            <h5 className="text-[12px] font-bold text-cyan-400/60 uppercase tracking-widest font-mono flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/40" />
+                              {label}
+                            </h5>
+                            <p className="text-[17px] md:text-[19px] text-white/80 leading-relaxed font-serif pl-3.5 border-l border-white/5">
+                              {content}
+                            </p>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-[18px] md:text-[20px] text-white/70 leading-loose font-serif whitespace-pre-wrap">
+                        {item.summary || "暂无详细内容摘要。"}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

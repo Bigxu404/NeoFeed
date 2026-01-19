@@ -111,7 +111,7 @@ export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) =
                                                     <>
                                                         <span className="text-white/10">//</span>
                                                         <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400/60 font-bold tracking-widest">
-                                                            {item.category}
+                                                            #{item.category}
                                                         </span>
                                                     </>
                                                 )}
@@ -130,16 +130,17 @@ export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) =
                                             <h3 className="text-xl font-bold text-white/90 group-hover:text-cyan-400 transition-colors leading-tight tracking-tight">
                                                 {item.title}
                                             </h3>
-                                            <p className="text-[15px] text-white/50 line-clamp-2 leading-relaxed">
-                                                {item.summary}
+                                            {/* 展示“一句话总结” */}
+                                            <p className="text-[15px] text-cyan-400/80 font-medium leading-relaxed italic">
+                                                “{item.reason}”
                                             </p>
                                         </div>
 
-                                        {/* 推荐理由 */}
+                                        {/* 来源信息 */}
                                         <div className="flex items-center gap-2 pt-2">
-                                            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/5 border border-cyan-500/10 text-[12px] text-cyan-400/70 font-medium italic">
-                                                <Sparkles className="w-3.5 h-3.5" />
-                                                {item.reason}
+                                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/40 font-mono">
+                                                <Sparkles className="w-3 h-3" />
+                                                {item.source_name}
                                             </div>
                                         </div>
                                     </div>
