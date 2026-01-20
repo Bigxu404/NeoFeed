@@ -44,7 +44,6 @@ function LandingContent() {
         <SiteHero />
         <CaptureBento />
         <UnderstandBento />
-        <ConnectBento />
         <FinalCTA />
         <AboutSection />
       </main>
