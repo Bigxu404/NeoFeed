@@ -1,55 +1,16 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useRef } from 'react';
 
 // ============================================================================
-// 1. DECODING TEXT EFFECT
+// TYPOGRAPHY HELPERS
 // ============================================================================
-const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=[]{}|;:,.<>?";
-
-const DecryptText = ({ text, className }: { text: string, className?: string }) => {
-  // Fix: Initial state must be deterministic to match server render
-  const [displayText, setDisplayText] = useState(text); 
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-20%" });
-  const [isDone, setIsDone] = useState(false);
-
-  useEffect(() => {
-    if (!isInView || isDone) return;
-
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(prev => 
-        text.split('').map((char, index) => {
-          if (index < iteration) {
-            return text[index];
-          }
-          // Random chars only generated on client side
-          return CHARS[Math.floor(Math.random() * CHARS.length)];
-        }).join('')
-      );
-
-      if (iteration >= text.length) {
-        clearInterval(interval);
-        setIsDone(true);
-      }
-      
-      iteration += 1 / 2; 
-    }, 30);
-
-    return () => clearInterval(interval);
-  }, [isInView, text, isDone]);
-
-  return (
-    <span ref={ref} className={className}>
-      {displayText}
-    </span>
-  );
-};
+const numberFont = '"Times New Roman", Times, serif';
+const serifFont = '"Songti SC", "STSong", "SimSun", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif';
 
 // ============================================================================
-// 2. INK SIGNATURE SVG
+// 1. INK SIGNATURE SVG
 // ============================================================================
 const Signature = () => {
   return (
@@ -85,27 +46,23 @@ const Signature = () => {
 };
 
 // ============================================================================
-// 3. DIGITAL SEAL
+// 3. BLOG LINK LABEL
 // ============================================================================
-const DigitalSeal = () => {
+const BlogLabel = () => {
   return (
     <motion.div
-      initial={{ scale: 2, opacity: 0, rotate: -20 }}
-      whileInView={{ scale: 1, opacity: 1, rotate: -12 }}
+      initial={{ x: 20, opacity: 0 }}
+      whileInView={{ x: 0, opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 15, 
-        delay: 3.5 // Appear after signature
-      }}
-      className="absolute top-1/2 right-[-20px] -translate-y-1/2 w-24 h-24 border-4 border-red-600/80 rounded-full flex flex-col items-center justify-center p-2 mix-blend-screen transform rotate-[-12deg]"
-      style={{ boxShadow: "0 0 10px rgba(220, 38, 38, 0.4)" }}
+      transition={{ delay: 3, duration: 1 }}
+      className="absolute top-1/2 left-full ml-4 -translate-y-1/2 whitespace-nowrap hidden md:block"
     >
-      <div className="absolute inset-0 rounded-full border border-red-600/30 m-1" />
-      <span className="text-[8px] font-mono text-red-500 tracking-widest uppercase">Protocol</span>
-      <span className="text-[12px] font-black text-red-600 uppercase leading-none my-1 tracking-tighter">HUMAN<br/>VERIFIED</span>
-      <span className="text-[8px] font-mono text-red-500 tracking-widest">V1.0</span>
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-[1px] bg-white/20" />
+        <span className="text-[10px] md:text-xs font-light text-white/40 tracking-[0.2em] group-hover:text-white/80 transition-colors duration-500">
+          欢迎点击访问作者blog
+        </span>
+      </div>
     </motion.div>
   );
 };
@@ -116,40 +73,50 @@ const DigitalSeal = () => {
 
 export default function AboutSection() {
   return (
-    <section id="about" className="w-full relative overflow-hidden py-48 flex flex-col items-center justify-center bg-black">
+    <section id="about" className="w-full relative overflow-hidden py-32 md:py-64 bg-black" style={{ fontFamily: serifFont }}>
       
       {/* Background Ambience */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-gradient-to-r from-transparent via-white/5 to-transparent blur-[80px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[400px] bg-gradient-to-r from-transparent via-white/5 to-transparent blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+      <div className="relative z-10 max-w-5xl mx-auto px-8 md:px-12">
         
-        {/* 1. THE MANIFESTO (Decoded) */}
-        <div className="mb-12 space-y-2">
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-white tracking-tight">
-            <DecryptText text="Reclaim Your Cognitive Sovereignty." className="text-white" />
-          </h2>
-          <div className="text-lg md:text-xl font-mono text-green-500/80 tracking-wide uppercase">
-            <DecryptText text="Reject Algorithmic Feeding." className="" />
-          </div>
-        </div>
+        {/* Section Title */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 text-center md:text-left"
+        >
+          <h2 className="text-xl md:text-2xl font-serif font-bold text-white/80 tracking-[0.2em]">关于产品的思考</h2>
+          <div className="text-[10px] font-mono text-white/20 uppercase tracking-[0.5em] mt-2">Reflection on the Product</div>
+        </motion.div>
 
-        {/* 2. THE EXPLANATION */}
-        <motion.p 
+        {/* Unified Reflection Content */}
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
           viewport={{ once: true }}
-          className="text-white/40 max-w-2xl mx-auto mb-16 leading-relaxed font-sans font-light text-lg"
+          transition={{ duration: 1.2 }}
+          className="mb-12"
         >
-          "在数字荒原中，我们建立信号塔。NeoFeed 不仅仅是一个工具；
-          它是为对抗信息过载而锻造的武器。
-          愿它成为你在深网中的导航信标。"
-        </motion.p>
+          <p className="text-lg md:text-2xl text-white/60 font-light tracking-widest leading-relaxed text-center md:text-left">
+            在数字的荒原里，算法编织着喧嚣，碎裂的信息如同午夜的噪音，正悄然熄灭独立的灯火。我们在此锻造一座沉默的信号塔，拨开迷雾，将杂乱的脉冲重构为可触碰的秩序。看着你的第二大脑在星系中慢慢生长，夺回认知的主权，愿它成为深空中的导航信标。
+          </p>
+        </motion.div>
 
-        {/* 3. SIGNATURE & SEAL BLOCK */}
-        <div className="relative inline-block">
-           <Signature />
-           <DigitalSeal />
+        {/* Footer: Signature & Blog Link (Right Aligned) */}
+        <div className="flex justify-center md:justify-end pr-0 md:pr-32">
+          <a 
+            href="https://www.masterxu.online" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="relative inline-block group cursor-pointer"
+          >
+             <div className="transition-transform duration-500 group-hover:scale-105 active:scale-95">
+                <Signature />
+             </div>
+             <BlogLabel />
+          </a>
         </div>
 
       </div>

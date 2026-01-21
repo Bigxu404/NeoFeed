@@ -10,82 +10,84 @@ import React, { useState, useEffect } from 'react';
 const numberFont = '"Times New Roman", Times, serif';
 const serifFont = 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif';
 
-// ============================================================================
-// SCENE 1: NEURAL SYNTHESIS (The Data Reconstructor)
-// Metaphor: Scanning chaos and outputting structured grids
-// ============================================================================
+// 01: SynthesisScene Refinement
 const SynthesisScene = () => {
   return (
     <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-      {/* Background: Raw Data Stream (Noise) */}
-      <div className="absolute inset-0 bg-black overflow-hidden opacity-30">
-        <div className="font-mono text-[8px] md:text-[10px] text-indigo-900/40 p-4 leading-relaxed break-all">
-          {`0x8F2A... ERROR: NULL_PTR... SEGMENT_FAULT... %$#@!... KERNEL_PANIC... 
-            [NOISE] [NOISE] [NOISE] ... BUFFER_OVERFLOW ... 
-            x86_64 ... 00101010 ... AF29 ... 
-            (chaos) (random) (entropy) ... 
-            SYSTEM_HALT ... REBOOT ...`}
-        </div>
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08)_0%,transparent_70%)]" />
+      
+      {/* Raw Data Stream Background */}
+      <div className="absolute inset-0 opacity-20 overflow-hidden font-mono text-[8px] md:text-[10px] text-indigo-500/30 p-4 leading-relaxed break-all pointer-events-none">
+        {`[SYSTEM_LOG] 0x8F2A RECONSTRUCTING_STREAM...
+          >> ANALYZING_SEMANTICS... OK
+          >> CLUSTERING_VECTORS... OK
+          >> MAPPING_TO_GALAXY_COORD...
+          [DATA] {id: "neofeed-1", weight: 0.98}
+          [DATA] {id: "neofeed-2", weight: 0.85}
+          [DEBUG] Mismatch at 0x90... Ignored.`}
       </div>
 
-      {/* The Reconstruction Interface */}
-      <div className="relative z-10 w-full max-w-[280px] md:w-[300px] bg-[#151515] rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col scale-90 md:scale-100">
-        {/* Header */}
-        <div className="h-8 md:h-9 bg-[#1a1a1a] border-b border-white/5 flex items-center justify-between px-3">
-          <div className="flex items-center gap-2">
-            <Database size={10} className="text-indigo-400" />
-            <span className="text-[9px] text-neutral-400 font-mono tracking-wide">RECONSTRUCTOR_V9</span>
+      {/* The Machine Interface */}
+      <div className="relative z-10 w-full max-w-[280px] md:max-w-[320px] bg-[#0d0d0d] rounded-2xl border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col scale-90 md:scale-100 group-hover:border-indigo-500/30 transition-colors duration-500">
+        {/* Machine Header */}
+        <div className="h-9 md:h-11 bg-[#151515] border-b border-white/5 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-5 h-5 rounded bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+               <Database size={12} className="text-indigo-400" />
+            </div>
+            <span className="text-[10px] text-white/60 font-mono tracking-[0.2em] font-bold uppercase">Synthesis_V2</span>
           </div>
-          <div className="flex gap-1.5">
-            <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse" />
-            <span className="text-[8px] text-indigo-500 font-bold uppercase">Processing</span>
+          <div className="flex items-center gap-2">
+            <motion.div 
+              animate={{ opacity: [1, 0.4, 1] }} 
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]" 
+            />
+            <span className="text-[8px] text-indigo-400 font-bold uppercase tracking-widest">Active</span>
           </div>
         </div>
 
-        {/* Processing Area */}
-        <div className="p-3 md:p-4 relative min-h-[160px] md:min-h-[180px]">
-          {/* 1. The Raw Input (Fading out) */}
-          <div className="absolute inset-4 space-y-2 opacity-20 blur-[1px]">
-             <div className="w-full h-1.5 md:h-2 bg-neutral-700 rounded" />
-             <div className="w-3/4 h-1.5 md:h-2 bg-neutral-700 rounded" />
-             <div className="w-5/6 h-1.5 md:h-2 bg-neutral-700 rounded" />
+        {/* Processing Core */}
+        <div className="p-4 md:p-6 relative min-h-[180px] md:min-h-[220px]">
+          {/* Fading Raw Data */}
+          <div className="absolute inset-6 space-y-3 opacity-10 grayscale blur-[0.5px]">
+             {[1,2,3].map(i => (
+               <div key={i} className="h-2 bg-neutral-700 rounded-full w-full" />
+             ))}
           </div>
 
-          {/* 2. The Scanning Line */}
+          {/* Precision Scanning Beam */}
           <motion.div 
-            animate={{ top: ['0%', '100%'] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-            className="absolute left-0 right-0 h-[1.5px] bg-indigo-500 shadow-[0_0_10px_#6366f1] z-20"
+            animate={{ top: ['5%', '95%'] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_15px_#6366f1] z-20"
           />
 
-          {/* 3. The Structured Output (Masked reveal) */}
-          <div className="absolute inset-3 md:inset-4 z-10 overflow-hidden">
+          {/* Reveal Area */}
+          <div className="absolute inset-4 md:inset-6 z-10 overflow-hidden">
              <motion.div 
                animate={{ height: ['0%', '100%'] }}
-               transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-               className="bg-[#151515] w-full overflow-hidden border-b border-indigo-500/20"
+               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+               className="bg-[#0d0d0d] w-full overflow-hidden"
              >
-                <div className="space-y-2 md:space-y-3 pt-1">
-                   {/* Field 1: Title */}
-                   <div className="flex gap-2 items-center">
-                      <div className="w-1 h-2 md:h-3 bg-indigo-500 rounded-full" />
-                      <div className="h-2 md:h-3 w-3/4 bg-indigo-500/20 rounded border border-indigo-500/30" />
-                   </div>
-                   
-                   {/* Field 2: Summary */}
-                   <div className="p-2 bg-neutral-900 rounded border border-white/5 space-y-1 md:space-y-1.5">
-                      <div className="flex items-center gap-1.5 mb-1">
-                         <AlignLeft size={7} className="text-neutral-500" />
-                         <span className="text-[7px] text-neutral-500 uppercase">Summary</span>
+                <div className="space-y-4 pt-1">
+                   {/* Card 1: Reconstructed Metadata */}
+                   <div className="p-3 bg-neutral-900/80 rounded-xl border border-white/5 shadow-inner">
+                      <div className="flex items-center gap-2 mb-2">
+                         <div className="w-1 h-3 bg-indigo-500 rounded-full shadow-[0_0_8px_#6366f1]" />
+                         <div className="h-3 bg-white/20 rounded w-2/3" />
                       </div>
-                      <div className="h-1 w-full bg-white/10 rounded" />
-                      <div className="h-1 w-full bg-white/10 rounded" />
+                      <div className="space-y-1.5">
+                         <div className="h-1 bg-white/10 rounded-full w-full" />
+                         <div className="h-1 bg-white/5 rounded-full w-5/6" />
+                      </div>
                    </div>
 
-                   {/* Field 3: Tags */}
-                   <div className="flex gap-1.5">
-                      <div className="px-1 py-0.5 bg-indigo-900/30 border border-indigo-500/30 rounded text-[7px] text-indigo-300">#DATA</div>
-                      <div className="px-1 py-0.5 bg-indigo-900/30 border border-indigo-500/30 rounded text-[7px] text-indigo-300">#STRUCTURE</div>
+                   {/* Tags */}
+                   <div className="flex gap-2">
+                      <div className="px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-[8px] text-indigo-300 font-mono tracking-widest uppercase">Semantic_OK</div>
+                      <div className="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-md text-[8px] text-purple-300 font-mono tracking-widest uppercase">Vectorized</div>
                    </div>
                 </div>
              </motion.div>
@@ -96,61 +98,72 @@ const SynthesisScene = () => {
   );
 };
 
-// ============================================================================
-// SCENE 2: WEEKLY INTELLIGENCE (Premium Email Report UI)
-// Metaphor: Delivery of refined knowledge
-// ============================================================================
+// 02: WeeklyScene Refinement
 const WeeklyScene = () => {
   return (
     <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-      {/* Background Glow */}
-      <div className="absolute w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-teal-500/10 blur-[80px] md:blur-[100px] rounded-full" />
+      {/* Ambient Depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-teal-500/[0.03] to-transparent" />
+      <div className="absolute w-[300px] h-[300px] bg-teal-500/5 blur-[120px] rounded-full" />
 
-      {/* The Envelope / Report Interface */}
-      <div className="relative w-full max-w-[280px] md:w-[300px] bg-[#0f0f0f] rounded-lg border border-white/10 shadow-2xl overflow-hidden flex flex-col scale-90 md:scale-100">
-         {/* Email Header */}
-         <div className="p-3 md:p-4 border-b border-white/5 flex items-center gap-2 md:gap-3">
-            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-500/30">
-               <Mail size={12} className="text-teal-400" />
+      {/* Premium Report UI */}
+      <div className="relative w-full max-w-[280px] md:max-w-[340px] bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col scale-95 md:scale-100 group-hover:border-teal-500/30 transition-all duration-500">
+         {/* Email Masthead */}
+         <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+               <div className="w-9 h-9 md:w-11 md:h-11 rounded-xl bg-teal-500/10 flex items-center justify-center border border-teal-500/20 shadow-inner">
+                  <Mail size={18} className="text-teal-400 drop-shadow-[0_0_5px_rgba(45,212,191,0.5)]" />
+               </div>
+               <div>
+                  <h4 className="text-[11px] md:text-[13px] text-white font-bold tracking-tight">Intelligence Feed</h4>
+                  <p className="text-[9px] text-teal-400/60 font-mono uppercase tracking-[0.2em]">Weekly Protocol</p>
+               </div>
             </div>
-            <div className="flex-1 min-w-0">
-               <div className="text-[9px] md:text-[10px] text-white font-bold tracking-wide truncate">Weekly Intelligence Report</div>
-               <div className="text-[8px] md:text-[9px] text-neutral-500 font-serif italic">Monday, 9:00 AM</div>
+            <div className="text-right">
+               <div className="text-[10px] text-white/40 font-serif italic">Issue #24</div>
             </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
          </div>
 
-         {/* Email Body - Preview */}
-         <div className="p-3 md:p-4 space-y-3 md:space-y-4 bg-neutral-900/50">
-            {/* Chart Visualization */}
-            <div className="flex items-end gap-1 h-12 md:h-16 border-b border-white/5 pb-2 px-1">
-               {[0.3, 0.5, 0.4, 0.7, 0.6, 0.8, 0.9].map((h, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ height: 0 }}
-                    whileInView={{ height: `${h * 100}%` }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="flex-1 bg-teal-500/20 rounded-t-sm"
-                  />
-               ))}
+         {/* Content Preview Area */}
+         <div className="p-4 md:p-6 space-y-5 md:space-y-7 bg-neutral-900/30 backdrop-blur-sm">
+            {/* Semantic Density Chart */}
+            <div className="space-y-3">
+               <div className="flex justify-between items-end mb-1">
+                  <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-bold">Semantic Growth</span>
+                  <span className="text-[8px] text-teal-400 font-mono">+24.5%</span>
+               </div>
+               <div className="flex items-end gap-1.5 h-16 md:h-20 border-b border-white/5 pb-2">
+                  {[0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 0.85].map((h, i) => (
+                     <motion.div 
+                       key={i}
+                       initial={{ height: 0 }}
+                       whileInView={{ height: `${h * 100}%` }}
+                       transition={{ delay: i * 0.1, duration: 0.8, ease: "circOut" }}
+                       className="flex-1 bg-gradient-to-t from-teal-500/10 to-teal-500/40 rounded-t-md border-t border-teal-500/30"
+                     />
+                  ))}
+               </div>
             </div>
 
-            {/* Summary List */}
-            <div className="space-y-1.5 md:space-y-2">
+            {/* Structured Insights Preview */}
+            <div className="space-y-3">
                {[1, 2].map((_, i) => (
-                 <div key={i} className="flex items-start gap-2">
-                    <ArrowRight size={8} className="text-teal-500 mt-0.5 shrink-0" />
-                    <div className="space-y-1 w-full">
-                       <div className="w-full h-1 bg-white/10 rounded-full" />
-                       <div className="w-2/3 h-1 bg-neutral-600 rounded-full" />
+                 <div key={i} className="flex items-start gap-3 group/item cursor-pointer">
+                    <div className="w-5 h-5 rounded-lg bg-teal-500/5 border border-white/5 flex items-center justify-center mt-0.5 shrink-0 group-hover/item:border-teal-500/40 transition-colors">
+                       <ArrowRight size={10} className="text-teal-500" />
+                    </div>
+                    <div className="space-y-2 w-full pt-1.5">
+                       <div className="w-full h-1.5 bg-white/10 rounded-full" />
+                       <div className="w-3/4 h-1.5 bg-neutral-700 rounded-full" />
                     </div>
                  </div>
                ))}
             </div>
             
-            {/* CTA Button */}
-            <div className="mt-1 w-full py-1 bg-teal-500/10 border border-teal-500/30 rounded text-center text-[8px] text-teal-400 font-mono tracking-widest uppercase">
-               Read Full Report
+            {/* Premium CTA */}
+            <div className="mt-2 w-full py-2.5 bg-teal-500/5 border border-teal-500/20 rounded-xl text-center group/btn cursor-pointer overflow-hidden relative">
+               <div className="absolute inset-0 bg-teal-500/0 group-hover/btn:bg-teal-500/5 transition-colors" />
+               <span className="text-[9px] md:text-[11px] text-teal-400 font-mono tracking-[0.3em] uppercase relative z-10">Deploy Summary</span>
             </div>
          </div>
       </div>
@@ -158,53 +171,63 @@ const WeeklyScene = () => {
   );
 };
 
-// ============================================================================
-// SCENE 3: SPATIAL MEMORY (Knowledge Graph UI)
-// Metaphor: Connecting dots, growing network
-// ============================================================================
+// 03: GalaxyGrowthScene Refinement
 const GalaxyGrowthScene = () => {
   return (
-    <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8">
-       {/* Graph Background Grid */}
-       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.05)_0%,transparent_70%)]" />
+    <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
+       {/* Background Spatial Texture */}
+       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.08)_0%,transparent_70%)] opacity-50" />
+       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] contrast-150" />
        
-       {/* UI Overlay - HUD */}
-       <div className="absolute top-3 left-3 md:top-4 md:left-4 flex gap-1.5">
-          <div className="px-1.5 py-0.5 bg-black/40 border border-white/10 rounded text-[7px] md:text-[9px] text-neutral-400 font-mono flex items-center gap-1.5">
-             <Network size={8} />
-             <span>NODES: 842</span>
+       {/* UI Overlay - HUD Header */}
+       <div className="absolute top-4 left-4 md:top-6 md:left-6 flex gap-3 z-30">
+          <div className="px-2 py-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-lg text-[9px] md:text-[11px] text-neutral-400 font-mono flex items-center gap-2 shadow-2xl">
+             <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse shadow-[0_0_8px_#f97316]" />
+             <span>842 NODES CONNECTED</span>
           </div>
        </div>
 
-       {/* The Graph Network */}
-       <div className="relative w-full h-full scale-75 md:scale-100">
-          {/* Central Node */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.8)] z-20" />
+       {/* The Knowledge Graph */}
+       <div className="relative w-full h-full scale-90 md:scale-110 flex items-center justify-center">
+          {/* Main Hub Node */}
+          <div className="relative z-20">
+             <div className="w-5 h-5 md:w-7 md:h-7 bg-orange-500 rounded-full shadow-[0_0_30px_rgba(249,115,22,1)]" />
+             <div className="absolute inset-0 w-full h-full bg-orange-500/20 rounded-full blur-[20px] animate-pulse" />
+          </div>
 
-          {/* Orbiting Nodes & Connections */}
-          {[...Array(5)].map((_, i) => (
+          {/* Dynamic Spatial Web */}
+          {[...Array(6)].map((_, i) => (
              <motion.div
                key={i}
                animate={{ rotate: 360 }}
-               transition={{ duration: 25 + i * 5, repeat: Infinity, ease: "linear" }}
-               className="absolute top-1/2 left-1/2 w-0 h-0"
+               transition={{ duration: 30 + i * 8, repeat: Infinity, ease: "linear" }}
+               className="absolute w-full h-full flex items-center justify-center pointer-events-none"
              >
+                {/* Orbiting Knowledge Node */}
                 <div 
-                  className="absolute w-1.5 h-1.5 bg-neutral-300 rounded-full border border-black z-10"
-                  style={{ transform: `translateX(${45 + i * 20}px)` }} 
-                />
-                {/* Connection Line */}
+                  className="absolute w-2 h-2 md:w-3 md:h-3 bg-white/90 rounded-full border-2 border-orange-500 shadow-[0_0_10px_rgba(255,255,255,0.5)] z-10"
+                  style={{ transform: `translateX(${60 + i * 25}px)` }} 
+                >
+                   {/* Connection Beam */}
+                   <div 
+                     className="absolute top-1/2 left-0 w-full bg-gradient-to-r from-orange-500/40 to-transparent h-[0.5px] origin-left -translate-x-full"
+                     style={{ width: `${60 + i * 25}px` }}
+                   />
+                </div>
+                
+                {/* Orbital Path (Faint) */}
                 <div 
-                  className="absolute h-[0.5px] bg-orange-500/20 origin-left"
-                  style={{ width: `${45 + i * 20}px` }}
+                  className="absolute rounded-full border border-white/5 pointer-events-none"
+                  style={{ width: (60 + i * 25) * 2, height: (60 + i * 25) * 2 }}
                 />
              </motion.div>
           ))}
        </div>
 
-       {/* Legend */}
-       <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 text-right">
-          <div className="text-[8px] md:text-[10px] text-orange-400 font-bold uppercase tracking-widest">Knowledge Graph</div>
+       {/* Legend Overlay */}
+       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center z-30">
+          <div className="text-[9px] md:text-[12px] text-white font-mono font-bold uppercase tracking-[0.4em] mb-1">Spatial Memory Map</div>
+          <div className="h-0.5 w-12 bg-orange-500 mx-auto rounded-full shadow-[0_0_8px_#f97316]" />
        </div>
     </div>
   );
@@ -251,16 +274,6 @@ export default function UnderstandBento() {
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-32">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 md:mb-8"
-          >
-            <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="text-xs md:text-sm font-mono text-white/60 tracking-wider uppercase" style={{ fontFamily: numberFont }}>Processing Layer</span>
-          </motion.div>
-          
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -293,7 +306,7 @@ export default function UnderstandBento() {
                 <div className="w-full md:w-1/2 space-y-4 md:space-y-8 text-left">
                     <div className="flex flex-col gap-2">
                          <span className={`font-mono text-[10px] md:text-sm tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
-                            Phase II <span className="opacity-40">/</span> {item.subtitle}
+                            0{index + 1} <span className="opacity-40">/</span> {item.subtitle}
                          </span>
                          <h3 className="text-2xl md:text-5xl font-bold text-white leading-tight">
                             {item.title}

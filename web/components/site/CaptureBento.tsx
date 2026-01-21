@@ -71,7 +71,12 @@ const DynamicTerminalContent = () => {
 
 const Monitor3D = () => {
   const meshRef = useRef<THREE.Group>(null);
-  const materialProps = { color: "#080808", roughness: 0.6, metalness: 0.4 };
+  const materialProps = { 
+    color: "#d1d5db", // 银灰色/铝合金基底
+    roughness: 0.15,  // 低粗糙度，产生犀利的高光
+    metalness: 0.9,   // 极高金属度，产生拟真的金属光泽
+    envMapIntensity: 2
+  };
 
   useFrame((state) => {
     if (meshRef.current) {
@@ -81,22 +86,42 @@ const Monitor3D = () => {
 
   return (
     <group ref={meshRef} rotation={[0.05, -Math.PI / 5, 0]} position={[0, 0.8, 0]}>
+      {/* 强化金属边缘光 */}
+      <pointLight position={[10, 10, 10]} intensity={15} color="#ffffff" distance={20} />
+      <pointLight position={[-10, 5, 10]} intensity={8} color="#ffffff" distance={20} />
+      
       <group>
-        <RoundedBox args={[4.4, 4, 0.8]} radius={0.08} smoothness={4} position={[0, 0, 1]}><meshStandardMaterial {...materialProps} /></RoundedBox>
-        <RoundedBox args={[4.2, 3.8, 3]} radius={0.15} smoothness={4} position={[0, 0, -0.5]}><meshStandardMaterial {...materialProps} /></RoundedBox>
-        <RoundedBox args={[3.2, 3, 1]} radius={0.2} smoothness={4} position={[0, 0, -2]}><meshStandardMaterial color="#020202" roughness={0.8} /></RoundedBox>
+        {/* 前边框 - 增加细腻的倒角反射感 */}
+        <RoundedBox args={[4.4, 4, 0.8]} radius={0.12} smoothness={10} position={[0, 0, 1]}>
+          <meshStandardMaterial {...materialProps} />
+        </RoundedBox>
+        {/* 主机身 - 核心金属块 */}
+        <RoundedBox args={[4.2, 3.8, 3]} radius={0.2} smoothness={10} position={[0, 0, -0.5]}>
+          <meshStandardMaterial {...materialProps} />
+        </RoundedBox>
+        {/* 后部 - 略微深色的喷砂处理感 */}
+        <RoundedBox args={[3.2, 3, 1]} radius={0.3} smoothness={10} position={[0, 0, -2]}>
+          <meshStandardMaterial color="#9ca3af" roughness={0.3} metalness={0.8} />
+        </RoundedBox>
       </group>
+
       <group position={[0, 0, 1.51]}>
         <mesh frustumCulled={false}>
           <planeGeometry args={[3.7, 3.1]} />
-          <meshStandardMaterial color="#000000" emissive="#1ff40a" emissiveIntensity={0.15} toneMapped={false} />
+          <meshStandardMaterial color="#000000" emissive="#1ff40a" emissiveIntensity={0.25} toneMapped={false} />
         </mesh>
         <DynamicTerminalContent />
-        <pointLight position={[0, 0, 1]} intensity={0.3} color="#1ff40a" distance={4} />
+        {/* 屏幕对金属边框的绿光投影 */}
+        <pointLight position={[0, 0, 0.2]} intensity={0.8} color="#1ff40a" distance={2} />
       </group>
+
       <group position={[0, -2, 0.5]}>
-        <Cylinder args={[0.6, 0.8, 0.6, 32]} position={[0, 0.2, 0]}><meshStandardMaterial {...materialProps} /></Cylinder>
-        <RoundedBox args={[3.5, 0.3, 3]} radius={0.1} smoothness={4} position={[0, -0.1, 0]}><meshStandardMaterial {...materialProps} /></RoundedBox>
+        <Cylinder args={[0.6, 0.8, 0.6, 32]} position={[0, 0.2, 0]}>
+          <meshStandardMaterial {...materialProps} />
+        </Cylinder>
+        <RoundedBox args={[3.5, 0.3, 3]} radius={0.1} smoothness={10} position={[0, -0.1, 0]}>
+          <meshStandardMaterial {...materialProps} />
+        </RoundedBox>
       </group>
     </group>
   );
@@ -108,106 +133,116 @@ const Monitor3D = () => {
 
 // 01: Mobile - "Instant Capture" UI
 const MobileScene = () => (
-  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-    {/* Grid Background */}
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
+  <div className="relative w-full h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center p-4 md:p-8 group text-blue-500">
+    {/* Refined Grid Background */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_70%)]" />
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px]" />
     
-    {/* The Phone Container */}
-    <div className="relative w-[130px] md:w-[160px] h-[200px] md:h-[260px] bg-black rounded-[1.5rem] md:rounded-[2rem] border-[3px] md:border-[4px] border-neutral-800 shadow-2xl overflow-hidden transform md:group-hover:scale-105 transition-transform duration-500">
+    {/* The Phone Container with Metallic Rim */}
+    <div className="relative w-[130px] md:w-[160px] h-[200px] md:h-[260px] bg-black rounded-[1.8rem] md:rounded-[2.2rem] border-[4px] border-neutral-800 shadow-[0_0_40px_rgba(0,0,0,0.8),inset_0_0_2px_rgba(255,255,255,0.2)] overflow-hidden">
       {/* Notch */}
-      <div className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-3 md:h-4 bg-neutral-900 rounded-full z-20" />
+      <div className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-3 md:h-4 bg-neutral-900 rounded-full z-30 shadow-inner" />
       
       {/* Screen Content */}
-      <div className="absolute inset-0 bg-neutral-900 flex flex-col p-3 md:p-4 pt-8 md:pt-10 space-y-2 md:space-y-3">
-        {/* Chat Bubble (Source) */}
+      <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col p-3 md:p-4 pt-8 md:pt-10 space-y-3">
+        {/* Chat Bubble with Glass Effect */}
         <motion.div 
-          initial={{ opacity: 0, x: -20 }} 
+          initial={{ opacity: 0, x: -10 }} 
           whileInView={{ opacity: 1, x: 0 }} 
-          transition={{ delay: 0.2 }}
-          className="bg-neutral-800 p-2 rounded-2xl rounded-tl-none border border-white/5 w-3/4"
+          className="bg-white/5 border border-white/5 p-2 rounded-2xl rounded-tl-none w-4/5 backdrop-blur-sm"
         >
-          <div className="h-1 bg-neutral-600 rounded w-1/2 mb-1" />
-          <div className="h-1 bg-neutral-700 rounded w-3/4" />
+          <div className="h-1 bg-white/20 rounded w-1/3 mb-1.5" />
+          <div className="h-1 bg-white/10 rounded w-2/3" />
         </motion.div>
 
-        {/* The Link Card */}
+        {/* The Link Card with Premium Styling */}
         <motion.div 
-          initial={{ opacity: 0, y: 10 }} 
-          whileInView={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.4 }}
-          className="bg-[#2a2a2a] p-2 rounded-xl border border-white/10"
+          initial={{ opacity: 0, scale: 0.95 }} 
+          whileInView={{ opacity: 1, scale: 1 }} 
+          className="bg-gradient-to-br from-blue-500/20 to-indigo-500/5 p-2.5 rounded-xl border border-blue-500/30 shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
         >
-           <div className="flex gap-2">
-             <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded flex items-center justify-center"><Globe size={10} className="text-blue-400" /></div>
-             <div className="flex-1 space-y-1">
-               <div className="h-1 bg-neutral-500 rounded w-full" />
-               <div className="h-1 bg-neutral-600 rounded w-1/2" />
+           <div className="flex gap-2.5 items-center">
+             <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-500/40">
+                <Globe size={14} className="text-blue-400" />
+             </div>
+             <div className="flex-1 space-y-1.5">
+               <div className="h-1 bg-blue-200/40 rounded w-full" />
+               <div className="h-1 bg-blue-200/20 rounded w-1/2" />
              </div>
            </div>
         </motion.div>
 
-        {/* Scanning Beam Effect */}
-        <motion.div 
-          initial={{ top: '30%' }}
-          animate={{ top: ['30%', '70%', '30%'] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-6 bg-blue-500/10 border-t border-b border-blue-500/30 blur-[1px] z-10"
-        />
-
-        {/* Captured Result (Notification) */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }} 
-          whileInView={{ opacity: 1, scale: 1 }} 
-          transition={{ delay: 0.8 }}
-          className="mt-auto bg-green-500/10 border border-green-500/30 p-1.5 md:p-2 rounded-lg flex items-center gap-1.5 backdrop-blur-md"
-        >
-          <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center"><Check size={8} className="text-black" /></div>
-          <span className="text-[7px] md:text-[8px] text-green-400 font-mono tracking-wide">CAPTURED</span>
-        </motion.div>
+        {/* Capturing Status */}
+        <div className="mt-auto py-2 border-t border-white/5 flex items-center justify-between px-1">
+           <div className="flex gap-1">
+              {[1,2,3].map(i => (
+                <motion.div 
+                  key={i}
+                  animate={{ opacity: [0.2, 1, 0.2] }}
+                  transition={{ duration: 1.5, delay: i * 0.2, repeat: Infinity }}
+                  className="w-1 h-1 rounded-full bg-blue-500" 
+                />
+              ))}
+           </div>
+           <span className="text-[6px] md:text-[8px] text-white/30 font-mono tracking-widest">ENCRYPTING...</span>
+        </div>
       </div>
+
+      {/* Screen Glare */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
     </div>
   </div>
 );
 
 // 02: Browser - "Reader Mode" UI
 const BrowserScene = () => (
-  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-    {/* Browser Window */}
-    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#1a1a1a] rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col scale-95 md:scale-100">
-      {/* Toolbar */}
-      <div className="h-6 md:h-8 bg-[#222] border-b border-white/5 flex items-center px-2 md:px-3 gap-2">
-        <div className="flex gap-1">
-          <div className="w-2 h-2 rounded-full bg-red-500/50" />
-          <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-          <div className="w-2 h-2 rounded-full bg-green-500/50" />
+  <div className="relative w-full h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center p-4 md:p-8 group text-green-500">
+    {/* Browser Window with Glassmorphism */}
+    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#0d0d0d] rounded-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col scale-95 md:scale-100">
+      {/* Refined Toolbar */}
+      <div className="h-7 md:h-9 bg-[#1a1a1a] border-b border-white/5 flex items-center px-3 gap-3">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_5px_rgba(255,95,87,0.3)]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <div className="flex-1 mx-2 md:mx-4 h-4 md:h-5 bg-black/40 rounded flex items-center px-2 text-[7px] md:text-[8px] text-neutral-500 font-mono">
-           https://chaos-web.com/article...
+        <div className="flex-1 h-5 md:h-6 bg-black/60 rounded-md border border-white/5 flex items-center px-2 text-[7px] md:text-[9px] text-neutral-500 font-mono italic">
+           https://archive.is/neofeed...
         </div>
       </div>
 
       <div className="flex-1 flex relative">
-        {/* Left: Chaos (Ads) - Fading Out */}
-        <div className="w-1/4 md:w-1/3 border-r border-white/5 p-2 md:p-3 space-y-2 relative overflow-hidden">
-           <div className="absolute inset-0 bg-black/60 z-10 backdrop-blur-[1px]" />
-           {[1,2].map(i => (
-             <div key={i} className="h-10 bg-neutral-800/50 rounded border border-white/5 flex items-center justify-center" />
-           ))}
+        {/* Left: Distraction Area */}
+        <div className="w-1/4 md:w-[30%] border-r border-white/5 p-2 space-y-2 opacity-20 grayscale">
+           <div className="h-8 bg-neutral-800 rounded" />
+           <div className="h-12 bg-neutral-800 rounded" />
+           <div className="h-10 bg-neutral-800 rounded" />
         </div>
 
-        {/* Right: Content (Pure) */}
-        <div className="flex-1 p-3 md:p-4 bg-[#111] relative">
-          <div className="absolute top-0 right-0 p-1.5">
-             <div className="w-5 h-5 rounded bg-green-500/10 flex items-center justify-center border border-green-500/20">
-               <Zap size={10} className="text-green-400" />
+        {/* Right: Focused Content */}
+        <div className="flex-1 p-3 md:p-5 bg-[#0a0a0a] relative overflow-hidden">
+          {/* Active Highlight */}
+          <div className="absolute -top-10 -right-10 w-24 h-24 bg-green-500/10 blur-[30px] rounded-full" />
+          
+          <div className="space-y-2.5 relative z-10">
+             <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-4 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                <div className="h-3 bg-neutral-200 rounded-sm w-3/4" />
              </div>
+             <div className="h-1.5 bg-neutral-600 rounded w-full" />
+             <div className="h-1.5 bg-neutral-600 rounded w-full opacity-80" />
+             <div className="h-1.5 bg-neutral-600 rounded w-5/6 opacity-60" />
+             <div className="h-1.5 bg-neutral-600 rounded w-4/6 opacity-40" />
           </div>
-          <div className="space-y-1.5 md:space-y-2">
-             <div className="h-2.5 bg-neutral-200 rounded w-3/4 opacity-90" />
-             <div className="h-1.5 bg-neutral-500 rounded w-full opacity-60" />
-             <div className="h-1.5 bg-neutral-500 rounded w-full opacity-60" />
-             <div className="h-1.5 bg-neutral-500 rounded w-5/6 opacity-60" />
-          </div>
+
+          {/* Magical Icon Floating */}
+          <motion.div 
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-4 right-4 w-7 h-7 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center justify-center backdrop-blur-md shadow-lg"
+          >
+             <Zap size={14} className="text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
+          </motion.div>
         </div>
       </div>
     </div>
@@ -216,51 +251,62 @@ const BrowserScene = () => (
 
 // 03: RSS - "Radar" UI
 const RSSScene = () => {
-  const [dots, setDots] = React.useState<Array<{top: string, left: string}>>([]);
+  const [dots, setDots] = React.useState<Array<{top: string, left: string, delay: number}>>([]);
   
   React.useEffect(() => {
-    // Generate random positions only after mount on client
-    const newDots = [...Array(5)].map(() => ({
-      top: `${30 + Math.random() * 40}%`, 
-      left: `${30 + Math.random() * 40}%`
+    const newDots = [...Array(8)].map((_, i) => ({
+      top: `${25 + Math.random() * 50}%`, 
+      left: `${25 + Math.random() * 50}%`,
+      delay: i * 0.3
     }));
     setDots(newDots);
   }, []);
 
   return (
-    <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-      {/* Radar Grid */}
+    <div className="relative w-full h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center p-4 md:p-8 group text-orange-500">
+      {/* Sophisticated Radar Grid */}
       <div className="absolute inset-0 flex items-center justify-center opacity-20">
-         <div className="w-[180px] md:w-[240px] h-[180px] md:h-[240px] rounded-full border border-orange-500/30" />
-         <div className="w-[120px] md:w-[160px] h-[120px] md:h-[160px] rounded-full border border-orange-500/30 absolute" />
-         <div className="w-full h-[1px] bg-orange-500/30 absolute" />
-         <div className="w-[1px] h-full bg-orange-500/30 absolute" />
+         <div className="w-[260px] h-[260px] rounded-full border border-current opacity-[0.1]" />
+         <div className="w-[180px] h-[180px] rounded-full border border-current opacity-[0.2]" />
+         <div className="w-[100px] h-[100px] rounded-full border border-current opacity-[0.3]" />
+         <div className="w-full h-[1px] bg-current opacity-[0.1] absolute" />
+         <div className="w-[1px] h-full bg-current opacity-[0.1] absolute" />
       </div>
 
+      {/* Pulsing Core */}
+      <div className="absolute w-2 h-2 bg-current rounded-full shadow-[0_0_20px_currentColor]" />
+
+      {/* Rotating Scanner with Gradient Trail */}
       <motion.div 
         animate={{ rotate: 360 }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
         className="absolute inset-0 flex items-center justify-center"
       >
-         <div className="w-[90px] md:w-[120px] h-[90px] md:h-[120px] bg-gradient-to-tr from-transparent to-orange-500/20 rounded-full clip-path-sector" style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 50%)' }} />
+         <div className="w-[130px] md:w-[160px] h-[130px] md:h-[160px] bg-gradient-to-tr from-transparent via-orange-500/5 to-orange-500/30 rounded-full" 
+              style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 50%)' }} />
       </motion.div>
 
+      {/* Data Points with Haze */}
       <div className="relative z-10 w-full h-full">
          {dots.map((dot, i) => (
            <motion.div
              key={i}
-             initial={{ opacity: 0.2 }}
-             animate={{ opacity: [0.2, 1, 0.2] }}
-             transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
-             className="absolute w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.8)]"
+             initial={{ scale: 0, opacity: 0 }}
+             animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0] }}
+             transition={{ duration: 3, delay: dot.delay, repeat: Infinity }}
+             className="absolute w-2 h-2 flex items-center justify-center"
              style={{ top: dot.top, left: dot.left }}
-           />
+           >
+              <div className="w-1.5 h-1.5 bg-current rounded-full shadow-[0_0_10px_currentColor]" />
+              <div className="absolute w-4 h-4 bg-current/20 rounded-full blur-[2px]" />
+           </motion.div>
          ))}
       </div>
 
-      <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur border border-orange-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-         <Filter size={8} className="text-orange-400" />
-         <span className="text-[8px] md:text-[10px] text-orange-400 font-mono tracking-tighter">FILTER_ACTIVE</span>
+      {/* Target HUD Label */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 shadow-2xl">
+         <Radio size={12} className="text-orange-400 animate-pulse" />
+         <span className="text-[8px] md:text-[10px] text-white/80 font-mono tracking-[0.2em] uppercase">Signal Detected</span>
       </div>
     </div>
   );
@@ -268,29 +314,61 @@ const RSSScene = () => {
 
 // 04: Terminal - "Command Line" UI
 const TerminalScene = () => (
-  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
-    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#0c0c0c] rounded-lg border border-purple-500/20 shadow-2xl flex flex-col font-mono text-[10px] md:text-xs overflow-hidden scale-95 md:scale-100">
-      <div className="h-5 md:h-6 bg-[#1a1a1a] border-b border-white/5 flex items-center px-2">
-         <span className="text-neutral-500 text-[8px] md:text-[10px]">neofeed-cli</span>
-      </div>
-
-      <div className="flex-1 p-2 md:p-3 text-purple-400/80 space-y-1 relative">
+  <div className="relative w-full h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center p-4 md:p-8 group text-purple-500">
+    {/* Terminal Window */}
+    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#050505] rounded-lg border border-white/10 shadow-2xl flex flex-col font-mono overflow-hidden">
+      {/* Header */}
+      <div className="h-7 bg-[#111] border-b border-white/5 flex items-center px-3 justify-between">
+         <div className="flex items-center gap-2">
+            <TerminalIcon size={10} className="text-purple-500" />
+            <span className="text-neutral-500 text-[8px] md:text-[9px] uppercase tracking-widest font-bold">NeoFeed CLI</span>
+         </div>
          <div className="flex gap-1.5">
-           <span className="text-purple-500">➜</span>
-           <span className="text-white">feed add "Idea"</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
          </div>
-         <div className="text-neutral-500 pl-3">Processing...</div>
+      </div>
+
+      {/* Main Console Area */}
+      <div className="flex-1 p-3 md:p-4 text-purple-400/90 space-y-2 relative overflow-hidden">
+         <div className="flex gap-2">
+           <span className="text-purple-600 font-bold">$</span>
+           <span className="text-white/90">capture <span className="text-purple-400/60">--url</span> "https://..."</span>
+         </div>
          
-         <div className="mt-1.5 flex gap-1.5">
-           <span className="text-purple-500">➜</span>
-           <span className="text-white">sync --brain</span>
-           <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} className="w-1 h-3 bg-purple-500 block" />
+         <div className="flex items-start gap-2 pl-4">
+            <div className="w-1 h-3 mt-1 bg-purple-500/20 rounded-full" />
+            <div className="text-[9px] md:text-[10px] text-neutral-500 space-y-0.5">
+               <p>Connecting to neural core...</p>
+               <p className="text-green-500/60 font-bold opacity-80">[OK] Handshake verified</p>
+            </div>
          </div>
 
-         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-3 p-1.5 bg-purple-500/5 border border-purple-500/10 rounded text-[9px] text-purple-300">
-           {`{ "status": "synced" }`}
+         {/* JSON Highlighted Result */}
+         <motion.div 
+           initial={{ opacity: 0, y: 5 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           className="mt-4 p-2 bg-purple-500/5 border border-purple-500/10 rounded-md text-[9px] md:text-[10px] relative group/json"
+         >
+           <div className="absolute top-1 right-2 text-[7px] text-purple-500/40 uppercase font-bold">JSON</div>
+           <p><span className="text-purple-300">"status":</span> <span className="text-green-400">"captured"</span>,</p>
+           <p><span className="text-purple-300">"vectors":</span> <span className="text-orange-400">1024_dim</span></p>
          </motion.div>
+
+         {/* Blinking Cursor */}
+         <div className="flex items-center gap-2 pt-1">
+            <span className="text-purple-600 font-bold">$</span>
+            <motion.div 
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+              className="w-2 h-4 bg-purple-500/80 shadow-[0_0_8px_rgba(168,85,247,0.5)]" 
+            />
+         </div>
       </div>
+
+      {/* Retro CRT Overlays */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[size:100%_2px,3px_100%] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.02] to-transparent pointer-events-none animate-scanline" />
     </div>
   </div>
 );
@@ -315,9 +393,10 @@ export default function CaptureBento() {
              <div className="w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-visible">
                 <Canvas camera={{ position: [0, 2, 16], fov: 32 }} gl={{ antialias: true, alpha: true, logarithmicDepthBuffer: true }}>
                     <Suspense fallback={null}>
-                    <ambientLight intensity={0.15} color="#ffffff" />
-                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4040ff" />
+                    <ambientLight intensity={0.4} color="#ffffff" />
+                    <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={15} castShadow />
+                    <pointLight position={[-10, 10, 15]} intensity={10} color="#ffffff" />
+                    <pointLight position={[0, -10, -10]} intensity={5} color="#4040ff" />
                     <PresentationControls global={false} snap={true} speed={2} polar={[-Math.PI / 6, Math.PI / 6]} azimuth={[-Math.PI / 4, Math.PI / 4]}>
                         <Monitor3D />
                     </PresentationControls>
@@ -326,10 +405,6 @@ export default function CaptureBento() {
              </div>
           </div>
           <div className="relative z-10 pt-[180px] md:pt-[240px] flex flex-col items-center gap-4 md:gap-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-              <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-              <span className="text-xs md:text-sm font-mono text-white/60 tracking-wider uppercase" style={{ fontFamily: numberFont }}>Input Vectors</span>
-            </motion.div>
             <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-3xl md:text-8xl font-serif text-white font-bold leading-tight">
               万物接入<br />
               <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Portals of Capture</span>
