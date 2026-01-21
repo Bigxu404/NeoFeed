@@ -279,7 +279,7 @@ export default function UnderstandBento() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-8xl font-serif text-white font-bold leading-tight"
+            className="text-4xl md:text-8xl font-serif text-white font-bold leading-tight"
           >
             理解万物<br />
             <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Core of Intelligence</span>
@@ -294,7 +294,7 @@ export default function UnderstandBento() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.8 }}
-                className={`flex flex-col md:flex-row items-center gap-8 md:gap-24 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
+                className={`flex flex-col-reverse md:flex-row items-center gap-8 md:gap-24 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
             >
                 {/* Visual Scene (50%) */}
                 <div className="w-full md:w-1/2 h-[220px] md:h-[450px] relative group shrink-0">

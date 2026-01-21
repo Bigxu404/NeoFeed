@@ -389,8 +389,8 @@ export default function CaptureBento() {
     <section id="features" className="w-full py-16 md:py-32 relative z-10 overflow-hidden" style={{ fontFamily: serifFont }}>
       <div className="max-w-7xl mx-auto px-6 space-y-20 md:space-y-32">
         <div className="text-center mb-12 md:mb-20 relative">
-          <div className="absolute top-[-180px] md:top-[-230px] left-0 right-0 z-0 opacity-90">
-             <div className="w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-visible">
+          <div className="hidden md:block absolute top-[-230px] left-0 right-0 z-0 opacity-90">
+             <div className="w-full h-[600px] flex items-center justify-center overflow-visible">
                 <Canvas camera={{ position: [0, 2, 16], fov: 32 }} gl={{ antialias: true, alpha: true, logarithmicDepthBuffer: true }}>
                     <Suspense fallback={null}>
                     <ambientLight intensity={0.4} color="#ffffff" />
@@ -404,8 +404,8 @@ export default function CaptureBento() {
                 </Canvas>
              </div>
           </div>
-          <div className="relative z-10 pt-[180px] md:pt-[240px] flex flex-col items-center gap-4 md:gap-6">
-            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-3xl md:text-8xl font-serif text-white font-bold leading-tight">
+          <div className="relative z-10 pt-4 md:pt-[240px] flex flex-col items-center gap-4 md:gap-6">
+            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-4xl md:text-8xl font-serif text-white font-bold leading-tight">
               万物接入<br />
               <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Portals of Capture</span>
             </motion.h2>
@@ -413,7 +413,7 @@ export default function CaptureBento() {
         </div>
 
         {sections.map((item, index) => (
-            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col md:flex-row items-center gap-6 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col-reverse md:flex-row items-center gap-6 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
                 <div className="w-full md:w-1/2 h-[220px] md:h-[350px] relative group shrink-0">
                     <div className={`absolute inset-0 md:-inset-4 bg-gradient-to-r ${item.gradient} opacity-10 blur-[30px] md:blur-[50px] group-hover:opacity-20 transition-opacity duration-1000`} />
                     {item.scene()}
