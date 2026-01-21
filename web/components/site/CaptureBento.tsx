@@ -108,17 +108,17 @@ const Monitor3D = () => {
 
 // 01: Mobile - "Instant Capture" UI
 const MobileScene = () => (
-  <div className="relative w-full h-[300px] bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-8 group">
+  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
     {/* Grid Background */}
     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
     
     {/* The Phone Container */}
-    <div className="relative w-[160px] h-[260px] bg-black rounded-[2rem] border-[4px] border-neutral-800 shadow-2xl overflow-hidden transform group-hover:scale-105 transition-transform duration-500">
+    <div className="relative w-[130px] md:w-[160px] h-[200px] md:h-[260px] bg-black rounded-[1.5rem] md:rounded-[2rem] border-[3px] md:border-[4px] border-neutral-800 shadow-2xl overflow-hidden transform md:group-hover:scale-105 transition-transform duration-500">
       {/* Notch */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-neutral-900 rounded-full z-20" />
+      <div className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-3 md:h-4 bg-neutral-900 rounded-full z-20" />
       
       {/* Screen Content */}
-      <div className="absolute inset-0 bg-neutral-900 flex flex-col p-4 pt-10 space-y-3">
+      <div className="absolute inset-0 bg-neutral-900 flex flex-col p-3 md:p-4 pt-8 md:pt-10 space-y-2 md:space-y-3">
         {/* Chat Bubble (Source) */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
@@ -126,8 +126,8 @@ const MobileScene = () => (
           transition={{ delay: 0.2 }}
           className="bg-neutral-800 p-2 rounded-2xl rounded-tl-none border border-white/5 w-3/4"
         >
-          <div className="h-1.5 bg-neutral-600 rounded w-1/2 mb-1" />
-          <div className="h-1.5 bg-neutral-700 rounded w-3/4" />
+          <div className="h-1 bg-neutral-600 rounded w-1/2 mb-1" />
+          <div className="h-1 bg-neutral-700 rounded w-3/4" />
         </motion.div>
 
         {/* The Link Card */}
@@ -138,10 +138,10 @@ const MobileScene = () => (
           className="bg-[#2a2a2a] p-2 rounded-xl border border-white/10"
         >
            <div className="flex gap-2">
-             <div className="w-8 h-8 bg-blue-500/20 rounded flex items-center justify-center"><Globe size={12} className="text-blue-400" /></div>
+             <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded flex items-center justify-center"><Globe size={10} className="text-blue-400" /></div>
              <div className="flex-1 space-y-1">
-               <div className="h-1.5 bg-neutral-500 rounded w-full" />
-               <div className="h-1.5 bg-neutral-600 rounded w-1/2" />
+               <div className="h-1 bg-neutral-500 rounded w-full" />
+               <div className="h-1 bg-neutral-600 rounded w-1/2" />
              </div>
            </div>
         </motion.div>
@@ -151,7 +151,7 @@ const MobileScene = () => (
           initial={{ top: '30%' }}
           animate={{ top: ['30%', '70%', '30%'] }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-8 bg-blue-500/10 border-t border-b border-blue-500/30 blur-[2px] z-10"
+          className="absolute left-0 right-0 h-6 bg-blue-500/10 border-t border-b border-blue-500/30 blur-[1px] z-10"
         />
 
         {/* Captured Result (Notification) */}
@@ -159,10 +159,10 @@ const MobileScene = () => (
           initial={{ opacity: 0, scale: 0.9 }} 
           whileInView={{ opacity: 1, scale: 1 }} 
           transition={{ delay: 0.8 }}
-          className="mt-auto bg-green-500/10 border border-green-500/30 p-2 rounded-lg flex items-center gap-2 backdrop-blur-md"
+          className="mt-auto bg-green-500/10 border border-green-500/30 p-1.5 md:p-2 rounded-lg flex items-center gap-1.5 backdrop-blur-md"
         >
-          <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center"><Check size={10} className="text-black" /></div>
-          <span className="text-[8px] text-green-400 font-mono tracking-wide">CAPTURED TO NEOFEED</span>
+          <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center"><Check size={8} className="text-black" /></div>
+          <span className="text-[7px] md:text-[8px] text-green-400 font-mono tracking-wide">CAPTURED</span>
         </motion.div>
       </div>
     </div>
@@ -171,52 +171,43 @@ const MobileScene = () => (
 
 // 02: Browser - "Reader Mode" UI
 const BrowserScene = () => (
-  <div className="relative w-full h-[300px] bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-8 group">
-    {/* Background Noise */}
-    <div className="absolute inset-0 bg-neutral-900" />
-    
+  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
     {/* Browser Window */}
-    <div className="relative w-full max-w-sm h-[220px] bg-[#1a1a1a] rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#1a1a1a] rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col scale-95 md:scale-100">
       {/* Toolbar */}
-      <div className="h-8 bg-[#222] border-b border-white/5 flex items-center px-3 gap-2">
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
-          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+      <div className="h-6 md:h-8 bg-[#222] border-b border-white/5 flex items-center px-2 md:px-3 gap-2">
+        <div className="flex gap-1">
+          <div className="w-2 h-2 rounded-full bg-red-500/50" />
+          <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
+          <div className="w-2 h-2 rounded-full bg-green-500/50" />
         </div>
-        <div className="flex-1 mx-4 h-5 bg-black/40 rounded flex items-center px-2 text-[8px] text-neutral-500 font-mono">
+        <div className="flex-1 mx-2 md:mx-4 h-4 md:h-5 bg-black/40 rounded flex items-center px-2 text-[7px] md:text-[8px] text-neutral-500 font-mono">
            https://chaos-web.com/article...
         </div>
       </div>
 
       <div className="flex-1 flex relative">
         {/* Left: Chaos (Ads) - Fading Out */}
-        <div className="w-1/3 border-r border-white/5 p-3 space-y-2 relative overflow-hidden">
+        <div className="w-1/4 md:w-1/3 border-r border-white/5 p-2 md:p-3 space-y-2 relative overflow-hidden">
            <div className="absolute inset-0 bg-black/60 z-10 backdrop-blur-[1px]" />
-           {[1,2,3].map(i => (
-             <div key={i} className="h-12 bg-neutral-800/50 rounded border border-white/5 flex items-center justify-center">
-               <span className="text-[8px] text-neutral-600 font-mono">AD_BLOCK_{i}</span>
-             </div>
+           {[1,2].map(i => (
+             <div key={i} className="h-10 bg-neutral-800/50 rounded border border-white/5 flex items-center justify-center" />
            ))}
         </div>
 
         {/* Right: Content (Pure) */}
-        <div className="flex-1 p-4 bg-[#111] relative">
-          <div className="absolute top-0 right-0 p-2">
-             <div className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center border border-green-500/20">
-               <Zap size={12} className="text-green-400" />
+        <div className="flex-1 p-3 md:p-4 bg-[#111] relative">
+          <div className="absolute top-0 right-0 p-1.5">
+             <div className="w-5 h-5 rounded bg-green-500/10 flex items-center justify-center border border-green-500/20">
+               <Zap size={10} className="text-green-400" />
              </div>
           </div>
-          <div className="space-y-2">
-             <div className="h-3 bg-neutral-200 rounded w-3/4 opacity-90" />
-             <div className="h-2 bg-neutral-500 rounded w-full opacity-60" />
-             <div className="h-2 bg-neutral-500 rounded w-full opacity-60" />
-             <div className="h-2 bg-neutral-500 rounded w-5/6 opacity-60" />
-             <div className="h-2 bg-neutral-500 rounded w-4/6 opacity-60" />
+          <div className="space-y-1.5 md:space-y-2">
+             <div className="h-2.5 bg-neutral-200 rounded w-3/4 opacity-90" />
+             <div className="h-1.5 bg-neutral-500 rounded w-full opacity-60" />
+             <div className="h-1.5 bg-neutral-500 rounded w-full opacity-60" />
+             <div className="h-1.5 bg-neutral-500 rounded w-5/6 opacity-60" />
           </div>
-          
-          {/* Spotlight Effect */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-green-500/5 to-transparent pointer-events-none" />
         </div>
       </div>
     </div>
@@ -229,7 +220,7 @@ const RSSScene = () => {
   
   React.useEffect(() => {
     // Generate random positions only after mount on client
-    const newDots = [...Array(6)].map(() => ({
+    const newDots = [...Array(5)].map(() => ({
       top: `${30 + Math.random() * 40}%`, 
       left: `${30 + Math.random() * 40}%`
     }));
@@ -237,26 +228,23 @@ const RSSScene = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-[300px] bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-8 group">
+    <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
       {/* Radar Grid */}
       <div className="absolute inset-0 flex items-center justify-center opacity-20">
-         <div className="w-[240px] h-[240px] rounded-full border border-orange-500/30" />
-         <div className="w-[160px] h-[160px] rounded-full border border-orange-500/30 absolute" />
-         <div className="w-[80px] h-[80px] rounded-full border border-orange-500/30 absolute" />
+         <div className="w-[180px] md:w-[240px] h-[180px] md:h-[240px] rounded-full border border-orange-500/30" />
+         <div className="w-[120px] md:w-[160px] h-[120px] md:h-[160px] rounded-full border border-orange-500/30 absolute" />
          <div className="w-full h-[1px] bg-orange-500/30 absolute" />
          <div className="w-[1px] h-full bg-orange-500/30 absolute" />
       </div>
 
-      {/* Rotating Scanner */}
       <motion.div 
         animate={{ rotate: 360 }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         className="absolute inset-0 flex items-center justify-center"
       >
-         <div className="w-[120px] h-[120px] bg-gradient-to-tr from-transparent to-orange-500/20 rounded-full clip-path-sector" style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 50%)' }} />
+         <div className="w-[90px] md:w-[120px] h-[90px] md:h-[120px] bg-gradient-to-tr from-transparent to-orange-500/20 rounded-full clip-path-sector" style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 50%)' }} />
       </motion.div>
 
-      {/* Data Points */}
       <div className="relative z-10 w-full h-full">
          {dots.map((dot, i) => (
            <motion.div
@@ -264,19 +252,15 @@ const RSSScene = () => {
              initial={{ opacity: 0.2 }}
              animate={{ opacity: [0.2, 1, 0.2] }}
              transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
-             className="absolute w-1.5 h-1.5 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.8)]"
-             style={{ 
-               top: dot.top, 
-               left: dot.left 
-             }}
+             className="absolute w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.8)]"
+             style={{ top: dot.top, left: dot.left }}
            />
          ))}
       </div>
 
-      {/* Central Target Card */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur border border-orange-500/30 px-3 py-1.5 rounded-full flex items-center gap-2">
-         <Filter size={10} className="text-orange-400" />
-         <span className="text-[10px] text-orange-400 font-mono">FILTER: TOP_7_DETECTED</span>
+      <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur border border-orange-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+         <Filter size={8} className="text-orange-400" />
+         <span className="text-[8px] md:text-[10px] text-orange-400 font-mono tracking-tighter">FILTER_ACTIVE</span>
       </div>
     </div>
   );
@@ -284,52 +268,29 @@ const RSSScene = () => {
 
 // 04: Terminal - "Command Line" UI
 const TerminalScene = () => (
-  <div className="relative w-full h-[300px] bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-8 group">
-    <div className="relative w-full max-w-sm h-[220px] bg-[#0c0c0c] rounded-lg border border-purple-500/20 shadow-2xl flex flex-col font-mono text-xs overflow-hidden">
-      {/* Header */}
-      <div className="h-6 bg-[#1a1a1a] border-b border-white/5 flex items-center justify-between px-2">
-         <span className="text-neutral-500 text-[10px]">neofeed-cli — v2.4</span>
-         <div className="flex gap-1">
-           <div className="w-2 h-2 rounded-full bg-white/10" />
-         </div>
+  <div className="relative w-full h-full bg-neutral-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
+    <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#0c0c0c] rounded-lg border border-purple-500/20 shadow-2xl flex flex-col font-mono text-[10px] md:text-xs overflow-hidden scale-95 md:scale-100">
+      <div className="h-5 md:h-6 bg-[#1a1a1a] border-b border-white/5 flex items-center px-2">
+         <span className="text-neutral-500 text-[8px] md:text-[10px]">neofeed-cli</span>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 p-3 text-purple-400/80 space-y-1 relative">
-         <div className="flex gap-2">
+      <div className="flex-1 p-2 md:p-3 text-purple-400/80 space-y-1 relative">
+         <div className="flex gap-1.5">
            <span className="text-purple-500">➜</span>
-           <span className="text-white">feed add "My Idea"</span>
+           <span className="text-white">feed add "Idea"</span>
          </div>
-         <div className="text-neutral-500 pl-4">Parsing natural language...</div>
-         <div className="text-neutral-500 pl-4">Generating vector embeddings...</div>
+         <div className="text-neutral-500 pl-3">Processing...</div>
          
-         <div className="mt-2 flex gap-2">
+         <div className="mt-1.5 flex gap-1.5">
            <span className="text-purple-500">➜</span>
            <span className="text-white">sync --brain</span>
-           <motion.span 
-             animate={{ opacity: [1, 0] }} 
-             transition={{ duration: 0.8, repeat: Infinity }}
-             className="w-1.5 h-3 bg-purple-500 block" 
-           />
+           <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} className="w-1 h-3 bg-purple-500 block" />
          </div>
 
-         {/* JSON Visualization */}
-         <motion.div 
-           initial={{ opacity: 0, y: 10 }}
-           whileInView={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.5 }}
-           className="mt-4 p-2 bg-purple-500/5 border border-purple-500/10 rounded text-[10px] text-purple-300"
-         >
-           {`{
-  "id": "ax9-22",
-  "status": "synced",
-  "confidence": 0.98
-}`}
+         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-3 p-1.5 bg-purple-500/5 border border-purple-500/10 rounded text-[9px] text-purple-300">
+           {`{ "status": "synced" }`}
          </motion.div>
       </div>
-
-      {/* CRT Scanline Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%] pointer-events-none opacity-20" />
     </div>
   </div>
 );
@@ -354,11 +315,12 @@ export default function CaptureBento() {
              <div className="w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-visible">
                 <Canvas camera={{ position: [0, 2, 16], fov: 32 }} gl={{ antialias: true, alpha: true, logarithmicDepthBuffer: true }}>
                     <Suspense fallback={null}>
-                    <ambientLight intensity={0.05} />
+                    <ambientLight intensity={0.15} color="#ffffff" />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4040ff" />
                     <PresentationControls global={false} snap={true} speed={2} polar={[-Math.PI / 6, Math.PI / 6]} azimuth={[-Math.PI / 4, Math.PI / 4]}>
                         <Monitor3D />
                     </PresentationControls>
-                    <Environment preset="city" />
                     </Suspense>
                 </Canvas>
              </div>
@@ -376,9 +338,9 @@ export default function CaptureBento() {
         </div>
 
         {sections.map((item, index) => (
-            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col md:flex-row items-center gap-8 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-                <div className="w-full md:w-1/2 h-[280px] md:h-[350px] relative group shrink-0">
-                    <div className={`absolute -inset-4 bg-gradient-to-r ${item.gradient} opacity-10 blur-[50px] group-hover:opacity-20 transition-opacity duration-1000`} />
+            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col md:flex-row items-center gap-6 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+                <div className="w-full md:w-1/2 h-[220px] md:h-[350px] relative group shrink-0">
+                    <div className={`absolute inset-0 md:-inset-4 bg-gradient-to-r ${item.gradient} opacity-10 blur-[30px] md:blur-[50px] group-hover:opacity-20 transition-opacity duration-1000`} />
                     {item.scene()}
                 </div>
                 <div className="w-full md:w-1/2 space-y-4 md:space-y-8">
