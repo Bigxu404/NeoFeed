@@ -123,15 +123,18 @@ export function generateGalaxyData(count: number = 150): GalaxyItem[] {
     items.push({
       id: `star-${i}`,
       position: [x, y, z],
-      size: size,
+      size: 0.2 + Math.random() * 0.4, // 这个字段将被 GalaxyScene 内部的 wordCount 逻辑覆盖
       color: colors[category],
       category: category,
       summary: summary,
       content: `这里是关于 "${summary}" 的详细全文内容...\n\n(这是一条来自 ${dateStr} 的记忆片段。)\n\nLorem ipsum dolor sit amet...`,
       tags: randomTags,
       date: dateStr,
-      timestamp: timestamp // 存入时间戳
-    });
+      timestamp: timestamp,
+      // 🚀 新增：多维数据字段
+      wordCount: Math.floor(Math.random() * 5000) + 200, // 200 - 5200 字
+      complexity: Math.random(), // 0 - 1 复杂度
+    } as any);
   }
 
   // 返回前不需要再排序，因为我们是按 i 生成的，本身就是有序的 (i=0 是最新的)

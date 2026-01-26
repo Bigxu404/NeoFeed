@@ -57,12 +57,12 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
                       {new Date(item.created_at).toLocaleDateString()} · {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                </div>
+              </div>
 
                 {/* 标题 */}
                 <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
-                  {item.title}
-                </h2>
+                {item.title}
+              </h2>
 
                 {/* AI 一句话总结 */}
                 <div className="p-6 md:p-8 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 space-y-2">
@@ -78,8 +78,8 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
                     <div className="h-px flex-1 bg-white/5" />
                     <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.3em] font-mono px-2">结构化深度分析</span>
                     <div className="h-px flex-1 bg-white/5" />
-                  </div>
-                  
+              </div>
+
                   {/* 分段展示研究主题、方式、结果 */}
                   <div className="space-y-8">
                     {item.summary.includes('主题：') ? (
@@ -120,16 +120,16 @@ export default function DiscoveryDetailModal({ item, onClose, onFeed }: Discover
                 <span>阅读原文</span>
               </a>
 
-              <button
-                onClick={() => {
-                  onFeed(item.url);
-                  onClose();
-                }}
+                <button
+                  onClick={() => {
+                    onFeed(item.url);
+                    onClose();
+                  }}
                 className="flex items-center gap-2 px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black rounded-full font-bold transition-all active:scale-95 shadow-lg shadow-cyan-500/20 text-sm"
-              >
+                >
                 <Plus className="w-4 h-4" />
                 注入矩阵 FEED
-              </button>
+                </button>
             </div>
           </motion.div>
         </div>

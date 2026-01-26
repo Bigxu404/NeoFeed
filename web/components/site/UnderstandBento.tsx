@@ -171,63 +171,143 @@ const WeeklyScene = () => {
   );
 };
 
-// 03: GalaxyGrowthScene Refinement
+// 03: GalaxyGrowthScene Refinement (Multi-Galaxy Cluster Model with Accretion Animation)
 const GalaxyGrowthScene = () => {
+  const [incomingStar, setIncomingStar] = useState<{ id: number, color: string, targetX: number, targetY: number } | null>(null);
+  
+  const clusters = [
+    { id: 'ai', name: 'AI_RECON', color: '#6366f1', x: -40, y: -30, nodes: 8, status: 'mature' },
+    { id: 'design', name: 'DESIGN_SYS', color: '#f97316', x: 50, y: 20, nodes: 5, status: 'growing' },
+    { id: 'dev', name: 'CORE_DEV', color: '#10b981', x: -20, y: 50, nodes: 3, status: 'seed' },
+  ];
+
+  // Simulate new data capture and "Gravity Accretion"
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomCluster = clusters[Math.floor(Math.random() * clusters.length)];
+      setIncomingStar({
+        id: Date.now(),
+        color: randomCluster.color,
+        targetX: randomCluster.x,
+        targetY: randomCluster.y
+      });
+
+      // Reset after animation
+      setTimeout(() => setIncomingStar(null), 3000);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
        {/* Background Spatial Texture */}
-       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.08)_0%,transparent_70%)] opacity-50" />
-       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] contrast-150" />
+       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] opacity-50" />
        
        {/* UI Overlay - HUD Header */}
        <div className="absolute top-4 left-4 md:top-6 md:left-6 flex gap-3 z-30">
           <div className="px-2 py-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-lg text-[9px] md:text-[11px] text-neutral-400 font-mono flex items-center gap-2 shadow-2xl">
-             <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse shadow-[0_0_8px_#f97316]" />
-             <span>842 NODES CONNECTED</span>
+             <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+             <span>NEURAL_GRAVITY: ACTIVE</span>
           </div>
        </div>
 
-       {/* The Knowledge Graph */}
-       <div className="relative w-full h-full scale-90 md:scale-110 flex items-center justify-center">
-          {/* Main Hub Node */}
-          <div className="relative z-20">
-             <div className="w-5 h-5 md:w-7 md:h-7 bg-orange-500 rounded-full shadow-[0_0_30px_rgba(249,115,22,1)]" />
-             <div className="absolute inset-0 w-full h-full bg-orange-500/20 rounded-full blur-[20px] animate-pulse" />
-          </div>
+       {/* The Multi-Galaxy Map */}
+       <div className="relative w-full h-full scale-75 md:scale-90 flex items-center justify-center">
+          
+          {/* Incoming Star Animation (Simulating Gravity Accretion) */}
+          {incomingStar && (
+            <motion.div
+              key={incomingStar.id}
+              initial={{ x: 150, y: -150, opacity: 0, scale: 0 }}
+              animate={{ 
+                x: [150, 0, incomingStar.targetX], 
+                y: [-150, 0, incomingStar.targetY], 
+                opacity: [0, 1, 1, 0],
+                scale: [0, 1.5, 0.5, 0]
+              }}
+              transition={{ 
+                duration: 2.5,
+                times: [0, 0.4, 0.8, 1],
+                ease: "easeInOut"
+              }}
+              className="absolute z-40 pointer-events-none"
+            >
+               <div className="w-3 h-3 rounded-full shadow-[0_0_20px_#fff] bg-white" />
+               <motion.div 
+                  animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="absolute inset-0 rounded-full border border-white"
+               />
+               <div className="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-mono text-white/80 bg-black/50 px-2 py-0.5 rounded border border-white/10">
+                  ANALYZING_SEMANTICS...
+               </div>
+            </motion.div>
+          )}
 
-          {/* Dynamic Spatial Web */}
-          {[...Array(6)].map((_, i) => (
-             <motion.div
-               key={i}
-               animate={{ rotate: 360 }}
-               transition={{ duration: 30 + i * 8, repeat: Infinity, ease: "linear" }}
-               className="absolute w-full h-full flex items-center justify-center pointer-events-none"
-             >
-                {/* Orbiting Knowledge Node */}
-                <div 
-                  className="absolute w-2 h-2 md:w-3 md:h-3 bg-white/90 rounded-full border-2 border-orange-500 shadow-[0_0_10px_rgba(255,255,255,0.5)] z-10"
-                  style={{ transform: `translateX(${60 + i * 25}px)` }} 
-                >
-                   {/* Connection Beam */}
-                   <div 
-                     className="absolute top-1/2 left-0 w-full bg-gradient-to-r from-orange-500/40 to-transparent h-[0.5px] origin-left -translate-x-full"
-                     style={{ width: `${60 + i * 25}px` }}
-                   />
-                </div>
-                
-                {/* Orbital Path (Faint) */}
-                <div 
-                  className="absolute rounded-full border border-white/5 pointer-events-none"
-                  style={{ width: (60 + i * 25) * 2, height: (60 + i * 25) * 2 }}
-                />
-             </motion.div>
+          {clusters.map((cluster) => (
+            <div 
+              key={cluster.id}
+              className="absolute transition-transform duration-1000 group-hover:scale-110"
+              style={{ transform: `translate(${cluster.x}px, ${cluster.y}px)` }}
+            >
+              {/* Cluster Hub */}
+              <div className="relative z-20 flex flex-col items-center justify-center">
+                 <motion.div 
+                    animate={cluster.status === 'mature' ? { 
+                      scale: [1, 1.2, 1],
+                      boxShadow: [`0 0 20px ${cluster.color}`, `0 0 40px ${cluster.color}`, `0 0 20px ${cluster.color}`]
+                    } : {}}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-3 h-3 md:w-4 md:h-4 rounded-full"
+                    style={{ backgroundColor: cluster.color }}
+                 />
+                 
+                 {/* Label */}
+                 <div className="absolute top-6 md:top-8 whitespace-nowrap flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-1.5">
+                       <span className="text-[7px] md:text-[9px] font-mono font-bold tracking-[0.2em] uppercase px-1.5 py-0.5 bg-black/40 backdrop-blur-sm border border-white/5 rounded" style={{ color: cluster.color }}>
+                          {cluster.name}
+                       </span>
+                    </div>
+                    {cluster.status === 'mature' && (
+                       <motion.span 
+                        animate={{ opacity: [0.2, 0.6, 0.2] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="text-[6px] text-white/60 font-mono tracking-tighter italic"
+                       >
+                        READY TO SYNTHESIZE
+                       </motion.span>
+                    )}
+                 </div>
+              </div>
+
+              {/* Orbiting Nodes */}
+              {[...Array(cluster.nodes)].map((_, i) => (
+                 <motion.div
+                   key={i}
+                   animate={{ rotate: 360 }}
+                   transition={{ duration: 10 + i * 5, repeat: Infinity, ease: "linear" }}
+                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                   style={{ width: 0, height: 0 }}
+                 >
+                    <div 
+                      className="absolute w-1.5 h-1.5 md:w-2 md:h-2 bg-white/80 rounded-full border border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)] z-10"
+                      style={{ 
+                        transform: `translateX(${20 + i * 12}px)`,
+                        backgroundColor: i % 2 === 0 ? cluster.color : '#fff'
+                      }} 
+                    />
+                 </motion.div>
+              ))}
+            </div>
           ))}
        </div>
 
        {/* Legend Overlay */}
        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center z-30">
-          <div className="text-[9px] md:text-[12px] text-white font-mono font-bold uppercase tracking-[0.4em] mb-1">Spatial Memory Map</div>
-          <div className="h-0.5 w-12 bg-orange-500 mx-auto rounded-full shadow-[0_0_8px_#f97316]" />
+          <div className="text-[9px] md:text-[12px] text-white font-mono font-bold uppercase tracking-[0.4em] mb-1">Neural Gravity Map</div>
+          <div className="h-0.5 w-12 bg-indigo-500 mx-auto rounded-full shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
        </div>
     </div>
   );

@@ -16,8 +16,9 @@ const ShowcaseScene = () => {
     return (
         <div className="absolute inset-0 z-0">
             <Canvas camera={{ position: [0, 0, 10], fov: 35 }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
+                <ambientLight intensity={0.8} />
+                <pointLight position={[10, 10, 10]} intensity={1.5} />
+                <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <group rotation={[0.5, 0.2, 0]}>
                         <RoundedBox args={[1.2, 3, 0.8]} radius={0.1} smoothness={4} position={[-2, 0, 0]}>
@@ -36,7 +37,6 @@ const ShowcaseScene = () => {
                         </Cylinder>
                     </group>
                 </Float>
-                <Environment preset="city" />
             </Canvas>
         </div>
     )

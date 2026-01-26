@@ -112,13 +112,11 @@ export default function HistoryPage() {
                   </div>
                 </div>
             ) : items.length > 0 ? (
-              <ErrorBoundary name="GalaxyScene">
                 <GalaxyScene 
                   data={items} 
                   onItemClick={setSelectedItem} 
                   highlightedItemId={hoveredItemId}
                 />
-              </ErrorBoundary>
             ) : (
                 <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
                     <div className="text-center">
