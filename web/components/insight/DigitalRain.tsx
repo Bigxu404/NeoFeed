@@ -103,8 +103,8 @@ export default function DigitalRain({ opacity = 0.7 }: { opacity?: number }) {
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <canvas 
-        ref={canvasRef} 
+    <canvas 
+      ref={canvasRef} 
         className="w-full h-full"
         style={{ opacity: opacity * 0.5, filter: 'blur(0.5px)' }}
       />

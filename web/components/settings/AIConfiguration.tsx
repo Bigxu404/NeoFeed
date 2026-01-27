@@ -171,17 +171,17 @@ export default function AIConfiguration() {
 
               {/* Notification Email */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
-                        <Mail className="w-3 h-3" /> 通知邮箱
-                    </label>
-                    <input 
-                        type="email" 
-                        value={config.notificationEmail || ''}
-                        onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
-                        placeholder="neo@matrix.org"
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
-                    />
+              <div className="space-y-2">
+                  <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
+                      <Mail className="w-3 h-3" /> 通知邮箱
+                  </label>
+                  <input 
+                      type="email" 
+                      value={config.notificationEmail || ''}
+                      onChange={(e) => setConfig({ ...config, notificationEmail: e.target.value })}
+                      placeholder="neo@matrix.org"
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none font-mono"
+                  />
                 </div>
                 <div className="space-y-2">
                     <label className="text-xs font-mono text-white/50 uppercase flex items-center gap-2">
@@ -301,4 +301,3 @@ export default function AIConfiguration() {
     </div>
   );
 }
-

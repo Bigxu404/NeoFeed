@@ -150,7 +150,7 @@ body {
   filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
 }
 
-  .custom-caret {
+.custom-caret {
   animation: blink 1s step-end infinite;
 }
 

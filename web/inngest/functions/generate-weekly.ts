@@ -41,13 +41,13 @@ export const generateWeeklyReport = inngest.createFunction(
       
       let items = [];
       if (reportType === 'insight') {
-        const { data: feedData } = await supabase
-          .from('feeds')
-          .select('id, title, summary, tags, created_at, category')
-          .eq('user_id', userId)
-          .gte('created_at', startDate.toISOString())
-          .lte('created_at', endDate.toISOString())
-          .order('created_at', { ascending: false });
+      const { data: feedData } = await supabase
+        .from('feeds')
+        .select('id, title, summary, tags, created_at, category')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString())
+        .order('created_at', { ascending: false });
         items = feedData || [];
       } else {
         // 💡 关键改进：RSS 报告直接抓取当前数据库中的全部拦截内容
@@ -82,21 +82,21 @@ export const generateWeeklyReport = inngest.createFunction(
         let apiKey = userConfig.apiKey || process.env.SILICONFLOW_API_KEY;
         let baseURL = userConfig.baseURL?.trim().replace(/\/+$/, '') || "https://api.siliconflow.cn/v1";
         let model = userConfig.model || "deepseek-ai/DeepSeek-V3";
-        if (!apiKey) throw new Error("No API Key available for generation.");
-        const openai = new OpenAI({ apiKey, baseURL });
-        
+      if (!apiKey) throw new Error("No API Key available for generation.");
+      const openai = new OpenAI({ apiKey, baseURL });
+      
         const context = dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n');
         const customPrompt = userConfig.insightPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...';
-        
-        const completion = await openai.chat.completions.create({
-          messages: [
+
+      const completion = await openai.chat.completions.create({
+        messages: [
             { role: "system", content: customPrompt },
             { role: "user", content: `请根据以下手动捕捉内容生成每周洞察报告：\n\n${context}` }
-          ],
-          model: model,
-          temperature: 0.7,
-        });
-        return completion.choices[0].message.content || "Failed to generate report.";
+        ],
+        model: model,
+        temperature: 0.7,
+      });
+      return completion.choices[0].message.content || "Failed to generate report.";
       } else {
         // [RSS Report] 🚀 简化：直接从数据库构建，不再调用 AI
         // 1. 按 source_name 分组
@@ -260,13 +260,13 @@ export const generateWeeklyReport = inngest.createFunction(
                           <td style="padding: 60px 60px 20px 60px; text-align: center;">
                             <div style="font-family: sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 5px; color: #cc0000; margin-bottom: 25px; text-transform: uppercase;">
                               INSIGHT REPORT
-                            </div>
+                </div>
                             <h1 style="font-family: 'Times New Roman', serif; font-size: 52px; font-weight: normal; color: #000000; margin: 0; line-height: 1; letter-spacing: -1px;">
                               NeoFeed
                             </h1>
                             <div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; margin-top: 30px; padding: 10px 0; display: flex; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; font-size: 15px; color: #666;">
                               <span>${new Date().toISOString().split('T')[0]}</span>
-                            </div>
+                    </div>
                           </td>
                         </tr>
                         <!-- Content -->
@@ -274,7 +274,7 @@ export const generateWeeklyReport = inngest.createFunction(
                           <td style="padding: 10px 60px 60px 60px;">
                             <div style="font-family: 'Times New Roman', serif; color: #1a1a1a; line-height: 1.8;">
                               ${cleanContent}
-                            </div>
+                    </div>
                           </td>
                         </tr>
                         <!-- Footer -->
@@ -314,14 +314,14 @@ export const generateWeeklyReport = inngest.createFunction(
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                               <span style="color: ${mainColor}; font-size: 11px; font-weight: bold; letter-spacing: 3px; font-family: monospace;">NEOFEED_INTEL_REPORT</span>
                               <span style="color: ${mainColor}66; font-size: 11px; font-family: monospace;">V3.0_STABLE</span>
-                            </div>
+                  </div>
                             <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: -1px; line-height: 1.1;">
                               神经洞察 <br/>
                               <span style="color: ${mainColor};">WEEKLY_DIGEST</span>
                             </h1>
                             <div style="margin-top: 15px; font-size: 11px; color: ${mainColor}88; font-family: monospace;">
                               TIMESTAMP: ${new Date().toISOString()} // STATUS: DECODED
-                            </div>
+                </div>
                           </td>
                         </tr>
 
@@ -331,10 +331,10 @@ export const generateWeeklyReport = inngest.createFunction(
                             <div style="background: linear-gradient(180deg, ${mainColor}08 0%, transparent 100%); border-radius: 8px; padding: 1px;">
                               <div style="background: #080808; border-radius: 8px; padding: 30px; border: 1px solid ${mainColor}11;">
                                 <div style="color: #dddddd; font-size: 15px; line-height: 1.8;">
-                                  ${cleanContent}
-                                </div>
-                              </div>
-                            </div>
+                  ${cleanContent}
+                </div>
+                </div>
+              </div>
                           </td>
                         </tr>
 

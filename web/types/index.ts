@@ -43,4 +43,3 @@ export interface UserProfile {
   notification_email: string | null;
   bio?: string;
 }
-

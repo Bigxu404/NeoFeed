@@ -39,7 +39,7 @@ const SynthesisScene = () => {
             <span className="text-[10px] text-white/60 font-mono tracking-[0.2em] font-bold uppercase">Synthesis_V2</span>
           </div>
           <div className="flex items-center gap-2">
-            <motion.div 
+              <motion.div
               animate={{ opacity: [1, 0.4, 1] }} 
               transition={{ duration: 1.5, repeat: Infinity }}
               className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]" 
@@ -54,8 +54,8 @@ const SynthesisScene = () => {
           <div className="absolute inset-6 space-y-3 opacity-10 grayscale blur-[0.5px]">
              {[1,2,3].map(i => (
                <div key={i} className="h-2 bg-neutral-700 rounded-full w-full" />
-             ))}
-          </div>
+          ))}
+      </div>
 
           {/* Precision Scanning Beam */}
           <motion.div 
@@ -66,7 +66,7 @@ const SynthesisScene = () => {
 
           {/* Reveal Area */}
           <div className="absolute inset-4 md:inset-6 z-10 overflow-hidden">
-             <motion.div 
+          <motion.div
                animate={{ height: ['0%', '100%'] }}
                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                className="bg-[#0d0d0d] w-full overflow-hidden"
@@ -82,15 +82,15 @@ const SynthesisScene = () => {
                          <div className="h-1 bg-white/10 rounded-full w-full" />
                          <div className="h-1 bg-white/5 rounded-full w-5/6" />
                       </div>
-                   </div>
+              </div>
 
                    {/* Tags */}
                    <div className="flex gap-2">
                       <div className="px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-[8px] text-indigo-300 font-mono tracking-widest uppercase">Semantic_OK</div>
                       <div className="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-md text-[8px] text-purple-300 font-mono tracking-widest uppercase">Vectorized</div>
-                   </div>
-                </div>
-             </motion.div>
+              </div>
+              </div>
+          </motion.div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ const SynthesisScene = () => {
 
 // 02: WeeklyScene Refinement
 const WeeklyScene = () => {
-  return (
+    return (
     <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
       {/* Ambient Depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-teal-500/[0.03] to-transparent" />
@@ -121,8 +121,8 @@ const WeeklyScene = () => {
             </div>
             <div className="text-right">
                <div className="text-[10px] text-white/40 font-serif italic">Issue #24</div>
-            </div>
-         </div>
+                </div>
+        </div>
 
          {/* Content Preview Area */}
          <div className="p-4 md:p-6 space-y-5 md:space-y-7 bg-neutral-900/30 backdrop-blur-sm">
@@ -135,14 +135,14 @@ const WeeklyScene = () => {
                <div className="flex items-end gap-1.5 h-16 md:h-20 border-b border-white/5 pb-2">
                   {[0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 0.85].map((h, i) => (
                      <motion.div 
-                       key={i}
+                    key={i}
                        initial={{ height: 0 }}
                        whileInView={{ height: `${h * 100}%` }}
                        transition={{ delay: i * 0.1, duration: 0.8, ease: "circOut" }}
                        className="flex-1 bg-gradient-to-t from-teal-500/10 to-teal-500/40 rounded-t-md border-t border-teal-500/30"
-                     />
-                  ))}
-               </div>
+                />
+            ))}
+                </div>
             </div>
 
             {/* Structured Insights Preview */}
@@ -153,10 +153,10 @@ const WeeklyScene = () => {
                        <ArrowRight size={10} className="text-teal-500" />
                     </div>
                     <div className="space-y-2 w-full pt-1.5">
-                       <div className="w-full h-1.5 bg-white/10 rounded-full" />
+                <div className="w-full h-1.5 bg-white/10 rounded-full" />
                        <div className="w-3/4 h-1.5 bg-neutral-700 rounded-full" />
                     </div>
-                 </div>
+                </div>
                ))}
             </div>
             
@@ -199,7 +199,7 @@ const GalaxyGrowthScene = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return (
+    return (
     <div className="relative w-full h-full bg-neutral-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-4 md:p-8 group">
        {/* Background Spatial Texture */}
        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] opacity-50" />
@@ -280,20 +280,20 @@ const GalaxyGrowthScene = () => {
                        </motion.span>
                     )}
                  </div>
-              </div>
+            </div>
 
               {/* Orbiting Nodes */}
               {[...Array(cluster.nodes)].map((_, i) => (
-                 <motion.div
-                   key={i}
-                   animate={{ rotate: 360 }}
+                    <motion.div 
+                        key={i}
+                        animate={{ rotate: 360 }}
                    transition={{ duration: 10 + i * 5, repeat: Infinity, ease: "linear" }}
                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
                    style={{ width: 0, height: 0 }}
                  >
                     <div 
                       className="absolute w-1.5 h-1.5 md:w-2 md:h-2 bg-white/80 rounded-full border border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)] z-10"
-                      style={{ 
+                        style={{ 
                         transform: `translateX(${20 + i * 12}px)`,
                         backgroundColor: i % 2 === 0 ? cluster.color : '#fff'
                       }} 
@@ -302,14 +302,14 @@ const GalaxyGrowthScene = () => {
               ))}
             </div>
           ))}
-       </div>
+            </div>
 
        {/* Legend Overlay */}
        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center z-30">
           <div className="text-[9px] md:text-[12px] text-white font-mono font-bold uppercase tracking-[0.4em] mb-1">Neural Gravity Map</div>
           <div className="h-0.5 w-12 bg-indigo-500 mx-auto rounded-full shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-       </div>
-    </div>
+            </div>
+        </div>
   );
 };
 

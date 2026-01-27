@@ -135,4 +135,3 @@ export async function deleteSubscription(id: string) {
   revalidatePath('/settings');
   return { success: true };
 }
-

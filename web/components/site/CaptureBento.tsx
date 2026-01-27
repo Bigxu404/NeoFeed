@@ -146,7 +146,7 @@ const MobileScene = () => (
       {/* Screen Content */}
       <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col p-3 md:p-4 pt-8 md:pt-10 space-y-3">
         {/* Chat Bubble with Glass Effect */}
-        <motion.div 
+      <motion.div
           initial={{ opacity: 0, x: -10 }} 
           whileInView={{ opacity: 1, x: 0 }} 
           className="bg-white/5 border border-white/5 p-2 rounded-2xl rounded-tl-none w-4/5 backdrop-blur-sm"
@@ -156,11 +156,11 @@ const MobileScene = () => (
         </motion.div>
 
         {/* The Link Card with Premium Styling */}
-        <motion.div 
+            <motion.div
           initial={{ opacity: 0, scale: 0.95 }} 
           whileInView={{ opacity: 1, scale: 1 }} 
           className="bg-gradient-to-br from-blue-500/20 to-indigo-500/5 p-2.5 rounded-xl border border-blue-500/30 shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
-        >
+            >
            <div className="flex gap-2.5 items-center">
              <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-500/40">
                 <Globe size={14} className="text-blue-400" />
@@ -168,9 +168,9 @@ const MobileScene = () => (
              <div className="flex-1 space-y-1.5">
                <div className="h-1 bg-blue-200/40 rounded w-full" />
                <div className="h-1 bg-blue-200/20 rounded w-1/2" />
-             </div>
-           </div>
-        </motion.div>
+                </div>
+                </div>
+            </motion.div>
 
         {/* Capturing Status */}
         <div className="mt-auto py-2 border-t border-white/5 flex items-center justify-between px-1">
@@ -233,16 +233,16 @@ const BrowserScene = () => (
              <div className="h-1.5 bg-neutral-600 rounded w-full opacity-80" />
              <div className="h-1.5 bg-neutral-600 rounded w-5/6 opacity-60" />
              <div className="h-1.5 bg-neutral-600 rounded w-4/6 opacity-40" />
-          </div>
+            </div>
 
           {/* Magical Icon Floating */}
-          <motion.div 
+            <motion.div
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             className="absolute top-4 right-4 w-7 h-7 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center justify-center backdrop-blur-md shadow-lg"
           >
              <Zap size={14} className="text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
-          </motion.div>
+            </motion.div>
         </div>
       </div>
     </div>
@@ -289,7 +289,7 @@ const RSSScene = () => {
       {/* Data Points with Haze */}
       <div className="relative z-10 w-full h-full">
          {dots.map((dot, i) => (
-           <motion.div
+      <motion.div
              key={i}
              initial={{ scale: 0, opacity: 0 }}
              animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0] }}
@@ -317,24 +317,24 @@ const TerminalScene = () => (
   <div className="relative w-full h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center p-4 md:p-8 group text-purple-500">
     {/* Terminal Window */}
     <div className="relative w-full max-w-[280px] md:max-w-sm h-[180px] md:h-[220px] bg-[#050505] rounded-lg border border-white/10 shadow-2xl flex flex-col font-mono overflow-hidden">
-      {/* Header */}
+            {/* Header */}
       <div className="h-7 bg-[#111] border-b border-white/5 flex items-center px-3 justify-between">
          <div className="flex items-center gap-2">
             <TerminalIcon size={10} className="text-purple-500" />
             <span className="text-neutral-500 text-[8px] md:text-[9px] uppercase tracking-widest font-bold">NeoFeed CLI</span>
          </div>
-         <div className="flex gap-1.5">
+                <div className="flex gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
             <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
-         </div>
-      </div>
+                    </div>
+                 </div>
 
       {/* Main Console Area */}
       <div className="flex-1 p-3 md:p-4 text-purple-400/90 space-y-2 relative overflow-hidden">
          <div className="flex gap-2">
            <span className="text-purple-600 font-bold">$</span>
            <span className="text-white/90">capture <span className="text-purple-400/60">--url</span> "https://..."</span>
-         </div>
+                     </div>
          
          <div className="flex items-start gap-2 pl-4">
             <div className="w-1 h-3 mt-1 bg-purple-500/20 rounded-full" />
@@ -342,10 +342,10 @@ const TerminalScene = () => (
                <p>Connecting to neural core...</p>
                <p className="text-green-500/60 font-bold opacity-80">[OK] Handshake verified</p>
             </div>
-         </div>
-
+        </div>
+            
          {/* JSON Highlighted Result */}
-         <motion.div 
+            <motion.div
            initial={{ opacity: 0, y: 5 }}
            whileInView={{ opacity: 1, y: 0 }}
            className="mt-4 p-2 bg-purple-500/5 border border-purple-500/10 rounded-md text-[9px] md:text-[10px] relative group/json"
@@ -353,24 +353,24 @@ const TerminalScene = () => (
            <div className="absolute top-1 right-2 text-[7px] text-purple-500/40 uppercase font-bold">JSON</div>
            <p><span className="text-purple-300">"status":</span> <span className="text-green-400">"captured"</span>,</p>
            <p><span className="text-purple-300">"vectors":</span> <span className="text-orange-400">1024_dim</span></p>
-         </motion.div>
+            </motion.div>
 
          {/* Blinking Cursor */}
          <div className="flex items-center gap-2 pt-1">
             <span className="text-purple-600 font-bold">$</span>
-            <motion.div 
+                 <motion.div 
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.8, repeat: Infinity }}
               className="w-2 h-4 bg-purple-500/80 shadow-[0_0_8px_rgba(168,85,247,0.5)]" 
-            />
-         </div>
-      </div>
+                 />
+            </div>
+        </div>
 
       {/* Retro CRT Overlays */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[size:100%_2px,3px_100%] pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.02] to-transparent pointer-events-none animate-scanline" />
-    </div>
-  </div>
+            </div>
+        </div>
 );
 
 // ============================================================================
@@ -406,9 +406,9 @@ export default function CaptureBento() {
           </div>
           <div className="relative z-10 pt-4 md:pt-[240px] flex flex-col items-center gap-4 md:gap-6">
             <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-4xl md:text-8xl font-serif text-white font-bold leading-tight">
-              万物接入<br />
+            万物接入<br />
               <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Portals of Capture</span>
-            </motion.h2>
+          </motion.h2>
           </div>
         </div>
 
@@ -422,7 +422,7 @@ export default function CaptureBento() {
                     <div className="flex flex-col gap-2">
                         <span className={`font-mono text-[10px] md:text-sm tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
                             0{index + 1} <span className="opacity-40">/</span> {item.subtitle}
-                        </span>
+                         </span>
                         <h3 className="text-2xl md:text-5xl font-bold text-white leading-tight">{item.title}</h3>
                     </div>
                     <p className="text-sm md:text-lg text-white/60 leading-relaxed font-light max-w-md">

@@ -11,7 +11,6 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useRouter } from 'next/navigation';
 
 // 动态导入 GalaxyScene，禁用 SSR
@@ -62,7 +61,17 @@ export default function HistoryPage() {
       // 2. Network Fetch
       try {
         const res = await fetch('/api/galaxy');
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        // if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        // 临时处理: 如果 401/403，使用 mock 数据
+        if (!res.ok) {
+           console.warn("⚠️ [Galaxy] API failed, falling back to mock data.");
+           // 模拟空数据或 Mock 数据，避免页面崩溃
+           const mockData = []; // 或者引入 mockData
+           setItems(mapFeedsToGalaxy(mockData));
+           return;
+        }
+
         const { data } = await res.json();
         
         if (Array.isArray(data)) {
@@ -92,53 +101,47 @@ export default function HistoryPage() {
       
       {/* 🚀 统一 Header (移动端固顶) */}
       <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:pt-8">
-        <ErrorBoundary name="HistoryHeader">
-          <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
-        </ErrorBoundary>
+        <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={true} />
       </div>
 
-      {/* 🛡️ 全局错误捕获，防止整个页面崩溃 */}
-      <ErrorBoundary name="HistoryContent">
-        <div className="flex-1 relative min-h-0 overflow-hidden flex flex-col md:block">
-          {/* 🌌 3D 背景层 (始终存在) */}
-          <div className="absolute inset-0 z-0 touch-none">
-            {loading ? (
-                <div className="w-full h-full flex items-center justify-center bg-black">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
-                    <div className="text-white/30 text-[10px] font-mono tracking-widest animate-pulse">
-                      NEURAL GALAXY LOADING...
-                    </div>
+      {/* 🛡️ 全局内容区域 */}
+      <div className="flex-1 relative min-h-0 overflow-hidden flex flex-col md:block">
+        {/* 🌌 3D 背景层 (始终存在) */}
+        <div className="absolute inset-0 z-0 touch-none">
+          {loading ? (
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-t-2 border-white/50 rounded-full animate-spin" />
+                  <div className="text-white/30 text-[10px] font-mono tracking-widest animate-pulse">
+                    NEURAL GALAXY LOADING...
                   </div>
                 </div>
-            ) : items.length > 0 ? (
-                <GalaxyScene 
-                  data={items} 
-                  onItemClick={setSelectedItem} 
-                  highlightedItemId={hoveredItemId}
-                />
-            ) : (
-                <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
-                    <div className="text-center">
-                        <p className="mb-2">VOID DETECTED.</p>
-                        <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
-                    </div>
-                </div>
-            )}
-          </div>
-
-          {/* 🖥️ 星际终端 - 移动端调整布局 */}
-          <div className="absolute bottom-4 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-10 w-auto md:w-[450px]">
-            <ErrorBoundary name="HistoryTerminal">
-              <HistoryTerminal 
-                items={items} 
-                onItemHover={setHoveredItemId}
-                onItemClick={setSelectedItem}
+              </div>
+          ) : items.length > 0 ? (
+              <GalaxyScene 
+                data={items} 
+                onItemClick={setSelectedItem} 
+                highlightedItemId={hoveredItemId}
               />
-            </ErrorBoundary>
-          </div>
+          ) : (
+              <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
+                  <div className="text-center">
+                      <p className="mb-2">VOID DETECTED.</p>
+                      <p className="text-xs text-white/20">Ingest data to ignite your first star.</p>
+                  </div>
+              </div>
+          )}
         </div>
-      </ErrorBoundary>
+
+        {/* 🖥️ 星际终端 - 移动端调整布局 */}
+        <div className="absolute bottom-4 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-10 w-auto md:w-[450px]">
+          <HistoryTerminal 
+            items={items} 
+            onItemHover={setHoveredItemId} 
+            onItemClick={setSelectedItem} 
+          />
+        </div>
+      </div>
 
       {/* 📄 详情页模态框 */}
       <AnimatePresence>

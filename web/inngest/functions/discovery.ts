@@ -64,7 +64,7 @@ export const subscriptionPoller = inngest.createFunction(
         const isMatch = hour === 9;
         if (isMatch) console.log(`🎯 [Poller] Match found (Daily 9AM) for sub: ${sub.url}`);
         return isMatch;
-      }
+    }
 
       if (freq === 'weekly') {
         // 每周一早上9点

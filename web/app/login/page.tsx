@@ -151,125 +151,125 @@ function LoginContent() {
 
       {/* ==================== RIGHT: DRAWER LOGIN (40%) ==================== */}
       <div className="w-full lg:w-5/12 bg-[#050505] flex flex-col justify-center px-8 sm:px-16 md:px-24 relative shadow-2xl z-20 py-12 lg:py-0">
-         <Link 
-            href="/"
+      <Link 
+        href="/"
             className="absolute top-8 left-8 lg:hidden flex items-center gap-2 text-white/40 hover:text-white transition-colors"
-         >
+      >
             <ChevronLeft className="w-4 h-4" />
             <span>返回</span>
-         </Link>
+      </Link>
 
          <div className="w-full max-w-md mx-auto space-y-8">
             {/* Header */}
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold text-white tracking-tight">
                     {isLogin ? '欢迎回来' : '加入矩阵'}
-                </h1>
+          </h1>
                 <p className="text-white/40 text-sm">
                     {isLogin ? '输入凭证以接入神经链路。' : '创建你的数字分身，开启第二大脑。'}
-                </p>
-            </div>
+          </p>
+        </div>
 
             {/* Form */}
-            <form action={handleSubmit} className="space-y-5">
+        <form action={handleSubmit} className="space-y-5">
                 <div className="space-y-4">
-                    <div className="space-y-1.5">
+          <div className="space-y-1.5">
                         <label className="text-[10px] font-medium text-white/50 uppercase tracking-widest ml-1">Email</label>
-                        <input 
+            <input 
                             name="email" type="email" required placeholder="name@example.com"
-                            value={email} onChange={(e) => setEmail(e.target.value)}
+              value={email} onChange={(e) => setEmail(e.target.value)}
                             className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder:text-white/10 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
-                        />
-                    </div>
-                    
-                    {mode === 'signup' && (
-                        <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="space-y-1.5 overflow-hidden"
-                        >
+            />
+          </div>
+          
+          {mode === 'signup' && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-1.5 overflow-hidden"
+            >
                             <label className="text-[10px] font-medium text-white/50 uppercase tracking-widest ml-1">Nickname</label>
-                            <input 
-                                name="nickname" type="text" required placeholder="你的称呼"
-                                value={nickname} onChange={(e) => setNickname(e.target.value)}
+              <input 
+                name="nickname" type="text" required placeholder="你的称呼"
+                value={nickname} onChange={(e) => setNickname(e.target.value)}
                                 className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder:text-white/10 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
-                            />
-                        </motion.div>
-                    )}
+              />
+            </motion.div>
+          )}
 
-                    <div className="space-y-1.5">
+          <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
                             <label className="text-[10px] font-medium text-white/50 uppercase tracking-widest ml-1">Password</label>
                             {isLogin && <button type="button" className="text-[10px] text-white/40 hover:text-white transition-colors">忘记密码?</button>}
                         </div>
-                        <input 
-                            name="password" type="password" required placeholder="••••••••"
-                            value={password} onChange={(e) => setPassword(e.target.value)}
+            <input 
+              name="password" type="password" required placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)}
                             className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder:text-white/10 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
-                        />
-                    </div>
+            />
+          </div>
 
-                    {mode === 'signup' && (
-                        <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="space-y-1.5 overflow-hidden"
-                        >
+          {mode === 'signup' && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-1.5 overflow-hidden"
+            >
                             <label className="text-[10px] font-medium text-white/50 uppercase tracking-widest ml-1">Confirm Password</label>
-                            <input 
-                                name="confirmPassword" type="password" required placeholder="••••••••"
-                                value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+              <input 
+                name="confirmPassword" type="password" required placeholder="••••••••"
+                value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder:text-white/10 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
-                            />
-                        </motion.div>
-                    )}
+              />
+            </motion.div>
+          )}
                 </div>
 
-                {error && (
+          {error && (
                     <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
                         <div className="w-1 h-1 rounded-full bg-red-500" />
-                        {error}
-                    </div>
-                )}
+              {error}
+            </div>
+          )}
 
-                <button 
-                    type="submit" 
-                    disabled={isLoading || !isValid}
-                    className={`
+          <button 
+            type="submit" 
+            disabled={isLoading || !isValid}
+            className={`
                         w-full h-12 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 mt-6
                         disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed
                         ${!isValid || isLoading ? '' : 'bg-white text-black hover:bg-neutral-200 active:scale-[0.98]'}
-                    `}
-                >
-                    {isLoading ? (
-                        <>
+            `}
+          >
+            {isLoading ? (
+              <>
                             <Loader2 className="w-4 h-4 animate-spin" />
                             <span>{isLogin ? '正在链入...' : '初始化中...'}</span>
-                        </>
-                    ) : (
+              </>
+            ) : (
                         <>
                             <span>{isLogin ? '立即登录' : '创建账号'}</span>
                             <ArrowRight className="w-4 h-4" />
                         </>
-                    )}
-                </button>
-            </form>
+            )}
+          </button>
+        </form>
 
             {/* Toggle */}
             <div className="pt-6 border-t border-white/5 text-center">
                 <p className="text-white/40 text-xs mb-3">
                     {isLogin ? "还没有数字身份?" : "已经拥有账号?"}
                 </p>
-                <button 
-                    onClick={() => {
-                        setMode(isLogin ? 'signup' : 'login')
-                        setError(null)
-                    }}
+          <button 
+            onClick={() => {
+              setMode(isLogin ? 'signup' : 'login')
+              setError(null)
+            }}
                     className="text-white font-medium text-sm border-b border-white/30 hover:border-white pb-0.5 transition-all"
-                >
+          >
                     {isLogin ? "注册新账号" : "直接登录"}
-                </button>
-            </div>
+          </button>
+        </div>
          </div>
       </div>
     </div>

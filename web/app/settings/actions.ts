@@ -364,27 +364,3 @@ export async function triggerRssSync() {
     return { error: err.message || '触发同步过程中发生系统错误' };
   }
 }
-
-export async function triggerWeeklyReport(type: 'insight' | 'rss' = 'insight') {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
-
-  console.log(`🚀 [Inngest] Manually triggering ${type} report for user: ${user.id}`);
-  console.log(`📡 [Inngest] Using Event Key: ${process.env.INNGEST_EVENT_KEY ? 'EXISTS' : 'MISSING'}`);
-
-  try {
-    const res = await inngest.send({
-      name: `report/generate.${type}`,
-      data: {
-        userId: user.id,
-      },
-    });
-
-    console.log(`✅ [Inngest] Event sent successfully. Event ID:`, res.ids?.[0]);
-    return { success: true };
-  } catch (err: any) {
-    console.error(`❌ [${type} Report] Failed to trigger:`, err);
-    return { error: err.message || `触发${type === 'insight' ? '洞察' : 'RSS'}报告生成失败` };
-  }
-}

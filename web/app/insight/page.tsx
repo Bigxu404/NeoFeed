@@ -40,7 +40,7 @@ export default function InsightPage() {
     const fetchData = async () => {
       try {
         const distRes = await getCategoryDistribution();
-        
+
         if (distRes.data) {
           setStats({
             tech: distRes.data.tech || 0,
@@ -99,7 +99,7 @@ export default function InsightPage() {
           <aside className="w-[380px] h-full bg-black/40 backdrop-blur-xl shrink-0 overflow-hidden relative crt-screen rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)]">
             <ErrorBoundary name="ControlTower">
               <ControlTower stats={stats} />
-            </ErrorBoundary>
+                </ErrorBoundary>
           </aside>
 
           {/* 垂直分割线 - 明晰的边界 */}
@@ -110,7 +110,7 @@ export default function InsightPage() {
             <div className="absolute inset-0 overflow-y-auto custom-scrollbar bg-[radial-gradient(circle_at_top_right,rgba(31,244,10,0.03)_0%,transparent_50%)]">
               <ErrorBoundary name="IntelligenceStream">
                 <IntelligenceStream onFeed={handleFeed} />
-              </ErrorBoundary>
+                </ErrorBoundary>
             </div>
           </main>
         </motion.div>
