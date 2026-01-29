@@ -23,7 +23,7 @@ import {
   deleteSubscription,
   triggerAllSubscriptionsSync
 } from '@/app/dashboard/discovery-actions';
-import { getAiConfig, updateAiConfig, triggerWeeklyReport } from '@/app/settings/actions';
+import { getAiConfig, updateAiConfig, sendTestWeeklyReport } from '@/app/settings/actions';
 import { AIConfig } from '@/types/index';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -317,7 +317,7 @@ export default function ControlTower({ stats }: { stats: { tech: number, life: n
         await triggerAllSubscriptionsSync();
       }
 
-      const reportRes = await triggerWeeklyReport(type);
+      const reportRes = await sendTestWeeklyReport(aiConfig!);
       if (reportRes.success) {
         // 💡 修复：重新获取一次最新的配置，确保 Toast 提示的邮箱是实时准确的
         const latestConfig = await getAiConfig();

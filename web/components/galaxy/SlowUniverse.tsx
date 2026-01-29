@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame, extend, useThree } from '@react-three/fiber';
 import { Float, Html, Stars, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -68,7 +68,7 @@ extend({ PlanetSurfaceMaterial, EntanglementMaterial, AuroraNebulaMaterial });
 // 🌌 组件: 星系极光 (Galaxy Aurora)
 // 不规则、纤细、拟真的星云带
 // ==========================================
-const GalaxyAurora = ({ position, color }: { position: [number, number, number], color: string }) => {
+const GalaxyAurora = ({ position, color, onClick, onHover }: { position: [number, number, number], color: string, onClick?: () => void, onHover?: (hover: boolean) => void }) => {
   const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<any>(null);
 
@@ -122,7 +122,29 @@ const GalaxyAurora = ({ position, color }: { position: [number, number, number],
   });
 
   return (
-    <points ref={pointsRef} position={position}>
+    <points 
+      ref={pointsRef} 
+      position={position}
+      onClick={(e) => { 
+        if (onClick) {
+          e.stopPropagation(); 
+          onClick(); 
+        }
+      }}
+      onPointerOver={(e) => {
+        if (onHover) {
+          e.stopPropagation();
+          onHover(true);
+          document.body.style.cursor = 'pointer';
+        }
+      }}
+      onPointerOut={() => {
+        if (onHover) {
+          onHover(false);
+          document.body.style.cursor = 'auto';
+        }
+      }}
+    >
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -191,7 +213,7 @@ const EntanglementLine = ({ start, end, color }: { start: THREE.Vector3, end: TH
 // ==========================================
 // ✨ 组件: 拟真星球 (Realistic Planet)
 // ==========================================
-const KnowledgeStar = ({ item, centerPos, color, onClick, onHover }: any) => {
+const KnowledgeStar = ({ item, centerPos, color, onClick, onHover, isTopView }: any) => {
   const meshRef = useRef<THREE.Group>(null);
   const materialRef = useRef<any>(null);
   const [hovered, setHover] = useState(false);
@@ -228,6 +250,18 @@ const KnowledgeStar = ({ item, centerPos, color, onClick, onHover }: any) => {
 
   return (
     <group position={centerPos}>
+      {/* 轨道环 (Orbit Ring) - 仅在俯视或特定角度可见，增加视觉引导 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[orbitRadius - 0.08, orbitRadius + 0.08, 128]} />
+        {/* 动态调整透明度：俯视时清晰，平时隐约 */}
+        <meshBasicMaterial 
+          color={color} 
+          transparent 
+          opacity={isTopView ? 0.4 : 0.05} 
+          side={THREE.DoubleSide} 
+        />
+      </mesh>
+
       <group ref={meshRef}>
         <group
           onClick={(e) => { e.stopPropagation(); onClick(item); }}
@@ -278,22 +312,46 @@ const KnowledgeStar = ({ item, centerPos, color, onClick, onHover }: any) => {
 // ==========================================
 // 🌀 组件: 星系核心 (Galaxy Core)
 // ==========================================
-const GalaxyCore = ({ position, color, label }: any) => {
+const GalaxyCore = ({ position, color, label, onClick, onHover }: { position: [number, number, number], color: string, label: string, onClick?: () => void, onHover?: (hover: boolean) => void }) => {
   const coreRef = useRef<THREE.Mesh>(null);
   useFrame((state) => {
     if (coreRef.current) coreRef.current.rotation.y += 0.01;
   });
 
+  // 核心统一改为紫色，增加神秘感
+  const coreColor = "#d8b4fe"; 
+
   return (
-    <group position={position}>
+    <group 
+      position={position}
+      onClick={(e) => { 
+        if (onClick) {
+          e.stopPropagation(); 
+          onClick(); 
+        }
+      }}
+      onPointerOver={(e) => {
+        if (onHover) {
+          e.stopPropagation();
+          onHover(true);
+          document.body.style.cursor = 'pointer';
+        }
+      }}
+      onPointerOut={() => {
+        if (onHover) {
+          onHover(false);
+          document.body.style.cursor = 'auto';
+        }
+      }}
+    >
       <mesh ref={coreRef}>
-        <sphereGeometry args={[1.0, 32, 32]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={10} toneMapped={false} />
-        <pointLight color={color} intensity={20} distance={100} decay={2} />
+        <sphereGeometry args={[1.5, 32, 32]} />
+        <meshStandardMaterial color={coreColor} emissive={coreColor} emissiveIntensity={5} toneMapped={false} />
+        <pointLight color={coreColor} intensity={15} distance={100} decay={2} />
       </mesh>
-      <Html position={[0, 4, 0]} center distanceFactor={25}>
+      <Html position={[0, 5, 0]} center distanceFactor={25}>
         <div className="flex flex-col items-center pointer-events-none select-none">
-          <div className="text-white/80 font-serif text-sm tracking-[0.4em] uppercase mb-1" style={{ textShadow: `0 0 15px ${color}` }}>
+          <div className="text-white/90 font-serif text-sm tracking-[0.4em] uppercase mb-1" style={{ textShadow: `0 0 20px ${coreColor}` }}>
             {label}
           </div>
         </div>
@@ -427,10 +485,52 @@ const KnowledgeDust = ({ count = 2000 }) => {
 // ==========================================
 // 🌌 场景: 宏伟多星系宇宙 (Grand Multi-Galaxy)
 // ==========================================
-export default function SlowUniverse({ data, onItemClick, setIsHovering }: any) {
-  const { camera } = useThree();
+export default function SlowUniverse({ data, onItemClick, setIsHovering, onFocusChange, onRegisterReset, isTopView }: any) {
+  const { camera, controls } = useThree();
   const [isWarping, setIsWarping] = useState(false);
   const [warpTarget, setWarpTarget] = useState<THREE.Vector3 | null>(null);
+  
+  // 新增：星系聚焦状态
+  const [focusTarget, setFocusTarget] = useState<THREE.Vector3 | null>(null);
+  const [isFocusing, setIsFocusing] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  
+  // 标记是否为程序触发的控制器事件，防止自我取消
+  const isProgrammaticControl = useRef(false);
+
+  // 监听相机位置以判断是否处于俯视角 (虽然父组件传了 props，但在这里我们也需要感知)
+  // 为了简化，我们直接从父组件 GalaxyScene 透传 isTopView 会更好，
+  // 但目前只能修改 SlowUniverse，所以我们可以通过相机高度粗略判断，或者依赖父组件的 props 传递（如果修改接口的话）
+  // 最佳方案：父组件 GalaxyScene 已经有 isTopView 状态，应该传递给 SlowUniverse
+  // 假设我们现在收到了 isTopView prop
+  
+  // ... (省略其他代码) ...
+  
+  // 临时方案：如果 props 里没传 isTopView，我们先通过相机高度判断
+  // 实际上在 GalaxyScene 中我们看到了 isTopView 并没有传给 SlowUniverse
+  // 所以我们需要去 GalaxyScene.tsx 把 isTopView 传进来
+  useEffect(() => {
+    if (onRegisterReset) {
+      onRegisterReset(() => {
+        setFocusTarget(null);
+        setIsFocusing(false);
+        setIsResetting(true);
+        if (controls) {
+          isProgrammaticControl.current = true;
+          (controls as any).dispatchEvent({ type: 'start' });
+          // 稍微延迟重置标记，确保事件处理完成
+          setTimeout(() => { isProgrammaticControl.current = false; }, 100);
+        }
+      });
+    }
+  }, [onRegisterReset, controls]);
+
+  // 通知父组件聚焦状态变化
+  useEffect(() => {
+    if (onFocusChange) {
+      onFocusChange(!!focusTarget);
+    }
+  }, [focusTarget, onFocusChange]);
 
   const handleItemClick = (item: any) => {
     const targetPos = new THREE.Vector3(...item.position);
@@ -444,11 +544,91 @@ export default function SlowUniverse({ data, onItemClick, setIsHovering }: any) 
     }, 800);
   };
 
+  const handleClusterClick = (pos: number[]) => {
+    const target = new THREE.Vector3(...pos);
+    setFocusTarget(target);
+    setIsFocusing(true);
+    setIsResetting(false);
+    
+    if (controls) {
+      // 标记为程序控制，防止下方的 onStart 监听器立即取消聚焦
+      isProgrammaticControl.current = true;
+      (controls as any).dispatchEvent({ type: 'start' });
+      setTimeout(() => { isProgrammaticControl.current = false; }, 100);
+    }
+  };
+
+  // 监听用户交互，如果用户主动拖动，则中断自动聚焦
+  useEffect(() => {
+    if (!controls) return;
+    const onStart = () => {
+      // 只有非程序触发的交互才取消聚焦
+      if (!isProgrammaticControl.current) {
+        setIsFocusing(false);
+      }
+    };
+    (controls as any).addEventListener('start', onStart);
+    return () => (controls as any).removeEventListener('start', onStart);
+  }, [controls]);
+
   useFrame((state, delta) => {
+    // 1. 物品点击跃迁 (最高优先级)
     if (isWarping && warpTarget) {
       state.camera.position.lerp(warpTarget, 0.1);
       state.camera.lookAt(warpTarget);
+      return;
     }
+    
+    // 2. 星系聚焦逻辑
+    if (isFocusing && focusTarget) {
+      const offset = new THREE.Vector3(0, 15, 40);
+      const targetCamPos = focusTarget.clone().add(offset);
+      
+      state.camera.position.lerp(targetCamPos, 0.05);
+      
+      const controls = state.controls as any;
+      if (controls) {
+        controls.target.lerp(focusTarget, 0.05);
+        controls.update();
+
+        if (state.camera.position.distanceTo(targetCamPos) < 0.5 && 
+            controls.target.distanceTo(focusTarget) < 0.1) {
+          setIsFocusing(false);
+        }
+      }
+    }
+
+    // 3. 视角重置逻辑
+    if (isResetting) {
+      const defaultCamPos = isTopView ? new THREE.Vector3(0, 400, 0) : new THREE.Vector3(0, 0, 100);
+      const defaultTarget = new THREE.Vector3(0, 0, 0);
+      
+      state.camera.position.lerp(defaultCamPos, 0.05);
+      const controls = state.controls as any;
+      if (controls) {
+        controls.target.lerp(defaultTarget, 0.05);
+        controls.update();
+      }
+      
+      if (state.camera.position.distanceTo(defaultCamPos) < 1) {
+        setIsResetting(false);
+      }
+    }
+  });
+
+  // 4. 物理动效：引入非线性动力学 (Non-linear Dynamics)
+  // 模拟星系间的引力微调
+  useFrame((state) => {
+    if (isTopView || isFocusing || isWarping || isResetting) return;
+    
+    const t = state.clock.elapsedTime;
+    // 基础漂浮感：使用多重频率的正弦波模拟非线性摆动
+    const driftX = Math.sin(t * 0.1) * 2 + Math.cos(t * 0.25) * 1;
+    const driftY = Math.cos(t * 0.15) * 1.5 + Math.sin(t * 0.3) * 0.8;
+    
+    // 缓慢修正相机位置，增加“呼吸感”
+    state.camera.position.x += driftX * 0.002;
+    state.camera.position.y += driftY * 0.002;
   });
   const { topTags } = useMemo(() => {
     const map = new Map<string, { id: string; name: string; count: number }>();
@@ -495,9 +675,20 @@ export default function SlowUniverse({ data, onItemClick, setIsHovering }: any) 
 
         return (
           <group key={cluster.id}>
-            <GalaxyCore position={cluster.position} color={cluster.color} label={cluster.label} />
+            <GalaxyCore 
+              position={cluster.position} 
+              color={cluster.color} 
+              label={cluster.label} 
+              onClick={() => handleClusterClick(cluster.position)}
+              onHover={setIsHovering}
+            />
             {/* 替换为新的极光星云组件 */}
-            <GalaxyAurora position={cluster.position} color={cluster.color} />
+            <GalaxyAurora 
+              position={cluster.position} 
+              color={cluster.color} 
+              onClick={() => handleClusterClick(cluster.position)}
+              onHover={setIsHovering}
+            />
             {clusterItems.map((item: any) => (
               <KnowledgeStar 
                 key={item.id} 
@@ -506,11 +697,14 @@ export default function SlowUniverse({ data, onItemClick, setIsHovering }: any) 
                 color={cluster.color} 
                 onClick={handleItemClick} 
                 onHover={setIsHovering}
+                isTopView={isTopView} // 传递给星球组件
               />
             ))}
           </group>
         );
       })}
+
+      {/* 视角重置按钮 - 已移动到 HUD 组件中 */}
     </>
   );
 }

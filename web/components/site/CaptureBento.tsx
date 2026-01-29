@@ -386,11 +386,11 @@ const sections = [
 
 export default function CaptureBento() {
   return (
-    <section id="features" className="w-full py-16 md:py-32 relative z-10 overflow-hidden" style={{ fontFamily: serifFont }}>
-      <div className="max-w-7xl mx-auto px-6 space-y-20 md:space-y-32">
-        <div className="text-center mb-12 md:mb-20 relative">
-          <div className="hidden md:block absolute top-[-230px] left-0 right-0 z-0 opacity-90">
-             <div className="w-full h-[600px] flex items-center justify-center overflow-visible">
+    <section id="features" className="w-full py-16 md:py-32 2xl:py-64 relative z-10 overflow-hidden" style={{ fontFamily: serifFont }}>
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 space-y-20 md:space-y-32 2xl:space-y-64">
+        <div className="text-center mb-12 md:mb-20 2xl:mb-40 relative">
+          <div className="hidden md:block absolute top-[-230px] 2xl:top-[-350px] left-0 right-0 z-0 opacity-90">
+             <div className="w-full h-[600px] 2xl:h-[1000px] flex items-center justify-center overflow-visible">
                 <Canvas camera={{ position: [0, 2, 16], fov: 32 }} gl={{ antialias: true, alpha: true, logarithmicDepthBuffer: true }}>
                     <Suspense fallback={null}>
                     <ambientLight intensity={0.4} color="#ffffff" />
@@ -404,31 +404,31 @@ export default function CaptureBento() {
                 </Canvas>
              </div>
           </div>
-          <div className="relative z-10 pt-4 md:pt-[240px] flex flex-col items-center gap-4 md:gap-6">
-            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-4xl md:text-8xl font-serif text-white font-bold leading-tight">
+          <div className="relative z-10 pt-4 md:pt-[240px] 2xl:pt-[400px] flex flex-col items-center gap-4 md:gap-6 2xl:gap-12">
+            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-4xl md:text-8xl 2xl:text-[10rem] font-serif text-white font-bold leading-tight">
             万物接入<br />
-              <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Portals of Capture</span>
+              <span className="text-white/30 text-xl md:text-6xl 2xl:text-8xl font-sans font-light tracking-tight italic">The Portals of Capture</span>
           </motion.h2>
           </div>
         </div>
 
         {sections.map((item, index) => (
-            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col-reverse md:flex-row items-center gap-6 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-                <div className="w-full md:w-1/2 h-[220px] md:h-[350px] relative group shrink-0">
+            <motion.div key={item.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className={`flex flex-col-reverse md:flex-row items-center gap-6 md:gap-24 2xl:gap-48 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+                <div className="w-full md:w-1/2 h-[220px] md:h-[350px] 2xl:h-[600px] relative group shrink-0">
                     <div className={`absolute inset-0 md:-inset-4 bg-gradient-to-r ${item.gradient} opacity-10 blur-[30px] md:blur-[50px] group-hover:opacity-20 transition-opacity duration-1000`} />
                     {item.scene()}
                 </div>
-                <div className="w-full md:w-1/2 space-y-4 md:space-y-8">
-                    <div className="flex flex-col gap-2">
-                        <span className={`font-mono text-[10px] md:text-sm tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
+                <div className="w-full md:w-1/2 space-y-4 md:space-y-8 2xl:space-y-16">
+                    <div className="flex flex-col gap-2 2xl:gap-4">
+                        <span className={`font-mono text-[10px] md:text-sm 2xl:text-xl tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
                             0{index + 1} <span className="opacity-40">/</span> {item.subtitle}
                          </span>
-                        <h3 className="text-2xl md:text-5xl font-bold text-white leading-tight">{item.title}</h3>
+                        <h3 className="text-2xl md:text-5xl 2xl:text-8xl font-bold text-white leading-tight">{item.title}</h3>
                     </div>
-                    <p className="text-sm md:text-lg text-white/60 leading-relaxed font-light max-w-md">
+                    <p className="text-sm md:text-lg 2xl:text-3xl text-white/60 leading-relaxed font-light max-w-md 2xl:max-w-2xl">
                         {item.description}
                     </p>
-                    <div className={`w-12 md:w-24 h-1 bg-gradient-to-r ${item.gradient} opacity-50`} />
+                    <div className={`w-12 md:w-24 2xl:w-48 h-1 bg-gradient-to-r ${item.gradient} opacity-50`} />
                 </div>
             </motion.div>
         ))}

@@ -4,11 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { GalaxyItem } from '@/types';
 import { mapFeedsToGalaxy } from '@/lib/galaxyMapping';
 import dynamic from 'next/dynamic';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
 import HistoryTerminal from '@/components/history/HistoryTerminal';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import { useFeedContent } from '@/hooks/useFeedContent';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useRouter } from 'next/navigation';
@@ -31,13 +28,18 @@ const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), {
 export default function HistoryPage() {
   const [items, setItems] = useState<GalaxyItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<GalaxyItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const handleItemClick = (item: GalaxyItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
   const { profile, clearCache } = useProfile();
   const { isOffline } = useFeeds();
-  const { content: fullContent, loading: contentLoading } = useFeedContent(selectedItem?.id || null, selectedItem?.summary);
 
   useEffect(() => {
     const fetchGalaxyData = async () => {
@@ -61,28 +63,38 @@ export default function HistoryPage() {
       // 2. Network Fetch
       try {
         const res = await fetch('/api/galaxy');
-        // if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
-        // 临时处理: 如果 401/403，使用 mock 数据
+        // 🛡️ 调试日志：检查 API 响应状态
+        console.log(`📡 [Galaxy] API Status: ${res.status}`);
+
         if (!res.ok) {
-           console.warn("⚠️ [Galaxy] API failed, falling back to mock data.");
-           // 模拟空数据或 Mock 数据，避免页面崩溃
-           const mockData = []; // 或者引入 mockData
+           console.warn(`⚠️ [Galaxy] API failed with status ${res.status}, falling back to mock data.`);
+           // 只有在真正没有数据时才显示 VOID
+           const mockData = []; 
            setItems(mapFeedsToGalaxy(mockData));
+           setLoading(false);
            return;
         }
 
-        const { data } = await res.json();
+        const json = await res.json();
+        const data = json.data;
         
-        if (Array.isArray(data)) {
-          console.log(`✅ [Galaxy] Received ${data.length} items from network`);
+        console.log(`📦 [Galaxy] API Data received:`, data ? (Array.isArray(data) ? data.length : 'not an array') : 'null');
+
+        if (Array.isArray(data) && data.length > 0) {
+          console.log(`✅ [Galaxy] Mapping ${data.length} items to galaxy...`);
           
           localStorage.setItem('galaxy_cache', JSON.stringify({
             data,
             timestamp: Date.now()
           }));
 
-          setItems(mapFeedsToGalaxy(data));
+          const mapped = mapFeedsToGalaxy(data);
+          console.log(`✨ [Galaxy] Mapped items: ${mapped.length}`);
+          setItems(mapped);
+        } else {
+          console.warn("⚠️ [Galaxy] No data returned from API or empty array.");
+          setItems([]);
         }
       } catch (e) {
         console.error("❌ [Galaxy] Fetch error:", e);
@@ -92,9 +104,6 @@ export default function HistoryPage() {
     };
     fetchGalaxyData();
   }, []);
-
-  // 处理详情页关闭
-  const closeDetail = () => setSelectedItem(null);
 
   return (
     <div className="w-screen h-screen relative bg-black text-white overflow-hidden font-sans flex flex-col">
@@ -120,8 +129,12 @@ export default function HistoryPage() {
           ) : items.length > 0 ? (
               <GalaxyScene 
                 data={items} 
-                onItemClick={setSelectedItem} 
+                onItemClick={handleItemClick} 
                 highlightedItemId={hoveredItemId}
+                onModalClose={() => {
+                  setSelectedItem(null);
+                  setIsModalOpen(false);
+                }}
               />
           ) : (
               <div className="w-full h-full flex items-center justify-center bg-black text-white/30 font-mono text-sm">
@@ -134,125 +147,16 @@ export default function HistoryPage() {
         </div>
 
         {/* 🖥️ 星际终端 - 移动端调整布局 */}
-        <div className="absolute bottom-4 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-10 w-auto md:w-[450px]">
+        <div className={`absolute bottom-4 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-10 w-auto md:w-[450px] transition-all duration-500 ease-in-out ${selectedItem || isModalOpen ? 'opacity-0 -translate-x-full pointer-events-none' : 'opacity-100 translate-x-0'}`}>
           <HistoryTerminal 
             items={items} 
             onItemHover={setHoveredItemId} 
-            onItemClick={setSelectedItem} 
+            onItemClick={(item) => {
+                handleItemClick(item);
+            }} 
           />
         </div>
       </div>
-
-      {/* 📄 详情页模态框 */}
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-12 bg-black/60 backdrop-blur-md"
-            onClick={closeDetail}
-          >
-            <div 
-              className="w-full max-w-4xl max-h-[85vh] bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* 左侧装饰栏 */}
-              <div className={`hidden md:flex w-24 flex-col items-center py-8 border-r border-white/5
-                ${selectedItem.category === 'tech' ? 'bg-orange-900/10' : 
-                  selectedItem.category === 'life' ? 'bg-green-900/10' : 'bg-white/5'}
-              `}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-8 text-xl
-                   ${selectedItem.category === 'tech' ? 'bg-orange-500/20 text-orange-400' : 
-                     selectedItem.category === 'life' ? 'bg-green-500/20 text-green-400' : 'bg-white/20 text-white'}
-                `}>
-                  {selectedItem.category === 'tech' ? '⚡' : selectedItem.category === 'life' ? '🌱' : '💡'}
-                </div>
-                <div className="flex-1 w-px bg-gradient-to-b from-white/20 to-transparent" />
-              </div>
-
-              {/* 右侧内容区 */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
-                {/* 头部信息 */}
-                <div className="mb-8">
-                  <div className="flex items-center gap-3 text-xs font-mono text-white/40 mb-4">
-                     <span>ID: {selectedItem.id.toUpperCase()}</span>
-                     <span>//</span>
-                     <span>DATE: {selectedItem.date}</span>
-                  </div>
-                  <h2 className="text-2xl md:text-4xl font-serif text-white/90 leading-tight mb-4">
-                    {selectedItem.summary}
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.isArray(selectedItem.tags) && selectedItem.tags.map(tag => (
-                      <span key={tag} className="px-2 py-1 rounded text-xs bg-white/5 text-white/60 border border-white/5">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 正文内容 */}
-                <div className="space-y-6 text-white/70 font-light leading-relaxed">
-                  {/* 🤖 AI Intelligence Summary - Simplified Refined Orange Theme */}
-                  {selectedItem.summary && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mb-10 p-6 rounded-2xl bg-orange-500/[0.03] border border-orange-500/20 relative group overflow-hidden shadow-[0_0_30px_rgba(249,115,22,0.05)]"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                            <Sparkles className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="text-xs font-bold text-orange-400 tracking-wide">AI 总结</span>
-                        </div>
-                        <div className="h-px flex-1 bg-gradient-to-r from-orange-500/20 to-transparent ml-4" />
-                      </div>
-
-                      <p className="text-lg md:text-xl text-orange-50/90 font-medium italic leading-relaxed relative z-10">
-                        “{selectedItem.summary}”
-                      </p>
-                    </motion.div>
-                  )}
-
-                  {contentLoading ? (
-                    <div className="flex flex-col items-center py-12 space-y-4">
-                      <Loader2 className="w-6 h-6 animate-spin text-white/20" />
-                      <p className="text-xs font-mono text-white/20 uppercase tracking-widest">Loading full neural record...</p>
-                    </div>
-                  ) : (
-                    (fullContent || selectedItem.summary).split('\n').filter(p => p.trim()).map((paragraph, idx) => (
-                      <motion.p
-                        key={idx}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: Math.min(idx * 0.05, 1.5) }}
-                      >
-                        {paragraph}
-                      </motion.p>
-                    ))
-                  )}
-                  <hr className="border-white/10 my-8" />
-                  <p className="text-sm text-white/30 italic">
-                    Source: Neural Interface / Deep Space Network
-                  </p>
-                </div>
-              </div>
-
-              {/* 关闭按钮 */}
-              <button 
-                onClick={closeDetail}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-white/20 flex items-center justify-center text-white/50 hover:text-white transition-all"
-              >
-                ✕
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

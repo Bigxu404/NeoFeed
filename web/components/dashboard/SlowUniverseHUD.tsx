@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, GitPullRequestArrow, Clock, Maximize2 } from 'lucide-react';
+import { Sparkles, GitPullRequestArrow, Clock, Maximize2, RotateCcw } from 'lucide-react';
 import { GalaxyItem } from '@/types';
 
 interface SlowUniverseHUDProps {
@@ -10,9 +10,18 @@ interface SlowUniverseHUDProps {
   isVisible: boolean;
   isTopView: boolean;
   onToggleTopView: () => void;
+  isFocused?: boolean;
+  onResetView?: () => void;
 }
 
-const SlowUniverseHUD: React.FC<SlowUniverseHUDProps> = ({ data, isVisible, isTopView, onToggleTopView }) => {
+const SlowUniverseHUD: React.FC<SlowUniverseHUDProps> = ({ 
+  data, 
+  isVisible, 
+  isTopView, 
+  onToggleTopView,
+  isFocused,
+  onResetView 
+}) => {
   const { totalNodes, tagCounts, lastUpdated } = useMemo(() => {
     const total = data.length;
     const counts: { [key: string]: number } = {};
@@ -64,7 +73,23 @@ const SlowUniverseHUD: React.FC<SlowUniverseHUDProps> = ({ data, isVisible, isTo
 
           <div className="h-px bg-white/5 w-full" />
 
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
+            {/* 视角重置按钮 - 仅在聚焦某个星系时显示 */}
+            <AnimatePresence>
+              {isFocused && (
+                <motion.button
+                  initial={{ width: 0, opacity: 0, scale: 0.8 }}
+                  animate={{ width: 'auto', opacity: 1, scale: 1 }}
+                  exit={{ width: 0, opacity: 0, scale: 0.8 }}
+                  onClick={onResetView}
+                  className="flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest transition-all bg-white/10 text-white hover:bg-white/20 border border-white/20 whitespace-nowrap overflow-hidden"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  重置视角
+                </motion.button>
+              )}
+            </AnimatePresence>
+
             <button
               onClick={onToggleTopView}
               className={`

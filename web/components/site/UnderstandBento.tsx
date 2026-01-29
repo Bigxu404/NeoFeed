@@ -349,20 +349,20 @@ const sections = [
 
 export default function UnderstandBento() {
   return (
-    <section className="w-full py-16 md:py-32 relative z-10 bg-black" style={{ fontFamily: serifFont }}>
-      <div className="max-w-7xl mx-auto px-6 space-y-20 md:space-y-32">
+    <section className="w-full py-16 md:py-32 2xl:py-64 relative z-10 bg-black" style={{ fontFamily: serifFont }}>
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 space-y-20 md:space-y-32 2xl:space-y-64">
         
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-32">
+        <div className="text-center mb-16 md:mb-32 2xl:mb-64">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-8xl font-serif text-white font-bold leading-tight"
+            className="text-4xl md:text-8xl 2xl:text-[10rem] font-serif text-white font-bold leading-tight"
           >
             理解万物<br />
-            <span className="text-white/30 text-xl md:text-6xl font-sans font-light tracking-tight italic">The Core of Intelligence</span>
+            <span className="text-white/30 text-xl md:text-6xl 2xl:text-8xl font-sans font-light tracking-tight italic">The Core of Intelligence</span>
           </motion.h2>
         </div>
 
@@ -374,28 +374,28 @@ export default function UnderstandBento() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.8 }}
-                className={`flex flex-col-reverse md:flex-row items-center gap-8 md:gap-24 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
+                className={`flex flex-col-reverse md:flex-row items-center gap-8 md:gap-24 2xl:gap-48 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
             >
                 {/* Visual Scene (50%) */}
-                <div className="w-full md:w-1/2 h-[220px] md:h-[450px] relative group shrink-0">
+                <div className="w-full md:w-1/2 h-[220px] md:h-[450px] 2xl:h-[700px] relative group shrink-0">
                     <div className={`absolute inset-0 md:-inset-4 bg-gradient-to-r ${item.gradient} opacity-20 blur-[30px] md:blur-[50px] group-hover:opacity-30 transition-opacity duration-1000`} />
                     <item.scene />
                 </div>
 
                 {/* Text Content (50%) */}
-                <div className="w-full md:w-1/2 space-y-4 md:space-y-8 text-left">
-                    <div className="flex flex-col gap-2">
-                         <span className={`font-mono text-[10px] md:text-sm tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
+                <div className="w-full md:w-1/2 space-y-4 md:space-y-8 2xl:space-y-16 text-left">
+                    <div className="flex flex-col gap-2 2xl:gap-4">
+                         <span className={`font-mono text-[10px] md:text-sm 2xl:text-xl tracking-widest uppercase ${item.accent}`} style={{ fontFamily: numberFont }}>
                             0{index + 1} <span className="opacity-40">/</span> {item.subtitle}
                          </span>
-                         <h3 className="text-2xl md:text-5xl font-bold text-white leading-tight">
+                         <h3 className="text-2xl md:text-5xl 2xl:text-8xl font-bold text-white leading-tight">
                             {item.title}
                          </h3>
                     </div>
-                    <p className="text-sm md:text-lg text-white/60 leading-relaxed font-light max-w-md">
+                    <p className="text-sm md:text-lg 2xl:text-3xl text-white/60 leading-relaxed font-light max-w-md 2xl:max-w-2xl">
                         {item.description}
                     </p>
-                    <div className={`w-12 md:w-24 h-1 bg-gradient-to-r ${item.gradient} opacity-50`} />
+                    <div className={`w-12 md:w-24 2xl:w-48 h-1 bg-gradient-to-r ${item.gradient} opacity-50`} />
                 </div>
             </motion.div>
         ))}

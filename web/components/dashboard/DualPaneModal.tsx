@@ -2,9 +2,11 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Maximize2, Minimize2, Sparkles, Check } from 'lucide-react';
+import { X, Maximize2, Minimize2, Sparkles, Check, Loader2 } from 'lucide-react';
 import { GalaxyItem } from '@/types';
 import { toast } from 'sonner';
+import { useFeedContent } from '@/hooks/useFeedContent';
+import ReactMarkdown from 'react-markdown';
 
 interface DualPaneModalProps {
   isOpen: boolean;
@@ -19,6 +21,9 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [weight, setWeight] = useState(1.0);
   const [isCrystallized, setIsCrystallized] = useState(false);
+
+  // 获取完整内容
+  const { content: fullContent, loading: contentLoading } = useFeedContent(isOpen ? item?.id || null : null, item?.summary);
 
   // 模拟用户已有的标签
   const availableTags = useMemo(() => [
@@ -112,10 +117,57 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
                 <span>//</span>
                 <span>日期: {item.date}</span>
               </div>
-              <div className="space-y-6 text-white/70 font-light leading-relaxed">
-                {item.content?.split('\n').filter(p => p.trim()).map((paragraph, idx) => (
-                  <p key={idx}>{paragraph}</p>
-                )) || <p>原文内容加载中...</p>}
+              <div className="prose prose-invert prose-sm md:prose-base max-w-none text-white/80 font-light leading-relaxed">
+                {contentLoading ? (
+                  <div className="flex flex-col items-center py-12 space-y-4">
+                    <Loader2 className="w-6 h-6 animate-spin text-white/20" />
+                    <p className="text-xs font-mono text-white/20 uppercase tracking-widest">Loading neural record...</p>
+                  </div>
+                ) : (
+                  <ReactMarkdown
+                    components={{
+                      a: ({ node, ...props }) => (
+                        <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p {...props} className="mb-4 leading-relaxed" />
+                      ),
+                      h1: ({ node, ...props }) => (
+                        <h1 {...props} className="text-2xl font-bold mt-8 mb-4 text-white/90" />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <h2 {...props} className="text-xl font-bold mt-6 mb-3 text-white/90" />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3 {...props} className="text-lg font-bold mt-4 mb-2 text-white/90" />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul {...props} className="list-disc pl-5 mb-4 space-y-1" />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol {...props} className="list-decimal pl-5 mb-4 space-y-1" />
+                      ),
+                      blockquote: ({ node, ...props }) => (
+                        <blockquote {...props} className="border-l-4 border-white/20 pl-4 italic text-white/60 my-4" />
+                      ),
+                      code: ({ node, className, children, ...props }: any) => {
+                        const match = /language-(\w+)/.exec(className || '')
+                        const isInline = !match && !String(children).includes('\n');
+                        return !isInline ? (
+                          <code className={`${className} block bg-white/10 p-4 rounded-lg my-4 overflow-x-auto text-sm font-mono`} {...props}>
+                            {children}
+                          </code>
+                        ) : (
+                          <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-orange-200" {...props}>
+                            {children}
+                          </code>
+                        )
+                      }
+                    }}
+                  >
+                    {fullContent || item.summary || ''}
+                  </ReactMarkdown>
+                )}
               </div>
             </div>
 

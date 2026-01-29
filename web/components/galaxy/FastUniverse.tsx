@@ -37,11 +37,11 @@ const Core = () => {
       <mesh ref={meshRef}>
         <octahedronGeometry args={[0.6, 0]} />
         <meshToonMaterial 
-          color="#ffffff" 
-          emissive="#a855f7"
+          color="#6b21a8" // 更深的紫色 (purple-800)
+          emissive="#581c87" // 自发光也加深 (purple-900)
           emissiveIntensity={2}
         />
-        <Outlines thickness={0.1} color="#a855f7" />
+        <Outlines thickness={0.1} color="#d8b4fe" />
       </mesh>
 
       <mesh ref={ringRef1}>

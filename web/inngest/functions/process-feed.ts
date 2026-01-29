@@ -156,11 +156,17 @@ export const processFeed = inngest.createFunction(
       // 4. 更新数据库记录
       await step.run("update-db-record", async () => {
         const supabase = createAdminClient();
+        
+        // 优先使用 AI 格式化后的 Markdown 内容，如果 AI 没返回则使用原始抓取内容
+        const finalContent = analysis.formatted_content && analysis.formatted_content.length > 50 
+          ? analysis.formatted_content 
+          : rawData.content;
+
         const { error } = await supabase
           .from("feeds")
           .update({
             title: analysis.title || rawData.title,
-            content_raw: rawData.content,
+            content_raw: finalContent, // 存入优化后的 Markdown
             summary: analysis.summary,
             takeaways: analysis.takeaways,
             tags: analysis.tags,

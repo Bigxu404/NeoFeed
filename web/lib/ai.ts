@@ -11,18 +11,15 @@ export interface AIAnalysisResult {
   category: 'tech' | 'life' | 'idea' | 'art' | 'other';
   emotion: string;
   reading_time: number;
+  formatted_content?: string;
   status?: 'done' | 'failed';
+  raw_response?: string; // 用于调试
 }
 
-// Helper to normalize category
 function normalizeCategory(cat: string): AIAnalysisResult['category'] {
   const validCategories = ['tech', 'life', 'idea', 'art', 'other'];
   const lowerCat = cat?.toLowerCase()?.trim() || 'other';
-  
-  if (validCategories.includes(lowerCat)) {
-    return lowerCat as AIAnalysisResult['category'];
-  }
-  return 'other';
+  return (validCategories.includes(lowerCat) ? lowerCat : 'other') as AIAnalysisResult['category'];
 }
 
 export async function analyzeContent(
@@ -34,128 +31,60 @@ export async function analyzeContent(
     model?: string;
     apiKey?: string;
     baseURL?: string;
-  },
-  isVideo?: boolean
+  }
 ): Promise<AIAnalysisResult> {
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
   let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
   let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
-
-  // 1. 自动修正 Base URL 格式 (移除末尾空格和斜杠)
   let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
 
-  // 2. 优先级：根据 Provider 预设地址
-  if (userConfig?.provider === 'openai') {
-    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
-    if (!userConfig.model) model = 'gpt-4o-mini';
-  } else if (userConfig?.provider === 'deepseek') {
-    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
-    if (!userConfig.model) model = 'deepseek-chat';
-  } else if (userConfig?.provider === 'siliconflow') {
-    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
-    if (!userConfig.model) model = 'deepseek-ai/DeepSeek-V3';
-  }
-
-  if (!apiKey) {
-    return {
-      title: title || 'Untitled Feed',
-      summary: 'AI Key 缺失。请在“设置 -> 神经核心”中配置您的 API Key。',
-      takeaways: [],
-      tags: ['no-key'],
-      category: 'other',
-      emotion: 'neutral',
-      reading_time: 0,
-      status: 'failed'
-    };
-  }
+  if (!apiKey) return { title: title || 'Error', summary: 'Missing API Key', takeaways: [], tags: [], category: 'other', emotion: 'neutral', reading_time: 0, status: 'failed' };
 
   const openai = new OpenAI({ apiKey, baseURL });
 
-  const systemPrompt = `
-    你是一个资深的信息分析专家。${isVideo ? '当前处理的内容是一个视频的转录稿或描述。' : ''}
-    请分析用户提供的网页内容${isVideo ? '（视频内容）' : ''}，并严格以 JSON 格式返回以下字段：
-    {
-      "title": "概括性标题",
-      "summary": "一段约 300 字的深度精华摘要，要求逻辑清晰，涵盖${isVideo ? '视频的核心观点、背景和结论' : '文章的核心论点、背景和结论'}。",
-      "takeaways": ["关键洞察1", "2", "3"],
-      "tags": ["标签1", "2"],
-      "category": "tech/life/idea/art/other",
-      "emotion": "基调描述",
-      "reading_time": 10
-    }
-    注意：
-    1. reading_time 请返回一个整数数字。
-    ${isVideo ? '2. 如果内容包含时间戳，请在摘要中适当提及关键时间点的突破性观点。' : ''}
-  `;
+  const systemPrompt = `你是一个资深编辑。请分析内容并返回 JSON。
+  必须包含 "formatted_content" 字段，它是重构后的全文 Markdown（包含 # 标题）。
+  如果 JSON 构造困难，请确保 "formatted_content" 标记清晰。`;
 
-  const userPrompt = `
-    URL: ${url || 'N/A'}
-    Title: ${title || 'N/A'}
-    Content: ${content.slice(0, 15000)}
-  `;
+  const userPrompt = `请分析并重构此内容为 Markdown：\n\n标题: ${title}\n内容: ${content.slice(0, 6000)}`;
 
-    try {
-    const params: any = {
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
       model: model,
       temperature: 0.3,
-    };
+      max_tokens: 4000,
+    });
 
-    // 💡 只有官方或明确支持的模型才开启 response_format
-    const isOfficialOpenAI = baseURL.includes('api.openai.com');
-    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
-    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
+    const raw = completion.choices[0].message.content || '';
+    let result: any = { formatted_content: '' };
 
-    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
-      params.response_format = { type: "json_object" };
+    try {
+      const jsonStr = raw.replace(/```json\n?|```/g, '').trim();
+      result = JSON.parse(jsonStr);
+    } catch (e) {
+      const match = raw.match(/"formatted_content":\s*"([\s\S]*?)"/);
+      if (match) {
+        result.formatted_content = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+      } else if (raw.includes('#')) {
+        result.formatted_content = raw;
+      }
     }
-
-    const completion = await openai.chat.completions.create(params);
-    
-    // 🛡️ 极其严格的防御性检查
-    if (!completion || !completion.choices || completion.choices.length === 0) {
-      throw new Error("API 返回了空响应或 choices 字段缺失。这通常是由于模型名称错误或账户权限问题导致的。");
-    }
-
-    const firstChoice = completion.choices[0];
-    if (!firstChoice.message || !firstChoice.message.content) {
-      throw new Error("API 响应中没有内容 (Empty message content)。");
-    }
-
-    const resultStr = firstChoice.message.content.replace(/```json\n?|```/g, '').trim() || '{}';
-    const parsed = JSON.parse(resultStr);
 
     return {
-      title: parsed.title || title || 'Untitled',
-      summary: parsed.summary || 'No summary available.',
-      takeaways: Array.isArray(parsed.takeaways) ? parsed.takeaways : [],
-      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-      category: normalizeCategory(parsed.category),
-      emotion: parsed.emotion || 'neutral',
-      reading_time: parsed.reading_time || Math.ceil(content.length / 500),
-      status: 'done'
+      title: result.title || title || 'Untitled',
+      summary: result.summary || content.slice(0, 200),
+      takeaways: result.takeaways || [],
+      tags: result.tags || [],
+      category: normalizeCategory(result.category),
+      emotion: result.emotion || 'neutral',
+      reading_time: result.reading_time || Math.ceil(content.length / 500),
+      formatted_content: result.formatted_content || result.content || raw,
+      status: 'done',
+      raw_response: raw.slice(0, 500) // 增加调试长度
     };
   } catch (error: any) {
-    console.error("AI Analysis Failed:", error);
-    
-    let errorMessage = `API 报错: ${error.message || '未知错误'}`;
-    if (error?.status === 400) errorMessage = "请求无效 (400)。请检查模型名称是否正确，或尝试更换 API 代理地址。";
-    if (error?.status === 401) errorMessage = "API Key 错误 (401)。";
-    if (error?.status === 404) errorMessage = "接口地址错误 (404)。请确保 Base URL 以 /v1 结尾。";
-
-    return {
-      title: title || 'Analysis Failed',
-      summary: errorMessage,
-      takeaways: [],
-      tags: ['error'],
-      category: 'other',
-      emotion: 'neutral',
-      reading_time: 0,
-      status: 'failed'
-    };
+    return { title: title || 'Error', summary: error.message, takeaways: [], tags: [], category: 'other', emotion: 'neutral', reading_time: 0, status: 'failed' };
   }
 }
 
@@ -181,17 +110,6 @@ export async function summarizeDiscoveryItems(
   let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
   let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
   let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
-
-  if (userConfig?.provider === 'openai') {
-    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
-    model = userConfig.model || 'gpt-4o-mini';
-  } else if (userConfig?.provider === 'deepseek') {
-    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
-    model = userConfig.model || 'deepseek-chat';
-  } else if (userConfig?.provider === 'siliconflow') {
-    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
-    if (userConfig.model) model = userConfig.model;
-  }
 
   if (!apiKey || items.length === 0) return [];
 
@@ -224,27 +142,17 @@ export async function summarizeDiscoveryItems(
   const userContent = items.map((it, i) => `${i}. 标题: ${it.title}\n摘要: ${it.summary.slice(0, 500)}`).join('\n---\n');
 
   try {
-    const params: any = {
+    const completion = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userContent }
       ],
       model: model,
       temperature: 0.3,
-    };
-
-    const isOfficialOpenAI = baseURL.includes('api.openai.com');
-    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
-    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
-
-    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
-      params.response_format = { type: "json_object" };
-    }
-
-    const completion = await openai.chat.completions.create(params);
+      response_format: { type: "json_object" }
+    });
     const resContent = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{"results":[]}';
     const parsed = JSON.parse(resContent);
-    
     return Array.isArray(parsed.results) ? parsed.results : [];
   } catch (error: any) {
     console.error("❌ [AI Summarize] Failed:", error.message);
@@ -264,27 +172,9 @@ export async function filterDiscoveryItems(
   let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
   let rawBaseURL = userConfig?.baseURL || 'https://api.siliconflow.cn/v1';
   let model = userConfig?.model || "deepseek-ai/DeepSeek-V3"; 
-
-  // 自动修正 Base URL
   let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
 
-  if (userConfig?.provider === 'openai') {
-    if (!userConfig.baseURL) baseURL = 'https://api.openai.com/v1';
-    model = userConfig.model || 'gpt-4o-mini';
-  } else if (userConfig?.provider === 'deepseek') {
-    if (!userConfig.baseURL) baseURL = 'https://api.deepseek.com';
-    model = userConfig.model || 'deepseek-chat';
-  } else if (userConfig?.provider === 'siliconflow') {
-    if (!userConfig.baseURL) baseURL = 'https://api.siliconflow.cn/v1';
-    if (userConfig.model) model = userConfig.model;
-  }
-
-  console.log(`🤖 [AI Filter] Config: Provider=${userConfig?.provider || 'default'}, Model=${model}, HasKey=${!!apiKey}`);
-
-  if (!apiKey) {
-    console.error("❌ [AI Filter] No API Key provided for filtering.");
-    return [];
-  }
+  if (!apiKey) return [];
 
   const openai = new OpenAI({ apiKey, baseURL });
 
@@ -303,8 +193,7 @@ export async function filterDiscoveryItems(
           "index": 0, 
           "reason": "为什么推荐这条 (请务必使用中文，15字以内)",
           "category": "该内容的AI分类 (如：前沿技术、商业洞察、生活哲学、设计美学等，简短，4个字以内)"
-        },
-        ...
+        }
       ]
     }
   `;
@@ -312,29 +201,16 @@ export async function filterDiscoveryItems(
   const userContent = items.map((it, i) => `${i}. 标题: ${it.title}\n摘要: ${it.summary.slice(0, 100)}`).join('\n---\n');
 
   try {
-    const params: any = {
+    const completion = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userContent }
       ],
       model: model,
       temperature: 0.3,
-    };
-
-    // 💡 智能判断是否开启 JSON Mode
-    const isOfficialOpenAI = baseURL.includes('api.openai.com');
-    const isOfficialDeepSeek = baseURL.includes('api.deepseek.com');
-    const isHighEndModel = model.toLowerCase().includes('deepseek-v3') || model.toLowerCase().includes('gpt-4');
-
-    if (isOfficialOpenAI || isOfficialDeepSeek || (baseURL.includes('siliconflow') && isHighEndModel)) {
-      params.response_format = { type: "json_object" };
-    }
-
-    const completion = await openai.chat.completions.create(params);
+      response_format: { type: "json_object" }
+    });
     const content = completion.choices[0].message.content?.replace(/```json\n?|```/g, '').trim() || '{"items":[]}';
-    
-    console.log(`🤖 [AI Filter] Raw Response for ${items.length} items:`, content.slice(0, 100) + '...');
-    
     const result = JSON.parse(content);
     return Array.isArray(result.items) ? result.items : [];
   } catch (error: any) {
