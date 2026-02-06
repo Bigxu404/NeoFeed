@@ -2,24 +2,33 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { analyzeContent } from '@/lib/ai';
 
-export async function GET() {
+export async function GET(req: Request) {
   const supabase = createAdminClient();
   
   try {
-    console.log("🚀 [Admin] Starting reformat process...");
-    
-    // 1. 获取原始数据 (包含 user_id 以便获取 AI 配置)
     const { data: allFeeds, error: debugError } = await supabase
       .from('feeds')
-      .select('id, title, content_raw, url, user_id')
+      .select('id, title, content_raw, url, user_id, category')
       .order('created_at', { ascending: true })
       .limit(100);
     
     if (debugError) return NextResponse.json({ error: debugError.message }, { status: 500 });
 
-    // 2. 过滤需要处理的数据
+    const searchParams = new URL(req.url).searchParams;
+    const shouldClearMock = searchParams.get('clear_mock') === 'true';
+    
+    if (shouldClearMock) {
+      const { error: deleteError, count: deletedCount } = await supabase
+        .from('feeds')
+        .delete({ count: 'exact' })
+        .eq('category', 'other');
+      return NextResponse.json({ message: "Mock 数据清空完成", deleted_count: deletedCount });
+    }
+
     const filteredFeeds = allFeeds?.filter(f => {
       const content = f.content_raw || '';
+      // 🌟 修正：忽略 <!-- ref --> 标记，强制重新检查是否真的有 Markdown 标题
+      // 这样之前因为 400 错误被跳过的数据可以被重新处理
       return !content.includes('# ') && !content.includes('## ');
     }) || [];
 
@@ -27,37 +36,36 @@ export async function GET() {
       return NextResponse.json({ message: "所有数据已完成重构" });
     }
 
-    // 3. 执行批处理 (每次 3 条)
     const results = [];
     const batch = filteredFeeds.slice(0, 3); 
 
-    // 缓存用户配置，避免重复查询
-    const userConfigs = new Map();
-
     for (const feed of batch) {
-      console.log(`✍️ [Admin] Processing: ${feed.title}`);
       try {
-        // 获取该用户的 AI 配置
-        let config = userConfigs.get(feed.user_id);
-        if (!config) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('ai_config')
-            .eq('id', feed.user_id)
-            .single();
-          config = profile?.ai_config;
-          userConfigs.set(feed.user_id, config);
-        }
+        // 🌟 本地清洗任务优先使用 .env.local 中的配置，忽略用户个人设置
+        const config = {
+          apiKey: process.env.SILICONFLOW_API_KEY,
+          baseURL: process.env.AI_BASE_URL,
+          model: process.env.AI_MODEL
+        };
 
-        const analysis = await analyzeContent(feed.content_raw || '', feed.url, feed.title, config);
+        const analysis = await analyzeContent(feed.content_raw || '', feed.url, feed.title, config as any);
 
-        if (analysis.status === 'done' && analysis.formatted_content && analysis.formatted_content.length > 50) {
+        // 🌟 只要 AI 状态是 done，就标记为已处理
+        if (analysis.status === 'done') {
+          let finalContent = analysis.formatted_content || feed.content_raw;
+          
+          // 如果 AI 没返回有效排版，我们至少给它打个标记，防止死循环
+          if (!finalContent || finalContent.length < 20 || !finalContent.includes('#')) {
+             finalContent = (finalContent || feed.content_raw) + '\n<!-- ref -->';
+          }
+
           const { error: updateError } = await supabase
             .from('feeds')
             .update({
-              content_raw: analysis.formatted_content,
+              content_raw: finalContent,
               summary: analysis.summary,
-              tags: analysis.tags
+              tags: analysis.tags,
+              category: analysis.category
             })
             .eq('id', feed.id);
 
@@ -67,9 +75,10 @@ export async function GET() {
           results.push({ 
             title: feed.title, 
             status: 'failed', 
-            reason: analysis.status === 'failed' ? 'AI接口报错' : 'AI未返回有效内容',
-            error_detail: analysis.summary,
-            config_used: !!config
+            reason: 'AI未返回有效内容',
+            ai_status: analysis.status,
+            received_len: finalContent?.length || 0,
+            ai_preview: analysis.raw_response
           });
         }
       } catch (err: any) {
@@ -77,10 +86,7 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ 
-      message: "批处理完成", 
-      results 
-    });
+    return NextResponse.json({ message: "批处理完成", results });
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

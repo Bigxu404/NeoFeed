@@ -18,10 +18,9 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+          } catch (error) {
+            // 在 GET 路由或 Server Component 中，cookies().set() 可能会失败。
+            // 这通常可以忽略，因为 Middleware 会处理 Session 刷新。
           }
         },
       },

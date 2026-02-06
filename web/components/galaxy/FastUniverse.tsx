@@ -1,10 +1,11 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Float, Outlines, Trail, Sparkles, Line } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ==========================================
-// 🌌 冷冽几何快宇宙 (Cold Geometric Fast Universe)
+// 🌌 经典 Manga 风格快宇宙 (Classic Manga Fast Universe)
+// 恢复线上版本的视觉效果，保留围绕核心的聚集感
 // ==========================================
 
 // 1. 核心能量体 (The Core)
@@ -37,8 +38,8 @@ const Core = () => {
       <mesh ref={meshRef}>
         <octahedronGeometry args={[0.6, 0]} />
         <meshToonMaterial 
-          color="#6b21a8" // 更深的紫色 (purple-800)
-          emissive="#581c87" // 自发光也加深 (purple-900)
+          color="#6b21a8" 
+          emissive="#581c87" 
           emissiveIntensity={2}
         />
         <Outlines thickness={0.1} color="#d8b4fe" />
@@ -54,8 +55,25 @@ const Core = () => {
         <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
       </mesh>
       
-      <pointLight color="#a855f7" intensity={8} distance={40} decay={2} />
-      <Sparkles count={20} scale={3} size={4} speed={0.4} opacity={0.8} color="#d8b4fe" />
+      <pointLight color="#a855f7" intensity={12} distance={50} decay={2} />
+      {/* 紫色氛围粒子：数量减半，更清爽 */}
+      <Sparkles 
+        count={30} 
+        scale={5} 
+        size={3} 
+        speed={0.6} 
+        opacity={0.6} 
+        color="#d8b4fe" 
+      />
+      {/* 白色核心星火：数量减半，尺寸精细 */}
+      <Sparkles 
+        count={20} 
+        scale={1.5} 
+        size={2} 
+        speed={1.5} 
+        opacity={0.8} 
+        color="#ffffff" 
+      />
     </group>
   );
 };
@@ -65,49 +83,33 @@ const MangaShard = ({ item, onClick, onHover }: any) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHover] = useState(false);
   
-  const { offset, speed, rotationSpeed, scale, color } = useMemo(() => {
-    const r = 6 + Math.random() * 18; 
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    
-    const pos = new THREE.Vector3(
-      r * Math.sin(phi) * Math.cos(theta),
-      r * Math.sin(phi) * Math.sin(theta),
-      r * Math.cos(phi)
-    );
-
-    let c = '#ffffff';
-    if (item.category === 'tech') c = '#00ffff'; 
-    else if (item.category === 'life') c = '#ff0055'; 
-    else if (item.category === 'idea') c = '#ffcc00'; 
-
+  const { speed, rotationSpeed, scale, color } = useMemo(() => {
     const randomScale = [
-      0.5 + Math.random() * 1.0, 
-      0.5 + Math.random() * 1.0, 
-      0.5 + Math.random() * 1.0  
+      item.size * (0.8 + Math.random() * 0.4), 
+      item.size * (0.8 + Math.random() * 0.4), 
+      item.size * (0.8 + Math.random() * 0.4)  
     ] as [number, number, number];
 
     return {
-      offset: pos,
       speed: 0.1 + Math.random() * 0.3,
       rotationSpeed: (Math.random() - 0.5) * 1.5,
       scale: randomScale,
-      color: new THREE.Color(c),
+      color: new THREE.Color(item.color),
     };
-  }, [item.category]);
+  }, [item.size, item.color]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
 
-    const orbitX = Math.sin(t * speed * 0.5) * 3;
-    const orbitY = Math.cos(t * speed * 0.3) * 3;
-    const orbitZ = Math.sin(t * speed * 0.7) * 3;
+    const orbitX = Math.sin(t * speed * 0.5 + item.timestamp) * 2;
+    const orbitY = Math.cos(t * speed * 0.3 + item.timestamp) * 2;
+    const orbitZ = Math.sin(t * speed * 0.7 + item.timestamp) * 2;
 
     meshRef.current.position.set(
-      offset.x + orbitX,
-      offset.y + orbitY,
-      offset.z + orbitZ
+      item.position[0] + orbitX,
+      item.position[1] + orbitY,
+      item.position[2] + orbitZ
     );
 
     meshRef.current.rotation.x += rotationSpeed * 0.01;
@@ -135,12 +137,12 @@ const MangaShard = ({ item, onClick, onHover }: any) => {
           <meshToonMaterial
             color={color}
             emissive={color}
-            emissiveIntensity={hovered ? 0.8 : 0.1}
+            emissiveIntensity={hovered ? 6.0 : 2.5} // 🌟 保持强荧光
             gradientMap={null}
           />
           
           <Outlines 
-            thickness={hovered ? 0.15 : 0.08} 
+            thickness={hovered ? 0.2 : 0.12} // 🌟 保持厚边缘
             color={hovered ? "#ffffff" : color} 
             screenspace={false} 
             opacity={1} 
@@ -209,7 +211,6 @@ const ClearParticles = () => {
 };
 
 // 4. 空间穿刺线 (Piercing Beams)
-// 使用 BoxGeometry 模拟具有体积感的穿刺线
 const SpaceBeams = () => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = new THREE.Object3D();
@@ -217,29 +218,16 @@ const SpaceBeams = () => {
 
   const beams = useMemo(() => {
     return new Array(count).fill(0).map(() => {
-      // 随机方向
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const direction = new THREE.Vector3(
-        Math.sin(phi) * Math.cos(theta),
-        Math.sin(phi) * Math.sin(theta),
-        Math.cos(phi)
-      ).normalize();
-
-      // 颜色
       const colors = [new THREE.Color('#00ffff'), new THREE.Color('#ffffff'), new THREE.Color('#a855f7')];
       const color = colors[Math.floor(Math.random() * colors.length)];
-      
-      // 粗细与长度
-      const thickness = 0.05 + Math.random() * 0.25; // 0.05 - 0.3 (上限)
-      const length = 100 + Math.random() * 150;
+      const thickness = 0.05 + Math.random() * 0.2; 
+      const length = 2000; 
       
       return { 
-        position: new THREE.Vector3((Math.random()-0.5)*200, (Math.random()-0.5)*150, (Math.random()-0.5)*100),
+        position: new THREE.Vector3((Math.random()-0.5)*300, (Math.random()-0.5)*200, (Math.random()-0.5)*100),
         rotation: new THREE.Euler(Math.random()*Math.PI, Math.random()*Math.PI, 0),
-        scale: new THREE.Vector3(thickness, length, thickness), // Y轴拉长
+        scale: new THREE.Vector3(thickness, length, thickness), 
         color: color,
-        opacity: 0.1 + Math.random() * 0.4
       };
     });
   }, []);
@@ -260,23 +248,61 @@ const SpaceBeams = () => {
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
       <boxGeometry args={[1, 1, 1]} />
-      {/* 
-         用户要求透明
-      */}
       <meshBasicMaterial transparent opacity={0.3} toneMapped={false} />
     </instancedMesh>
   );
 };
 
-export default function FastUniverse({ data, onItemClick, setIsHovering }: any) {
-  const displayData = useMemo(() => {
-    if (data && data.length > 0) return data;
-    return Array(15).fill(0).map((_, i) => ({
-      id: `mock-${i}`,
-      category: ['tech', 'life', 'idea'][i % 3]
-    }));
-  }, [data]);
+// 5. 外侧尖锐穿刺线 (Outer Piercing Beams)
+const OuterPiercingBeams = () => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = new THREE.Object3D();
+  const count = 60; 
 
+  const beams = useMemo(() => {
+    return new Array(count).fill(0).map(() => {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 150 + Math.random() * 250;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      const y = (Math.random() - 0.5) * 400;
+
+      const thickness = 0.01 + Math.random() * 0.02; 
+      const length = 3000; 
+      
+      const colors = ['#ffffff', '#a855f7', '#00ffff'];
+      const color = new THREE.Color(colors[Math.floor(Math.random() * colors.length)]);
+
+      return { 
+        position: new THREE.Vector3(x, y, z),
+        scale: new THREE.Vector3(thickness, length, thickness),
+        color: color,
+        opacity: 0.05 + Math.random() * 0.15
+      };
+    });
+  }, []);
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    beams.forEach((beam, i) => {
+      dummy.position.copy(beam.position);
+      dummy.scale.copy(beam.scale);
+      dummy.updateMatrix();
+      meshRef.current!.setMatrixAt(i, dummy.matrix);
+      meshRef.current!.setColorAt(i, beam.color);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshBasicMaterial transparent opacity={0.2} toneMapped={false} />
+    </instancedMesh>
+  );
+};
+
+export default function FastUniverse({ data, onItemClick, setIsHovering }: any) {
   return (
     <>
       <color attach="background" args={['#050508']} />
@@ -288,28 +314,17 @@ export default function FastUniverse({ data, onItemClick, setIsHovering }: any) 
 
       <group>
         <Core />
-        
-        {displayData.map((item: any, i: number) => (
+        {data.map((item: any) => (
           <MangaShard 
-            key={item.id || i} 
+            key={item.id} 
             item={item} 
             onClick={onItemClick} 
             onHover={setIsHovering} 
           />
         ))}
-
         <ClearParticles />
         <SpaceBeams />
-        
-        {/* 辅助网格 */}
-        <gridHelper 
-          args={[200, 20, 0x333333, 0x111111]} 
-          position={[0, -40, 0]} 
-        />
-        <gridHelper 
-          args={[200, 20, 0x333333, 0x111111]} 
-          position={[0, 40, 0]} 
-        />
+        <OuterPiercingBeams />
       </group>
     </>
   );

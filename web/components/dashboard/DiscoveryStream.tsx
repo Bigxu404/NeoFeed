@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Telescope, RefreshCw, Plus, ExternalLink, Sparkles } from 'lucide-react';
+import { Telescope, RefreshCw, Plus, ExternalLink, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
 import { Skeleton } from '@/components/ui/Skeleton';
-import DiscoveryDetailModal from './DiscoveryDetailModal';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import DualPaneModal from '@/components/dashboard/DualPaneModal';
+import { GalaxyItem } from '@/types';
 
 interface DiscoveryStreamProps {
     onFeed: (url: string) => Promise<void>;
@@ -17,7 +18,7 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
     const [items, setItems] = useState<DiscoveryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [selectedItem, setSelectedItem] = useState<DiscoveryItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<GalaxyItem | null>(null);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -46,6 +47,22 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
             setCurrentIndex(prev => (prev + 3 >= items.length ? 0 : prev + 3));
         }
     };
+
+    const handleSelectItem = useCallback((item: DiscoveryItem) => {
+        const galaxyItem: GalaxyItem = {
+            id: item.id,
+            summary: item.title,
+            content: item.summary, 
+            date: new Date(item.created_at).toISOString().split('T')[0],
+            timestamp: new Date(item.created_at).getTime(),
+            category: 'other',
+            tags: [],
+            color: '#00ffff',
+            size: 1,
+            position: [0, 0, 0]
+        };
+        setSelectedItem(galaxyItem);
+    }, []);
 
     return (
         <div className="flex flex-col h-full">
@@ -104,33 +121,38 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                             {displayItems.map((item) => (
                                 <div 
                                     key={item.id}
-                                    onClick={() => setSelectedItem(item)}
+                                    onClick={() => handleSelectItem(item)}
                                     className="group/item relative p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all cursor-pointer"
                                 >
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="text-[8px] text-cyan-500/60 font-mono truncate max-w-[120px]">
                                             {item.source_name}
                                         </span>
-                                        <a 
-                                            href={item.url} 
-                                            target="_blank" 
-                                            className="text-white/10 hover:text-white transition-colors"
-                                        >
-                                            <ExternalLink className="w-3 h-3" />
-                                        </a>
+                                        <div className="flex gap-2">
+                                            <a 
+                                                href={item.url} 
+                                                target="_blank" 
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="text-white/10 hover:text-white transition-colors"
+                                            >
+                                                <ExternalLink className="w-3 h-3" />
+                                            </a>
+                                        </div>
                                     </div>
                                     <h4 className="text-xs font-medium text-white/80 line-clamp-1 mb-1.5 group-hover/item:text-cyan-400 transition-colors">
                                         {item.title}
                                     </h4>
-                                    <p className="text-[10px] text-white/40 line-clamp-2 mb-2 leading-relaxed">
+                                    <p className="text-[10px] text-white/40 line-clamp-2 mb-2 leading-relaxed font-light">
                                         {item.summary}
                                     </p>
                                     
-                                    <div className="flex items-start gap-1.5 py-1 px-2 rounded bg-cyan-500/10 border border-cyan-500/10 mb-2">
-                                        <Sparkles className="w-2.5 h-2.5 text-cyan-400 shrink-0 mt-0.5" />
-                                        <span className="text-[9px] text-cyan-300/80 leading-tight">
-                                            {item.reason}
-                                        </span>
+                                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
+                                        <div className="flex items-start gap-1.5 py-0.5 px-2 rounded bg-cyan-500/10 border border-cyan-500/10">
+                                            <Sparkles className="w-2.5 h-2.5 text-cyan-400 shrink-0 mt-0.5" />
+                                            <span className="text-[8px] text-cyan-300/80 leading-tight italic">
+                                                {item.reason}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <button 
@@ -138,7 +160,7 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                                             e.stopPropagation();
                                             onFeed(item.url);
                                         }}
-                                        className="w-full py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-black text-[9px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1.5 opacity-0 group-hover/item:opacity-100"
+                                        className="mt-3 w-full py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-black text-[9px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1.5 opacity-0 group-hover/item:opacity-100"
                                     >
                                         <Plus className="w-3 h-3" /> Feed to Matrix
                                     </button>
@@ -163,10 +185,12 @@ export default function DiscoveryStream({ onFeed }: DiscoveryStreamProps) {
                 </div>
             )}
 
-            <DiscoveryDetailModal 
-                item={selectedItem} 
-                onClose={() => setSelectedItem(null)} 
-                onFeed={onFeed}
+            {/* 🌟 发现流专用双栏模态框 */}
+            <DualPaneModal 
+                isOpen={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                item={selectedItem}
+                isDiscovery={true}
             />
         </div>
     );

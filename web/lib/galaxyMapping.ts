@@ -2,49 +2,87 @@ import * as THREE from 'three';
 import { GalaxyItem } from '@/types';
 import { FeedItem } from '@/app/dashboard/actions';
 
+/**
+ * 🎨 语义哈希：根据标签生成颜色 (强荧光版)
+ */
+function getSemanticColor(tags: string[]): string {
+  if (!tags || tags.length === 0) return '#ffffff';
+  
+  const semanticMap: { [key: string]: string } = {
+    'ai': '#00ffff', 
+    'tech': '#0ea5e9', 
+    'design': '#f43f5e', 
+    'life': '#10b981', 
+    'art': '#ec4899', 
+    'idea': '#f59e0b', 
+    'crypto': '#facc15', 
+    'dev': '#8b5cf6', 
+  };
+
+  for (const tag of tags) {
+    const lowerTag = tag.toLowerCase();
+    for (const [key, color] of Object.entries(semanticMap)) {
+      if (lowerTag.includes(key)) return color;
+    }
+  }
+
+  const firstTag = tags[0];
+  let hash = 0;
+  for (let i = 0; i < firstTag.length; i++) {
+    hash = firstTag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return `hsl(${Math.abs(hash % 360)}, 100%, 70%)`;
+}
+
 export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
   const items: GalaxyItem[] = [];
   const count = feeds.length;
   
   if (count === 0) return [];
 
-  const colors = {
-    tech: '#FF9800', // Orange
-    life: '#66BB6A', // Green
-    idea: '#E0E0E0', // White
-    art: '#E91E63',  // Pink
-    other: '#2196F3' // Blue
-  };
-
-  const normalizeCategory = (cat: string | null) => {
-    const lower = cat?.toLowerCase() || 'other';
-    if (['tech', 'life', 'idea', 'art'].includes(lower)) return lower as GalaxyItem['category'];
-    return 'other' as GalaxyItem['category'];
-  };
-
+  // 🌌 核心重构：全局均匀分布算法 (Balanced Spherical Distribution)
   feeds.forEach((feed, i) => {
-    if (!feed) return; // 🛡️ 防御空数据
+    if (!feed) return;
 
-    const minRadius = 6; 
-    const maxRadius = 50;
-    const normalizedIndex = count > 1 ? i / (count - 1) : 0;
-    const radius = minRadius + (maxRadius - minRadius) * Math.pow(normalizedIndex, 0.9);
-    const spiralTightness = 0.25; 
-    const spiralAngle = radius * spiralTightness;
-    const armIndex = i % 3; 
-    const armOffset = armIndex * (Math.PI * 2 / 3);
-    const finalAngle = spiralAngle + armOffset + (Math.random() * 0.4 - 0.2);
+    const category = feed.category?.toLowerCase() || 'other';
+    
+    // 1. 角度分布：基于索引实现 360 度均匀覆盖，防止偏向一侧
+    // 使用黄金角度 (Golden Angle) 确保分布的绝对均匀性
+    const phi = Math.acos(-1 + (2 * i) / count);
+    const theta = Math.sqrt(count * Math.PI) * phi;
 
-    const x = Math.cos(finalAngle) * radius;
-    const z = Math.sin(finalAngle) * radius;
-    const thickness = Math.max(1, 5 - radius * 0.1);
-    const y = (Math.random() - 0.5) * thickness * 1.5;
+    // 2. 半径控制：围绕核心的紧凑带
+    const baseRadius = 18 + Math.random() * 12; 
 
-    const category = normalizeCategory(feed.category);
-    const color = colors[category as keyof typeof colors] || colors.other;
-    const size = 0.3 + Math.random() * 0.4;
+    // 3. 分类偏置 (Biases)：保留用户喜欢的“错落感”，但不破坏全局平衡
+    let heightBias = 0;
+    let radiusBias = 0;
 
-    // 🛡️ 极其鲁棒的日期处理
+    if (category === 'tech') {
+      heightBias = 12; // 偏上
+      radiusBias = 2;
+    } else if (category === 'life') {
+      heightBias = -10; // 偏下
+      radiusBias = -3;
+    } else if (category === 'idea') {
+      heightBias = 5; // 略微偏上
+      radiusBias = 5;
+    } else if (category === 'art') {
+      heightBias = -15; // 偏底部
+      radiusBias = 0;
+    }
+
+    // 计算最终坐标
+    const x = (baseRadius + radiusBias) * Math.sin(phi) * Math.cos(theta);
+    const z = (baseRadius + radiusBias) * Math.sin(phi) * Math.sin(theta);
+    const y = (baseRadius + radiusBias) * Math.cos(phi) + heightBias;
+
+    const tags = Array.isArray(feed.tags) ? feed.tags : [];
+    const color = getSemanticColor(tags);
+    
+    const contentLength = feed.content_raw?.length || 0;
+    const size = 2.0 + Math.min(contentLength / 5000, 1.0) * 3.0; 
+
     let dateStr = '2025-01-01';
     let timestamp = Date.now();
     try {
@@ -55,19 +93,18 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
           timestamp = d.getTime();
         }
       }
-    } catch (e) {
-      console.warn("Invalid date for feed:", feed.id);
-    }
+    } catch (e) {}
 
     items.push({
       id: feed.id,
       position: [x, y, z],
       size: size,
       color: color,
-      category: category,
+      category: category as any,
       summary: feed.title || feed.summary || 'Untitled Star',
       content: feed.content_raw || feed.summary || 'No content.',
-      tags: Array.isArray(feed.tags) ? feed.tags : [],
+      content_original: feed.content_original || undefined,
+      tags: tags,
       date: dateStr,
       timestamp: timestamp
     });
@@ -75,4 +112,3 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
 
   return items;
 }
-

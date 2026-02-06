@@ -12,6 +12,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { toast } from 'sonner';
+import DualPaneModal from '@/components/dashboard/DualPaneModal';
+import { GalaxyItem } from '@/types';
 
 export default function InsightPage() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function InsightPage() {
   const { profile, loading: profileLoading, clearCache } = useProfile();
   const { isOffline } = useFeeds();
   const [stats, setStats] = useState({ tech: 0, life: 0, idea: 0, art: 0, other: 0 });
+  const [selectedDiscoveryItem, setSelectedDiscoveryItem] = useState<GalaxyItem | null>(null);
 
   const handleFeed = async (url: string) => {
     toast.info('正在建立神经连接...', { description: url });
@@ -34,6 +37,22 @@ export default function InsightPage() {
     } catch (e) {
       toast.error('连接失败');
     }
+  };
+
+  const handleSelectDiscovery = (item: any) => {
+    const galaxyItem: GalaxyItem = {
+      id: item.id,
+      summary: item.title,
+      content: item.summary, 
+      date: new Date(item.created_at).toISOString().split('T')[0],
+      timestamp: new Date(item.created_at).getTime(),
+      category: 'other',
+      tags: [],
+      color: '#00ffff',
+      size: 1,
+      position: [0, 0, 0]
+    };
+    setSelectedDiscoveryItem(galaxyItem);
   };
 
   useEffect(() => {
@@ -98,7 +117,7 @@ export default function InsightPage() {
           {/* 左侧：控制塔 (Focused) - 保持 Fallout 风格，拉宽以提供更好的周报配置体验 */}
           <aside className="w-[380px] h-full bg-black/40 backdrop-blur-xl shrink-0 overflow-hidden relative crt-screen rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)]">
             <ErrorBoundary name="ControlTower">
-              <ControlTower stats={stats} />
+              <ControlTower stats={stats} onSelectDiscovery={handleSelectDiscovery} />
                 </ErrorBoundary>
           </aside>
 
@@ -109,12 +128,20 @@ export default function InsightPage() {
           <main className="flex-1 h-full overflow-hidden relative bg-black/20 backdrop-blur-sm rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.3)]">
             <div className="absolute inset-0 overflow-y-auto custom-scrollbar bg-[radial-gradient(circle_at_top_right,rgba(31,244,10,0.03)_0%,transparent_50%)]">
               <ErrorBoundary name="IntelligenceStream">
-                <IntelligenceStream onFeed={handleFeed} />
+                <IntelligenceStream onFeed={handleFeed} onSelectItem={handleSelectDiscovery} />
                 </ErrorBoundary>
             </div>
           </main>
         </motion.div>
       )}
+
+      {/* 🌟 全局双栏处理模态框 */}
+      <DualPaneModal 
+        isOpen={!!selectedDiscoveryItem}
+        onClose={() => setSelectedDiscoveryItem(null)}
+        item={selectedDiscoveryItem}
+        isDiscovery={true}
+      />
     </div>
   );
 }

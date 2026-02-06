@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Telescope, 
@@ -8,18 +8,20 @@ import {
   Plus, 
   ExternalLink, 
   Sparkles,
-  Zap
+  Zap,
+  ArrowRight
 } from 'lucide-react';
 import { DiscoveryItem, getDiscoveryItems } from '@/app/dashboard/discovery-actions';
 import { Skeleton } from '@/components/ui/Skeleton';
-import DiscoveryDetailModal from '@/components/dashboard/DiscoveryDetailModal';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) => Promise<void> }) {
+export default function IntelligenceStream({ onFeed, onSelectItem }: { 
+    onFeed: (url: string) => Promise<void>,
+    onSelectItem: (item: DiscoveryItem) => void 
+}) {
     const [items, setItems] = useState<DiscoveryItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedItem, setSelectedItem] = useState<DiscoveryItem | null>(null);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -97,7 +99,7 @@ export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) =
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.05 }}
-                                    onClick={() => setSelectedItem(item)}
+                                    onClick={() => onSelectItem(item)}
                                     className="group relative p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 hover:bg-cyan-500/[0.02] transition-all cursor-pointer overflow-hidden shadow-sm active:scale-[0.99]"
                                 >
                                     <div className="flex flex-col gap-3">
@@ -137,7 +139,7 @@ export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) =
                                         </div>
 
                                         {/* 来源信息 */}
-                                        <div className="flex items-center gap-2 pt-2">
+                                        <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
                                             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/40 font-mono">
                                                 <Sparkles className="w-3 h-3" />
                                                 {item.source_name}
@@ -153,13 +155,6 @@ export default function IntelligenceStream({ onFeed }: { onFeed: (url: string) =
                     )}
                 </AnimatePresence>
             </div>
-
-            {/* 详情弹窗 */}
-            <DiscoveryDetailModal 
-                item={selectedItem} 
-                onClose={() => setSelectedItem(null)} 
-                onFeed={onFeed}
-            />
         </div>
     );
 }
