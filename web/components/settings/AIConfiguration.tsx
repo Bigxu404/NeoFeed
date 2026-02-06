@@ -110,7 +110,8 @@ export default function AIConfiguration() {
                 onChange={(e) => setConfig({ ...config, provider: e.target.value as any })}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-white/30 outline-none"
             >
-                <option value="siliconflow">SiliconFlow (推荐)</option>
+                <option value="volcengine">火山引擎 / 豆包 (推荐)</option>
+                <option value="siliconflow">SiliconFlow</option>
                 <option value="deepseek">DeepSeek 官方</option>
                 <option value="openai">OpenAI</option>
                 <option value="custom">Custom (自定义代理)</option>
@@ -140,6 +141,7 @@ export default function AIConfiguration() {
               value={config.baseURL}
               onChange={(e) => setConfig({ ...config, baseURL: e.target.value })}
               placeholder={
+                config.provider === 'volcengine' ? "https://ark.cn-beijing.volces.com/api/v3" :
                 config.provider === 'siliconflow' ? "https://api.siliconflow.cn/v1" :
                 config.provider === 'deepseek' ? "https://api.deepseek.com" :
                 config.provider === 'openai' ? "https://api.openai.com/v1" :

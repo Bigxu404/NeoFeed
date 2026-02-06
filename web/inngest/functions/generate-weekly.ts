@@ -80,8 +80,9 @@ export const generateWeeklyReport = inngest.createFunction(
       if (reportType === 'insight') {
         // [Insight Report] 依然需要 AI 深度总结，因为它是散乱的手动笔记
         let apiKey = userConfig.apiKey || process.env.SILICONFLOW_API_KEY;
-        let baseURL = userConfig.baseURL?.trim().replace(/\/+$/, '') || "https://api.siliconflow.cn/v1";
-        let model = userConfig.model || "deepseek-ai/DeepSeek-V3";
+        let rawBaseURL = userConfig.baseURL || process.env.AI_BASE_URL || "https://ark.cn-beijing.volces.com/api/v3";
+        let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+        let model = userConfig.model || process.env.AI_MODEL || "doubao-seed-1-8-251228";
       if (!apiKey) throw new Error("No API Key available for generation.");
       const openai = new OpenAI({ apiKey, baseURL });
       

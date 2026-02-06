@@ -18,6 +18,15 @@
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
+
+  /* 🌟 自定义排版样式 */
+  --color-prose-body: var(--color-white-80);
+  --color-prose-headings: var(--color-white-90);
+  --color-prose-links: var(--color-cyan-400);
+  --color-prose-bold: var(--color-white);
+  --color-prose-hr: var(--color-white-10);
+  --color-prose-quotes: var(--color-white-60);
+  --color-prose-code: var(--color-orange-200);
 }
 
 /* 基础设置 */

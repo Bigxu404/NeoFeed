@@ -65,19 +65,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // 3. AI Analysis
+    // 3. 读取用户 AI 配置
+    const adminClient = createAdminClient();
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('ai_config')
+      .eq('id', userId)
+      .single();
+
+    const userAiConfig = profile?.ai_config as any;
+
+    // 4. AI Analysis (使用用户配置，fallback 到环境变量)
     console.log('🤖 [API] Analyzing with AI...');
-    
-    // Pass structured data to AI
-    const analysis = await analyzeContent(content, url, title);
+    const analysis = await analyzeContent(content, url, title, userAiConfig);
     console.log('🧠 [API] Analysis done:', analysis.title);
 
-    // 4. DB Insert
+    // 5. DB Insert (存入原始内容，不存 AI 格式化内容)
     const insertData = {
       user_id: userId,
-      url: url, // 新字段
-      content_raw: content, // 存全文
-      title: analysis.title || title, // AI 标题优先，没有则用网页标题
+      url: url,
+      content_raw: content, // 🌟 直接存原始内容
+      title: analysis.title || title,
       summary: analysis.summary,
       takeaways: analysis.takeaways,
       tags: analysis.tags,

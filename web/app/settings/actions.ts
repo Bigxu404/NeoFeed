@@ -215,7 +215,10 @@ export async function sendTestWeeklyReport(config: AIConfig) {
     let model = config.model || "deepseek-ai/DeepSeek-V3"; 
     let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
 
-    if (config.provider === 'openai') {
+    if (config.provider === 'volcengine') {
+      if (!config.baseURL) baseURL = 'https://ark.cn-beijing.volces.com/api/v3';
+      if (!config.model) model = 'doubao-seed-1-8-251228';
+    } else if (config.provider === 'openai') {
       if (!config.baseURL) baseURL = 'https://api.openai.com/v1';
       if (!config.model) model = 'gpt-4o-mini';
     } else if (config.provider === 'deepseek') {
