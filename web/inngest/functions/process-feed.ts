@@ -72,9 +72,13 @@ export const processFeed = inngest.createFunction(
               
               if (!isBlocked) {
                 console.log(`✅ [Inngest] Jina Reader success: ${jinaData.title}`);
+                // 移除 Markdown 中的图片语法（外部图片无法稳定显示，节省存储）
+                const cleanContent = jinaData.content
+                  .replace(/!\[[^\]]*\]\([^)]+\)\n*/g, '')  // ![alt](url)
+                  .replace(/\n{3,}/g, '\n\n');               // 压缩多余空行
                 return {
                   title: jinaData.title || "Untitled",
-                  content: jinaData.content,
+                  content: cleanContent,
                   isVideo: isVideo
                 };
               }
@@ -92,22 +96,28 @@ export const processFeed = inngest.createFunction(
         const { Readability } = await import("@mozilla/readability");
 
         const isWechat = url.includes('mp.weixin.qq.com');
-        const userAgent = isWechat 
-          ? "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1 NetType/WIFI Language/zh_CN"
-          : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeoFeed/1.0";
-
+        
+        // 🌟 统一使用桌面 Chrome 完整指纹（微信反爬需要 Sec-* 头才能通过）
+        const chromeUA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+        
         const response = await fetch(url, { 
           headers: { 
-            "User-Agent": userAgent,
-            ...(isWechat ? {
-              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-              "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
-              "Cache-Control": "no-cache",
-              "Pragma": "no-cache",
-              "Referer": "https://mp.weixin.qq.com/"
-            } : {})
+            "User-Agent": chromeUA,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive",
+            // 🔑 关键：Sec-* 头是突破微信反爬的核心
+            "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"macOS"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
           },
-          next: { revalidate: 0 } // 禁用缓存
+          next: { revalidate: 0 }
         });
         
         if (!response.ok) {
@@ -117,60 +127,124 @@ export const processFeed = inngest.createFunction(
         const html = await response.text();
         const { document } = parseHTML(html);
 
+        // 🌟 增强版 HTML → Markdown 转换器（适配微信公众号特有 HTML 结构）
+        const convertHtmlToMd = (htmlStr: string): string => {
+          if (!htmlStr) return "";
+          let md = htmlStr;
+          
+          // 0. 预处理：移除 script/style 标签及内容
+          md = md.replace(/<script[\s\S]*?<\/script>/gi, '');
+          md = md.replace(/<style[\s\S]*?<\/style>/gi, '');
+          
+          // 1. 标题：h1-h4
+          md = md.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '\n# $1\n\n');
+          md = md.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '\n## $1\n\n');
+          md = md.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '\n### $1\n\n');
+          md = md.replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, '\n#### $1\n\n');
+          
+          // 2. 微信特有：通过 font-size>=20px 的 section/span 作为标题（大字号段落）
+          md = md.replace(/<(?:section|p)[^>]*style="[^"]*font-size:\s*(3[0-9]|[4-9][0-9])px[^"]*"[^>]*>([\s\S]*?)<\/(?:section|p)>/gi, '\n## $2\n\n');
+          md = md.replace(/<(?:section|p)[^>]*style="[^"]*font-size:\s*(2[0-9])px[^"]*"[^>]*>([\s\S]*?)<\/(?:section|p)>/gi, '\n### $2\n\n');
+          
+          // 3. 加粗：<strong>、<b>、以及微信的 style="font-weight: bold/700"
+          md = md.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**');
+          md = md.replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**');
+          md = md.replace(/<span[^>]*style="[^"]*font-weight:\s*(?:bold|[6-9]00)[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, '**$1**');
+          
+          // 4. 斜体：<em>、<i>
+          md = md.replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, '*$1*');
+          md = md.replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, '*$1*');
+          
+          // 5. 引用块
+          md = md.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '\n> $1\n\n');
+          
+          // 6. 分隔线
+          md = md.replace(/<hr[^>]*\/?>/gi, '\n---\n\n');
+          
+          // 7. 列表
+          md = md.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+          md = md.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, '\n$1\n');
+          md = md.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, '\n$1\n');
+          
+          // 8. 段落
+          md = md.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n');
+          
+          // 9. 换行
+          md = md.replace(/<br\s*\/?>/gi, '\n');
+          
+          // 10. 链接
+          md = md.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)');
+          
+          // 11. 图片 — 直接移除（外部图片无法稳定显示，且节省存储空间）
+          md = md.replace(/<img[^>]*>/gi, '');
+          
+          // 12. 清理：移除剩余 HTML 标签
+          md = md.replace(/<[^>]+>/g, '');
+          
+          // 13. 实体解码
+          md = md.replace(/&nbsp;/g, ' ');
+          md = md.replace(/&amp;/g, '&');
+          md = md.replace(/&lt;/g, '<');
+          md = md.replace(/&gt;/g, '>');
+          md = md.replace(/&quot;/g, '"');
+          md = md.replace(/&#39;/g, "'");
+          md = md.replace(/&#x200b;/g, ''); // 零宽空格
+          
+          // 14. 格式整理：去除多余空白和空行
+          md = md.replace(/\*\*\s*\*\*/g, '');      // 移除空的加粗标记
+          md = md.replace(/\n{3,}/g, '\n\n');        // 压缩多余换行
+          md = md.replace(/^\s+|\s+$/gm, (m) => m.includes('\n') ? '\n' : m); // 保留段落间距
+          md = md.trim();
+          
+          return md;
+        };
+
         let extractedContent = "";
         let extractedTitle = "";
 
-        // 针对微信公众号的深度优化
+        // 🌟 针对微信公众号：提取 innerHTML 并转为 Markdown（不再用 textContent）
         if (isWechat) {
           const contentNode = document.getElementById('js_content');
           if (contentNode) {
             // 移除干扰元素
-            contentNode.querySelectorAll('script, style, .mp_profile_owner, .related_article').forEach(el => el.remove());
-            extractedContent = contentNode.textContent?.replace(/\s+/g, ' ').trim() || "";
+            contentNode.querySelectorAll('script, style, .mp_profile_owner, .related_article, .qr_code_pc, .reward_area').forEach((el: any) => el.remove());
+            
+            // 🔑 核心改动：用 innerHTML 保留格式，再转为 Markdown
+            const rawInnerHtml = contentNode.innerHTML || "";
+            extractedContent = convertHtmlToMd(rawInnerHtml);
             extractedTitle = document.querySelector('.rich_media_title')?.textContent?.trim() || "";
+            
+            // 额外尝试从 JS 变量提取标题（更可靠）
+            if (!extractedTitle) {
+              const titleMatch = html.match(/var msg_title = '([^']*)'/);
+              if (titleMatch) extractedTitle = titleMatch[1];
+            }
+            
+            console.log(`✅ [Inngest] WeChat extraction: title="${extractedTitle}", content=${extractedContent.length} chars (from innerHTML→MD)`);
           }
         }
 
+        // 非微信走 Readability
         const reader = new Readability(document as any);
         const article = reader.parse();
 
-        // 🌟 增强版本地转换：将 HTML 转换为基础 Markdown 格式
-        const convertHtmlToMd = (html: string) => {
-          if (!html) return "";
-          return html
-            .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '# $1\n\n')
-            .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '## $1\n\n')
-            .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '### $1\n\n')
-            .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**')
-            .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**')
-            .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
-            .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
-            .replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, '$1\n')
-            .replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, '$1\n')
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>/gi, '![$2]($1)\n\n')
-            .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![]($1)\n\n')
-            .replace(/<[^>]+>/g, '') // 移除剩余标签
-            .replace(/&nbsp;/g, ' ')
-            .replace(/\n{3,}/g, '\n\n') // 压缩多余换行
-            .trim();
-        };
-
         const finalTitle = extractedTitle || article?.title || document.title || "Untitled";
         
-        // 优先使用 Readability 提取的带格式 HTML，如果失败则回退到 textContent
-        const rawHtml = article?.content || "";
-        const formattedContent = rawHtml ? convertHtmlToMd(rawHtml) : (article?.textContent || "");
-
-        const finalContent = (extractedContent && extractedContent.length > 200) 
-          ? extractedContent 
-          : formattedContent;
+        // 内容优先级：微信 Markdown > Readability HTML→Markdown > textContent
+        let finalContent = "";
+        if (extractedContent && extractedContent.length > 100) {
+          finalContent = extractedContent;
+        } else if (article?.content) {
+          finalContent = convertHtmlToMd(article.content);
+        } else {
+          finalContent = article?.textContent || "";
+        }
 
         if (!finalContent || finalContent.length < 50) {
           throw new Error("抓取到的内容过短或为空，可能被反爬虫拦截。");
         }
 
-        console.log(`✅ [Inngest] Fallback scrape complete: ${finalTitle} (${finalContent.length} chars, format: ${rawHtml ? 'MD' : 'TEXT'})`);
+        console.log(`✅ [Inngest] Fallback scrape complete: ${finalTitle} (${finalContent.length} chars)`);
         return {
           title: finalTitle,
           content: finalContent,

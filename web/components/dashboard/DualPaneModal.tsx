@@ -126,27 +126,35 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
               ${isMaximized ? 'w-1/2' : 'w-full md:w-1/2'}
               ${isMaximized ? '' : ''}
             `}>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3 text-xs font-mono text-white/40">
-                  <span>ID: {item.id.slice(0, 8).toUpperCase()}</span>
-                  <span>//</span>
-                  <span>日期: {item.date}</span>
-                  {isDiscovery && <span className="text-cyan-400 font-bold tracking-widest">[DISCOVERY_SIGNAL]</span>}
-                  {finalUrl && (
-                    <>
-                      <span>//</span>
-                      <a 
-                        href={finalUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 group/link"
-                      >
-                        查看原文
-                        <X className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform rotate-45" />
-                      </a>
-                    </>
-                  )}
-                </div>
+              {/* 文章标题 */}
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight leading-snug mb-4">
+                {item.title || 'Untitled'}
+              </h1>
+
+              {/* 元信息栏 */}
+              <div className="flex items-center gap-3 text-xs font-mono text-white/40 mb-8">
+                <span>{item.date}</span>
+                {item.tags && item.tags.length > 0 && (
+                  <>
+                    <span>//</span>
+                    <span>{item.tags.slice(0, 3).join(' · ')}</span>
+                  </>
+                )}
+                {isDiscovery && <span className="text-cyan-400 font-bold tracking-widest">[DISCOVERY]</span>}
+                {finalUrl && (
+                  <>
+                    <span>//</span>
+                    <a 
+                      href={finalUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 group/link"
+                    >
+                      查看原文
+                      <X className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform rotate-45" />
+                    </a>
+                  </>
+                )}
               </div>
               <div className="prose prose-invert prose-sm md:prose-base max-w-none text-white/80 font-light leading-relaxed prose-headings:font-bold prose-headings:text-white/90 prose-p:mb-6 prose-p:leading-loose prose-img:rounded-2xl prose-img:border prose-img:border-white/10 prose-blockquote:border-l-4 prose-blockquote:border-white/20 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-white/60">
                 {contentLoading && !fullContent ? (

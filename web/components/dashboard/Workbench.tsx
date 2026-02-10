@@ -139,7 +139,8 @@ export default function Workbench() {
   const handleSelectFeed = useCallback((item: FeedItem) => {
     const galaxyItem: GalaxyItem = {
       id: item.id,
-      summary: item.title || '',
+      title: item.title || '',
+      summary: item.summary || item.title || '',
       content: item.content_raw || '',
       content_original: item.content_original || '',
       date: new Date(item.created_at).toISOString().split('T')[0],

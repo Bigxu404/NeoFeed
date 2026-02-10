@@ -1,5 +1,6 @@
 export interface GalaxyItem {
   id: string;
+  title?: string;  // 文章标题
   position: [number, number, number];
   size: number;
   color: string;
