@@ -38,7 +38,7 @@ export default function DashboardHeader({ profile, clearCache, isOffline, autoHi
 
     return (
         <div 
-            className="relative w-full max-w-7xl mx-auto px-4 z-50 shrink-0"
+            className="relative w-full z-50 shrink-0"
             onMouseEnter={() => autoHide && setIsHovered(true)}
             onMouseLeave={() => autoHide && setIsHovered(false)}
         >

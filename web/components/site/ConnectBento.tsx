@@ -107,7 +107,7 @@ const sections = [
 export default function ConnectBento() {
   return (
     <section className="w-full py-32 relative z-10 bg-black pb-64">
-      <div className="max-w-7xl mx-auto px-6 space-y-32">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-16 2xl:px-24 space-y-32">
         
         {/* Section Header */}
         <div className="text-center mb-32">

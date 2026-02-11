@@ -7,7 +7,7 @@ import InsightPreviewCard from './InsightPreviewCard';
 export default function FeatureGrid() {
   return (
     <section id="features" className="w-full py-64 relative"> {/* Increased section padding */}
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-16 2xl:px-24 relative z-10">
         
         {/* Grid Layout with Adjusted Gap (Tighter Horizontal, Loose Vertical) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 md:gap-x-24">

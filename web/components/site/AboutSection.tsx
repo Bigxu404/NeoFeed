@@ -78,7 +78,7 @@ export default function AboutSection() {
       {/* Background Ambience */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[400px] bg-gradient-to-r from-transparent via-white/5 to-transparent blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl 2xl:max-w-7xl mx-auto px-8 md:px-12 2xl:px-24">
+      <div className="relative z-10 max-w-[1920px] mx-auto px-8 md:px-12 lg:px-16 2xl:px-24">
         
         {/* Section Title */}
         <motion.div

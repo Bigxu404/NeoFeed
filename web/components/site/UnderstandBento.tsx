@@ -350,7 +350,7 @@ const sections = [
 export default function UnderstandBento() {
   return (
     <section className="w-full py-16 md:py-32 2xl:py-64 relative z-10 bg-black" style={{ fontFamily: serifFont }}>
-      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 space-y-20 md:space-y-32 2xl:space-y-64">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-16 2xl:px-24 space-y-20 md:space-y-32 2xl:space-y-64">
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-32 2xl:mb-64">

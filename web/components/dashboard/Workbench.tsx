@@ -156,13 +156,13 @@ export default function Workbench() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative flex flex-col overflow-x-hidden">
-      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none p-4 md:p-8">
+      <div className="sticky top-0 z-[100] md:relative md:z-50 bg-black/50 backdrop-blur-md md:bg-transparent md:backdrop-blur-none border-b border-white/5 md:border-none px-4 md:px-8 lg:px-12 2xl:px-16 py-4 md:py-6">
         <ErrorBoundary name="Header">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} />
         </ErrorBoundary>
       </div>
 
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 pb-12">
+      <div className="flex-1 w-full px-4 md:px-8 lg:px-12 2xl:px-16 pb-12">
           <BentoGrid className="gap-4 md:gap-6 grid-cols-1 md:grid-cols-4 auto-rows-auto md:auto-rows-[120px]">
                 <BentoCard colSpan={1} rowSpan={1} className="md:col-span-3 md:row-span-4 overflow-visible bg-gradient-to-br from-neutral-900/80 to-black">
                   <ErrorBoundary name="InputPrism">

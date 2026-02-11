@@ -387,7 +387,7 @@ const sections = [
 export default function CaptureBento() {
   return (
     <section id="features" className="w-full py-16 md:py-32 2xl:py-64 relative z-10 overflow-hidden" style={{ fontFamily: serifFont }}>
-      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 space-y-20 md:space-y-32 2xl:space-y-64">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-16 2xl:px-24 space-y-20 md:space-y-32 2xl:space-y-64">
         <div className="text-center mb-12 md:mb-20 2xl:mb-40 relative">
           <div className="hidden md:block absolute top-[-230px] 2xl:top-[-350px] left-0 right-0 z-0 opacity-90">
              <div className="w-full h-[600px] 2xl:h-[1000px] flex items-center justify-center overflow-visible">

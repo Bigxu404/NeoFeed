@@ -17,7 +17,7 @@ export default function FinalCTA() {
         viewport={{ once: true }}
         className="relative z-10"
       >
-        <h2 className="text-4xl md:text-6xl 2xl:text-[10rem] font-serif font-bold text-white mb-8 2xl:mb-16 tracking-tight">
+        <h2 className="text-4xl md:text-6xl 2xl:text-8xl font-serif font-bold text-white mb-8 2xl:mb-12 tracking-tight">
           Ready to wake up?
         </h2>
         

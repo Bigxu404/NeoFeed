@@ -54,7 +54,7 @@ export default function SiteHero() {
 
       {/* ==================== SPLIT CONTENT LAYOUT ==================== */}
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 w-full max-w-7xl 2xl:max-w-[1600px] px-6 md:px-12 2xl:px-24 h-full gap-12 items-center">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 w-full max-w-[1920px] px-6 md:px-12 lg:px-16 2xl:px-24 mx-auto h-full gap-12 items-center">
         
         {/* 🔴 LEFT: THE HUMAN (Serif / Chaos) */}
         <div className="flex flex-col justify-center items-start text-left space-y-6 2xl:space-y-10">
@@ -63,24 +63,24 @@ export default function SiteHero() {
            </div>
            
            <div className="relative">
-             <h1 className="text-7xl md:text-9xl 2xl:text-[12rem] font-serif font-bold text-white leading-[0.85] tracking-tight">
+             <h1 className="text-7xl md:text-9xl 2xl:text-[10rem] font-serif font-bold text-white leading-[0.85] tracking-tight">
                <GlitchText text="NeoFeed" />
              </h1>
-             <div className="text-3xl md:text-4xl 2xl:text-6xl text-white/80 font-serif italic mt-2 2xl:mt-4 ml-1">
+             <div className="text-3xl md:text-4xl 2xl:text-5xl text-white/80 font-serif italic mt-2 2xl:mt-4 ml-1">
                is the key.
              </div>
            </div>
 
-           <p className="font-serif text-xl md:text-2xl 2xl:text-4xl text-white/60 max-w-md 2xl:max-w-2xl leading-relaxed mt-4">
+           <p className="font-serif text-xl md:text-2xl 2xl:text-3xl text-white/60 max-w-md 2xl:max-w-xl leading-relaxed mt-4">
              "The Internet is a prison for your mind.<br/>
              <span className="text-white underline decoration-1 underline-offset-4 decoration-white/30">Wake up.</span>"
            </p>
            
-           <button className="group flex items-center gap-4 2xl:gap-8 text-white hover:text-green-400 transition-colors mt-6 2xl:mt-12">
-              <div className="w-12 h-12 2xl:w-20 2xl:h-20 border border-white/20 rounded-full flex items-center justify-center group-hover:border-green-500 transition-colors bg-white/5 backdrop-blur-sm">
-                 <span className="w-2 h-2 2xl:w-4 2xl:h-4 bg-white group-hover:bg-green-500 rounded-full transition-colors" />
+           <button className="group flex items-center gap-4 2xl:gap-6 text-white hover:text-green-400 transition-colors mt-6 2xl:mt-10">
+              <div className="w-12 h-12 2xl:w-16 2xl:h-16 border border-white/20 rounded-full flex items-center justify-center group-hover:border-green-500 transition-colors bg-white/5 backdrop-blur-sm">
+                 <span className="w-2 h-2 2xl:w-3 2xl:h-3 bg-white group-hover:bg-green-500 rounded-full transition-colors" />
               </div>
-              <span className="font-serif tracking-wide text-lg 2xl:text-3xl">Follow the White Rabbit</span>
+              <span className="font-serif tracking-wide text-lg 2xl:text-2xl">Follow the White Rabbit</span>
            </button>
         </div>
 
@@ -91,7 +91,7 @@ export default function SiteHero() {
            </div>
            
            {/* Code Waterfall */}
-           <div className="font-mono text-sm md:text-base 2xl:text-2xl text-green-500/80 leading-tight opacity-80">
+           <div className="font-mono text-sm md:text-base 2xl:text-lg text-green-500/80 leading-tight opacity-80">
               <TypewriterCode />
            </div>
 
