@@ -100,8 +100,8 @@ export default function InsightPage() {
         )}
       </AnimatePresence>
 
-      {/* 🚀 统一 Header - 修复对齐问题，增加与 Dashboard 一致的 padding */}
-      <div className="sticky top-0 z-[50] bg-black/40 backdrop-blur-md border-b border-white/5 p-4 md:p-8">
+      {/* 🚀 统一 Header - 与 Dashboard 一致的响应式边距 */}
+      <div className="sticky top-0 z-[50] bg-black/40 backdrop-blur-md border-b border-white/5 px-4 md:px-8 lg:px-12 2xl:px-16 py-4 md:py-6">
         <ErrorBoundary name="InsightHeader">
           <DashboardHeader profile={profile} clearCache={clearCache} isOffline={isOffline} autoHide={false} />
         </ErrorBoundary>
@@ -112,7 +112,7 @@ export default function InsightPage() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1 flex overflow-hidden relative gap-4 md:gap-8 px-4 md:px-8 pb-4 md:pb-8"
+          className="flex-1 flex overflow-hidden relative gap-4 md:gap-8 px-4 md:px-8 lg:px-12 2xl:px-16 pb-4 md:pb-8"
         >
           {/* 左侧：控制塔 (Focused) - 保持 Fallout 风格，拉宽以提供更好的周报配置体验 */}
           <aside className="w-[380px] h-full bg-black/40 backdrop-blur-xl shrink-0 overflow-hidden relative crt-screen rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)]">

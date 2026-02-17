@@ -21,14 +21,13 @@ import {
   addSubscription, 
   deleteSubscription,
   triggerAllSubscriptionsSync,
-  getDiscoveryItems,
   DiscoveryItem
 } from '@/app/dashboard/discovery-actions';
 import { getAiConfig, updateAiConfig, sendTestWeeklyReport } from '@/app/settings/actions';
-import { AIConfig, GalaxyItem } from '@/types/index';
+import { AIConfig } from '@/types/index';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import DualPaneModal from '@/components/dashboard/DualPaneModal';
+
 
 // --- 弹窗组件：RSS 设置 ---
 function RSSSettingsModal({ isOpen, onClose, aiConfig, onUpdate }: { isOpen: boolean, onClose: () => void, aiConfig: AIConfig | null, onUpdate: () => void }) {
@@ -258,7 +257,6 @@ export default function ControlTower({ stats, onSelectDiscovery }: {
   onSelectDiscovery: (item: DiscoveryItem) => void
 }) {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
-  const [discoveryItems, setDiscoveryItems] = useState<DiscoveryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
@@ -269,14 +267,12 @@ export default function ControlTower({ stats, onSelectDiscovery }: {
   const fetchControlData = async () => {
     setLoading(true);
     try {
-      const [subsRes, configRes, discoveryRes] = await Promise.all([ 
+      const [subsRes, configRes] = await Promise.all([ 
         getSubscriptions(), 
-        getAiConfig(),
-        getDiscoveryItems()
+        getAiConfig()
       ]);
       setSubscriptions(subsRes.data || []);
       setAiConfig(configRes.config);
-      setDiscoveryItems(discoveryRes.data || []);
     } finally {
       setLoading(false);
     }
@@ -284,9 +280,6 @@ export default function ControlTower({ stats, onSelectDiscovery }: {
 
   useEffect(() => { fetchControlData(); }, []);
 
-  const handleDiscoveryItemClick = (item: DiscoveryItem) => {
-    onSelectDiscovery(item);
-  };
 
   const handleManualSync = async () => {
     if (syncing) return;
@@ -321,9 +314,6 @@ export default function ControlTower({ stats, onSelectDiscovery }: {
     }
   };
 
-  const handleCrystallize = (note: string, tags: string[], weight: number) => {
-    toast.success('洞察已结晶并存入慢宇宙');
-  };
 
   return (
     <div className="flex flex-col h-full bg-[#050505] pl-12 pr-8 py-8 space-y-10 overflow-y-auto custom-scrollbar relative crt-screen">
@@ -357,58 +347,69 @@ export default function ControlTower({ stats, onSelectDiscovery }: {
 
       <div className="h-px w-full bg-gradient-to-r from-[#1ff40a]/20 via-[#1ff40a]/10 to-transparent" />
 
-      {/* 2. 发现流区域 */}
+      {/* 2. 订阅源列表 */}
       <section className="space-y-6 flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between">
           <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#1ff40a]/60 uppercase flex items-center gap-2 font-mono">
             <Globe size={14} className="text-[#1ff40a]/70" />
-            INTELLIGENCE_DISCOVERY 发现流
+            DISCOVERY 订阅源
           </h3>
-          <div className="flex items-center gap-1">
-            <button onClick={handleManualSync} disabled={syncing} className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30">
-              <RefreshCw size={14} className={cn(syncing && "animate-spin")} />
-            </button>
-            <button onClick={() => setIsRSSModalOpen(true)} className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30">
-              <Settings2 size={14} />
-            </button>
-          </div>
+          <button onClick={() => setIsRSSModalOpen(true)} className="p-1.5 hover:bg-[#1ff40a]/20 rounded text-[#1ff40a]/50 hover:text-[#1ff40a] transition-all border border-transparent hover:border-[#1ff40a]/30">
+            <Settings2 size={14} />
+          </button>
         </div>
 
         <div className="grid grid-cols-1 gap-3 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-10">
-          {discoveryItems.map(item => (
-            <div key={item.id} onClick={() => handleDiscoveryItemClick(item)} className="group flex flex-col gap-2 p-4 rounded-sm bg-[#1ff40a]/[0.02] border border-[#1ff40a]/10 hover:border-[#1ff40a]/40 hover:bg-[#1ff40a]/[0.05] transition-all cursor-pointer relative overflow-hidden">
+          {subscriptions.map(sub => (
+            <div key={sub.id} className="group flex flex-col gap-2 p-4 rounded-sm bg-[#1ff40a]/[0.02] border border-[#1ff40a]/10 hover:border-[#1ff40a]/40 hover:bg-[#1ff40a]/[0.05] transition-all relative overflow-hidden">
               <div className="flex justify-between items-start">
-                <span className="text-[8px] font-mono text-[#1ff40a]/40 uppercase tracking-widest">{item.source_name}</span>
-                <Zap size={10} className="text-[#1ff40a]/20 group-hover:text-[#1ff40a] transition-colors" />
+                <span className="text-[8px] font-mono text-[#1ff40a]/40 uppercase tracking-widest">RSS_SOURCE</span>
+                <Rss size={10} className="text-[#1ff40a]/20 group-hover:text-[#1ff40a] transition-colors" />
               </div>
-              <h4 className="text-xs font-bold text-[#1ff40a]/80 group-hover:text-[#1ff40a] transition-colors line-clamp-1">{item.title}</h4>
-              <p className="text-[10px] text-[#1ff40a]/40 line-clamp-2 leading-relaxed">{item.summary}</p>
-              <div className="mt-1 flex items-start gap-2 py-1 px-2 bg-[#1ff40a]/5 border border-[#1ff40a]/10 rounded-sm">
-                <Sparkles size={10} className="text-[#1ff40a] shrink-0 mt-0.5" />
-                <span className="text-[9px] text-[#1ff40a]/60 leading-tight italic">{item.reason}</span>
-              </div>
+              <p className="text-[10px] font-mono text-[#1ff40a]/70 group-hover:text-[#1ff40a] transition-colors break-all leading-relaxed">{sub.url}</p>
+              {sub.themes && sub.themes.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {sub.themes.map((tag: string, i: number) => (
+                    <span key={i} className="text-[8px] font-mono px-1.5 py-0.5 bg-[#1ff40a]/10 border border-[#1ff40a]/20 rounded-sm text-[#1ff40a]/50">{tag}</span>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#1ff40a]/5">
-                <span className="text-[8px] font-mono text-[#1ff40a]/20 uppercase tracking-tighter">Signal_Discovery: Active</span>
-                <ArrowRight size={10} className="text-[#1ff40a]/10 group-hover:text-[#1ff40a] group-hover:translate-x-1 transition-all" />
+                <span className="text-[8px] font-mono text-[#1ff40a]/20 uppercase tracking-tighter">
+                  {sub.created_at ? new Date(sub.created_at).toLocaleDateString() : 'ACTIVE'}
+                </span>
               </div>
             </div>
           ))}
-          {discoveryItems.length === 0 && !loading && (
-            <p className="text-center py-12 text-[10px] font-mono text-[#1ff40a]/20 italic tracking-widest">NO_DISCOVERY_FOUND</p>
+          {subscriptions.length === 0 && !loading && (
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <p className="text-[10px] font-mono text-[#1ff40a]/20 italic tracking-widest">NO_SOURCE_FOUND</p>
+              <button 
+                onClick={() => setIsRSSModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1ff40a]/10 border border-[#1ff40a]/30 rounded text-[#1ff40a]/60 hover:bg-[#1ff40a]/20 hover:text-[#1ff40a] transition-all font-mono text-[10px] uppercase tracking-widest"
+              >
+                <Plus size={12} />
+                添加订阅源
+              </button>
+            </div>
+          )}
+
+          {/* 同步按钮 - 有订阅源时显示 */}
+          {subscriptions.length > 0 && (
+            <button 
+              onClick={handleManualSync} 
+              disabled={syncing}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[#1ff40a]/10 border border-[#1ff40a]/30 rounded text-[#1ff40a]/60 hover:bg-[#1ff40a]/20 hover:text-[#1ff40a] transition-all disabled:opacity-50 font-mono text-[10px] uppercase tracking-widest"
+            >
+              <RefreshCw size={12} className={cn(syncing && "animate-spin")} />
+              {syncing ? '同步中...' : '同步所有订阅源'}
+            </button>
           )}
         </div>
       </section>
 
       <RSSSettingsModal isOpen={isRSSModalOpen} onClose={() => setIsRSSModalOpen(false)} aiConfig={aiConfig} onUpdate={fetchControlData} />
       <WeeklyReportSettingsModal isOpen={isWeeklyModalOpen} onClose={() => setIsWeeklyModalOpen(false)} aiConfig={aiConfig} onUpdate={fetchControlData} />
-      
-      <DualPaneModal 
-        isOpen={!!selectedDiscoveryItem}
-        onClose={() => setSelectedDiscoveryItem(null)}
-        item={selectedDiscoveryItem}
-        onCrystallize={handleCrystallize}
-        isDiscovery={true}
-      />
     </div>
   );
 }

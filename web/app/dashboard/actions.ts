@@ -19,7 +19,7 @@ export async function getFeeds() {
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(20);
+    .limit(100);
 
   if (error) {
     console.error('Error fetching feeds:', error);
