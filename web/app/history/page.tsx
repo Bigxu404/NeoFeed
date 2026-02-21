@@ -8,9 +8,9 @@ import HistoryTerminal from '@/components/history/HistoryTerminal';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
+import { crystallizeFeed } from '@/app/dashboard/actions';
 import { useRouter } from 'next/navigation';
 import DualPaneModal from '@/components/dashboard/DualPaneModal';
-import { toast } from 'sonner';
 
 const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), { 
   ssr: false,
@@ -130,7 +130,23 @@ export default function HistoryPage() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         item={selectedItem}
-        onCrystallize={() => toast.success('知识已结晶并存入慢宇宙')}
+        onCrystallize={async (note, tags, weight) => {
+          if (!selectedItem) return;
+          const res = await crystallizeFeed(selectedItem.id, note, tags, weight);
+          if (res.error) {
+            toast.error('保存失败: ' + res.error);
+          } else {
+            toast.success('知识已结晶并存入慢宇宙');
+            // 更新本地状态
+            setItems(prev => prev.map(item => 
+              item.id === selectedItem.id 
+                ? { ...item, user_notes: note, user_tags: tags, user_weight: weight }
+                : item
+            ));
+            // 更新选中项，确保弹窗不闪烁
+            setSelectedItem(prev => prev ? { ...prev, user_notes: note, user_tags: tags, user_weight: weight } : null);
+          }
+        }}
       />
     </div>
   );

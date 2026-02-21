@@ -51,23 +51,29 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
     { id: 'finance', name: '金融', color: '#10b981' },
   ], []);
 
-  // 灵感提示
-  const prompts = useMemo(() => [
-    '这篇文章的核心观点是什么？',
-    '它对我有什么启发？',
-    '我可以怎么应用它？',
-    '与我已有的知识有何关联？',
-  ], []);
+  // 灵感提示 - 已移除
+  // const prompts = useMemo(() => [
+  //   '这篇文章的核心观点是什么？',
+  //   '它对我有什么启发？',
+  //   '我可以怎么应用它？',
+  //   '与我已有的知识有何关联？',
+  // ], []);
 
   useEffect(() => {
-    if (isOpen) {
-      // 重置状态
+    if (isOpen && item) {
+      // 初始化状态，如果 item 中有已保存的数据，则加载
+      setNoteContent(item.user_notes || '');
+      setSelectedTags(item.user_tags || []);
+      setWeight(item.user_weight || 1.0);
+      setIsCrystallized(!!item.user_notes); // 如果有笔记，视为已结晶
+    } else if (!isOpen) {
+      // 关闭时重置，防止闪烁
       setNoteContent('');
       setSelectedTags([]);
       setWeight(1.0);
       setIsCrystallized(false);
     }
-  }, [isOpen]);
+  }, [isOpen, item]);
 
   const handleCrystallizeClick = () => {
     if (!noteContent.trim() || selectedTags.length === 0) {
@@ -240,23 +246,10 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
             `}>
               <h3 className="text-2xl font-bold text-white mb-6">我的思考与总结</h3>
               
-              {/* 灵感提示 */}
-              {!noteContent.trim() && (
-                <div className="mb-6 grid grid-cols-2 gap-3">
-                  {prompts.map((prompt, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setNoteContent(prompt + '\n\n')}
-                      className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/70 text-sm text-left transition-colors"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              )}
-
+              {/* 灵感提示 - 已移除预设问题 */}
+              
               <textarea
-                className="w-full h-48 bg-white/5 border border-white/10 rounded-xl p-4 text-base text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all font-mono text-sm"
+                className="w-full h-64 bg-white/5 border border-white/10 rounded-xl p-4 text-base text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all font-mono text-sm"
                 placeholder="写下你的思考、感悟、提炼..."
                 value={noteContent}
                 onChange={(e) => setNoteContent(e.target.value)}
@@ -290,7 +283,7 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
               </div>
 
               <div className="mt-6">
-                <h4 className="text-sm font-medium text-white/50 uppercase tracking-widest mb-3">知识权重</h4>
+                <h4 className="text-sm font-medium text-white/50 uppercase tracking-widest mb-3">知识权重 (星球大小)</h4>
                 <input
                   type="range"
                   min="0.1"

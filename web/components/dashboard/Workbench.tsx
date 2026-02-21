@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Loader2 } from 'lucide-react';
-import { FeedItem, summarizeFeed, deleteFeed } from '@/app/dashboard/actions';
+import { FeedItem, summarizeFeed, deleteFeed, crystallizeFeed } from '@/app/dashboard/actions';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useSearchParams } from 'next/navigation';
@@ -110,6 +110,9 @@ export default function Workbench() {
       timestamp: new Date(item.created_at).getTime(),
       category: (item.category as any) || 'other',
       tags: item.tags || [],
+      user_notes: item.user_notes || '',
+      user_tags: item.user_tags || [],
+      user_weight: item.user_weight || 1.0,
       color: '#a855f7',
       size: 1,
       position: [0, 0, 0]
@@ -203,7 +206,25 @@ export default function Workbench() {
         isOpen={!!selectedGalaxyItem}
         onClose={() => setSelectedGalaxyItem(null)}
         item={selectedGalaxyItem}
-        onCrystallize={(note, tags, weight) => { toast.success('洞察已结晶'); }}
+        onCrystallize={async (note, tags, weight) => {
+          if (!selectedGalaxyItem) return;
+          const res = await crystallizeFeed(selectedGalaxyItem.id, note, tags, weight);
+          if (res.error) {
+            toast.error('保存失败: ' + res.error);
+          } else {
+            toast.success('洞察已结晶');
+            // 更新本地缓存
+            const currentFeed = feeds.find(f => f.id === selectedGalaxyItem.id);
+            if (currentFeed) {
+              updateFeedInCache({
+                ...currentFeed,
+                user_notes: note,
+                user_tags: tags,
+                user_weight: weight
+              });
+            }
+          }
+        }}
       />
 
       <AnimatePresence>

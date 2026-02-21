@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { LogOut, LayoutGrid, Clock, Activity, User, Settings, WifiOff } from 'lucide-react';
+import { LogOut, LayoutGrid, Clock, Activity, User, Settings, WifiOff, Library } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { UserProfile } from '@/types/index';
 
 const NavItems = [
     { icon: LayoutGrid, label: '工作台', shortLabel: '首页', path: '/dashboard' },
+    { icon: Library, label: '知识库', shortLabel: '知识库', path: '/library' },
     { icon: Clock, label: '知识星系', shortLabel: '星系', path: '/history' },
     { icon: Activity, label: '洞察中心', shortLabel: '洞察', path: '/insight' },
     { icon: User, label: '个人矩阵', shortLabel: '个人', path: '/profile' },

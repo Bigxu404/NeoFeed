@@ -230,6 +230,32 @@ export async function summarizeFeed(feedId: string) {
   }
 }
 
+export async function crystallizeFeed(feedId: string, notes: string, tags: string[], weight: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const { data, error } = await supabase
+    .from('feeds')
+    .update({
+      user_notes: notes,
+      user_tags: tags,
+      user_weight: weight,
+    })
+    .eq('id', feedId)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error crystallizing feed:', error);
+    return { error: error.message };
+  }
+
+  return { success: true, data };
+}
+
 export async function processUrl(url: string) {
     // Placeholder for next step
     console.log("Processing URL:", url);

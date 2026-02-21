@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic';
-import { MOCK_GALAXY_DATA } from '@/lib/mockData';
+import { STATIC_GALAXY_DATA } from '@/components/site/staticData';
 import { Globe } from 'lucide-react';
 
 const GalaxyScene = dynamic(() => import('@/components/galaxy/GalaxyScene'), { ssr: false });
@@ -29,7 +29,7 @@ export default function GalaxyCard() {
       {/* Galaxy Scene */}
       <div className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity duration-1000">
         <GalaxyScene 
-          data={MOCK_GALAXY_DATA} 
+          data={STATIC_GALAXY_DATA} 
           onItemClick={() => {}} 
           highlightedItemId={null}
         />

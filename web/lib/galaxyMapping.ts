@@ -106,7 +106,10 @@ export function mapFeedsToGalaxy(feeds: FeedItem[]): GalaxyItem[] {
       content_original: feed.content_original || undefined,
       tags: tags,
       date: dateStr,
-      timestamp: timestamp
+      timestamp: timestamp,
+      user_notes: feed.user_notes || '',
+      user_tags: feed.user_tags || [],
+      user_weight: feed.user_weight || 1.0
     });
   });
 

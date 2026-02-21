@@ -57,6 +57,9 @@ export interface Database {
           reading_time: number | null
           status: 'pending' | 'processing' | 'done' | 'failed'
           source_type: string | null
+          user_notes: string | null
+          user_tags: string[] | null
+          user_weight: number | null
         }
         Insert: {
           id?: string
@@ -73,6 +76,9 @@ export interface Database {
           reading_time?: number | null
           status?: 'pending' | 'processing' | 'done' | 'failed'
           source_type?: string | null
+          user_notes?: string | null
+          user_tags?: string[] | null
+          user_weight?: number | null
         }
         Update: {
           id?: string
@@ -89,6 +95,9 @@ export interface Database {
           reading_time?: number | null
           status?: 'pending' | 'processing' | 'done' | 'failed'
           source_type?: string | null
+          user_notes?: string | null
+          user_tags?: string[] | null
+          user_weight?: number | null
         }
       }
       weekly_reports: {

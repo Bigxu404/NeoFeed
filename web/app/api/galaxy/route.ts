@@ -16,7 +16,7 @@ export async function GET() {
     // ⚠️ 增加 content_raw 和 url 以便在列表和弹窗中使用最新的排版和跳转链接
     const { data, error } = await supabase
       .from('feeds')
-      .select('id, title, summary, category, tags, created_at, content_raw, url, user_id')
+      .select('id, title, summary, category, tags, created_at, content_raw, url, user_id, user_notes, user_tags, user_weight')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1000); 

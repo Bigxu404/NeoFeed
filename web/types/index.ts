@@ -14,6 +14,9 @@ export interface GalaxyItem {
   url?: string;
   shapeId?: number;  // ✨ 新增：语义形状 ID
   opacity?: number;  // ✨ 新增：动态透明度
+  user_notes?: string; // ✨ 新增：用户笔记
+  user_tags?: string[]; // ✨ 新增：用户标签
+  user_weight?: number; // ✨ 新增：用户权重
 }
 
 export interface AIConfig {
