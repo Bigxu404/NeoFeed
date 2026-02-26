@@ -6,14 +6,25 @@ export async function middleware(request: NextRequest) {
   const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent.toLowerCase())
   const host = request.nextUrl.hostname
   const isLocalhost = host === 'localhost' || host === '127.0.0.1'
+  // 是否为局域网 IP（非 localhost）。公网域名（如 www.neofeed.cn）为 false
+  const isLanIp =
+    /^10\.|^172\.(1[6-9]|2\d|3[01])\.|^192\.168\./.test(host)
 
   // 局域网访问：不跑 Supabase updateSession，避免手机端因会话校验/网络挂起一直加载；只做根路径重定向
   if (!isLocalhost) {
     if (request.nextUrl.pathname === '/') {
       const path = isMobile ? '/mobile' : '/landing'
-      // 显式带上端口，避免部分手机浏览器只显示/请求 10.23.x.x 不带 :3000 导致连错端口白屏
       const port = request.nextUrl.port || '3000'
-      const origin = `${request.nextUrl.protocol}//${host}:${port}`
+      const protocol = request.nextUrl.protocol
+      // 公网域名（如 www.neofeed.cn）或标准端口：URL 中不带端口，避免出现 https://www.neofeed.cn:3000
+      // 仅局域网 IP + 非标准端口时显式带端口，避免手机浏览器连错端口白屏
+      const isDefaultPort =
+        !isLanIp ||
+        (protocol === 'https:' && (port === '443' || port === '')) ||
+        (protocol === 'http:' && (port === '80' || port === ''))
+      const origin = isDefaultPort
+        ? `${protocol}//${host}`
+        : `${protocol}//${host}:${port}`
       const redirectUrl = `${origin}${path}`
       return NextResponse.redirect(redirectUrl, 307)
     }
