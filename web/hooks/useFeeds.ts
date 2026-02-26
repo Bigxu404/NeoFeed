@@ -46,11 +46,22 @@ export function useFeeds() {
         };
     }, []);
 
-    const { data, error, isLoading, mutate: swrMutate } = useSWR(FEEDS_KEY, async () => {
+    const fetcherWithRetry = async (): Promise<FeedItem[]> => {
         const res = await getFeeds();
-        if (res.error) throw new Error(res.error);
+        if (res.error) {
+            // PWA 冷启动时 Server Action 首次请求可能未带 cookie，延迟重试一次
+            if (res.error === 'Unauthorized' || res.error.includes('Unauthorized')) {
+                await new Promise((r) => setTimeout(r, 800));
+                const retry = await getFeeds();
+                if (retry.error) throw new Error(retry.error);
+                return retry.data || [];
+            }
+            throw new Error(res.error);
+        }
         return res.data || [];
-    }, {
+    };
+
+    const { data, error, isLoading, mutate: swrMutate } = useSWR(FEEDS_KEY, fetcherWithRetry, {
         fallbackData: initialData,
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
@@ -60,11 +71,21 @@ export function useFeeds() {
         }
     });
 
-    const { data: count, mutate: countMutate } = useSWR(FEEDS_COUNT_KEY, async () => {
+    const countFetcherWithRetry = async (): Promise<number> => {
         const res = await getFeedsCount();
-        if (res.error) throw new Error(res.error);
-        return res.data || 0;
-    }, {
+        if (res.error) {
+            if (res.error === 'Unauthorized' || String(res.error).includes('Unauthorized')) {
+                await new Promise((r) => setTimeout(r, 800));
+                const retry = await getFeedsCount();
+                if (retry.error) throw new Error(retry.error);
+                return retry.data ?? 0;
+            }
+            throw new Error(res.error);
+        }
+        return res.data ?? 0;
+    };
+
+    const { data: count, mutate: countMutate } = useSWR(FEEDS_COUNT_KEY, countFetcherWithRetry, {
         fallbackData: initialCount,
         revalidateOnFocus: true,
         revalidateOnReconnect: true,

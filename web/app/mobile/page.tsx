@@ -36,9 +36,17 @@ function MobileHeader() {
 function MobileFeedData() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab') || 'fast';
-  const { feeds, loading } = useFeeds();
+  const { feeds, loading, error, refreshFeeds } = useFeeds();
 
-  return <MobileFeedList feeds={feeds} loading={loading} activeTab={tab as 'fast' | 'slow'} />;
+  return (
+    <MobileFeedList
+      feeds={feeds}
+      loading={loading}
+      activeTab={tab as 'fast' | 'slow'}
+      error={error}
+      onRetry={refreshFeeds}
+    />
+  );
 }
 
 export default function MobileStreamPage() {

@@ -3,16 +3,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FeedItem } from '@/app/dashboard/actions';
-import { Check, Quote, Sparkles, ChevronDown } from 'lucide-react';
+import { Check, Quote, Sparkles, ChevronDown, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface MobileFeedListProps {
   feeds: FeedItem[];
   loading: boolean;
   activeTab: 'fast' | 'slow';
+  error?: Error | null;
+  onRetry?: () => void;
 }
 
-export default function MobileFeedList({ feeds, loading, activeTab }: MobileFeedListProps) {
+export default function MobileFeedList({ feeds, loading, activeTab, error, onRetry }: MobileFeedListProps) {
   const router = useRouter();
   const [timeFilter, setTimeFilter] = useState<'today' | 'week' | 'all'>('today');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -37,11 +39,12 @@ export default function MobileFeedList({ feeds, loading, activeTab }: MobileFeed
     );
   }
 
-  // 时间过滤逻辑
+  // 时间过滤逻辑（本周以周一 00:00 起算，符合中文习惯）
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekStart = new Date(todayStart);
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const daysSinceMonday = (now.getDay() + 6) % 7; // 0=Mon, 1=Tue, ..., 6=Sun
+  weekStart.setDate(weekStart.getDate() - daysSinceMonday);
 
   const filterByTime = (items: FeedItem[]) => {
     return items.filter(feed => {
@@ -113,10 +116,23 @@ export default function MobileFeedList({ feeds, loading, activeTab }: MobileFeed
         </div>
       </div>
 
+      {error && onRetry && (
+        <div
+          role="button"
+          onClick={onRetry}
+          className="bg-white rounded-[24px] p-8 flex flex-col items-center justify-center shadow-sm border border-gray-100 active:scale-[0.98] transition-transform"
+        >
+          <RefreshCw className="w-8 h-8 text-gray-400 mb-3" />
+          <p className="text-gray-500 font-medium text-[14px] mb-1">加载失败</p>
+          <p className="text-gray-400 text-[13px]">点击重试</p>
+        </div>
+      )}
+
+      {!error && (
       <AnimatePresence mode="wait">
         {activeTab === 'fast' && (
           <motion.div
-            key="fast"
+            key={`fast-${timeFilter}`}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
@@ -158,7 +174,7 @@ export default function MobileFeedList({ feeds, loading, activeTab }: MobileFeed
 
         {activeTab === 'slow' && (
           <motion.div
-            key="slow"
+            key={`slow-${timeFilter}`}
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
@@ -193,6 +209,7 @@ export default function MobileFeedList({ feeds, loading, activeTab }: MobileFeed
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </div>
   );
 }

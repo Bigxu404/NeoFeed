@@ -14,7 +14,7 @@ export default function MobileSettingsPage() {
     const supabase = createClient();
     await supabase.auth.signOut();
     clearCache();
-    router.replace('/login');
+    router.replace('/mobile/landing');
   };
 
   return (
