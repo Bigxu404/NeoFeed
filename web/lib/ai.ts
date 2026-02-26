@@ -219,6 +219,142 @@ export async function summarizeDiscoveryItems(
 
 export async function filterDiscoveryItems(items: any[], config: any) { return items; }
 
+export async function extractUserKeywords(
+  feeds: { title: string | null; summary: string | null; user_notes: string | null }[],
+  userConfig?: { apiKey?: string; baseURL?: string; model?: string }
+): Promise<string[]> {
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let rawBaseURL = userConfig?.baseURL || process.env.AI_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+  let model = userConfig?.model || process.env.AI_MODEL || "doubao-seed-1-8-251228"; 
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  if (!apiKey) {
+    console.error('❌ [extractUserKeywords] No API key');
+    return [];
+  }
+
+  const openai = new OpenAI({ apiKey, baseURL });
+
+  const systemPrompt = `你是一个专业的信息分析师。用户会提供他最近阅读的文章和记录的笔记。
+请根据这些内容，提取出代表用户当前兴趣和思考方向的 5 到 10 个核心关键词或短语。
+这些关键词将用于在浩瀚的互联网 RSS 抓取中寻找与之产生共鸣的内容。
+返回的必须是一个合法的 JSON 数组，例如：["关键词1", "关键词2", "短语3"]。严禁输出其他内容。`;
+
+  const contentsToAnalyze = feeds.map(f => {
+    let text = `标题: ${f.title || ''}`;
+    if (f.summary) text += `\n摘要: ${f.summary}`;
+    if (f.user_notes) text += `\n用户思考: ${f.user_notes}`;
+    return text;
+  }).join('\n\n---\n\n');
+
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `以下是用户近期的阅读和思考：\n\n${contentsToAnalyze.slice(0, 8000)}` }
+      ],
+      model,
+      temperature: 0.3,
+      max_tokens: 1024,
+    });
+
+    const raw = completion.choices[0].message.content || '';
+    let keywords: string[] = [];
+
+    try {
+      const jsonMatch = raw.match(/```json\n?([\s\S]*?)```/) || raw.match(/\[[\s\S]*\]/);
+      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : raw;
+      keywords = JSON.parse(jsonStr.trim());
+    } catch (e) {
+      console.error('❌ [Extract Keywords] JSON parse failed:', raw);
+    }
+
+    return Array.isArray(keywords) ? keywords : [];
+  } catch (error: any) {
+    console.error('❌ [Extract Keywords] API Error:', error.message);
+    return [];
+  }
+}
+
+export async function filterRssItemsWithAI(
+  items: { title: string; summary: string; link: string }[],
+  keywords: string[],
+  userConfig?: { apiKey?: string; baseURL?: string; model?: string }
+): Promise<{ title: string; summary: string; link: string; match_reason: string }[]> {
+  if (items.length === 0 || keywords.length === 0) return [];
+
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let rawBaseURL = userConfig?.baseURL || process.env.AI_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+  let model = userConfig?.model || process.env.AI_MODEL || "doubao-seed-1-8-251228"; 
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  if (!apiKey) {
+    console.error('❌ [filterRssItemsWithAI] No API key');
+    return [];
+  }
+
+  const openai = new OpenAI({ apiKey, baseURL });
+
+  const systemPrompt = `你是一个高级智能过滤助手。
+用户当前的核心兴趣关键词为：${JSON.stringify(keywords)}
+
+现在有一批新抓取的 RSS 文章。请根据用户的兴趣关键词，挑选出**最可能与用户产生共鸣或具有互补价值**的文章（通常挑选出 10%-20% 即可，宁缺毋滥）。
+对于每一篇你认为值得推荐的文章，请给出一句简短的推荐理由（说明它与哪个关键词相关或为何推荐）。
+
+请严格按照以下 JSON 数组格式返回结果：
+[
+  {
+    "index": 原文章的索引号(从 0 开始),
+    "match_reason": "推荐理由"
+  }
+]
+严禁输出任何非 JSON 内容。`;
+
+  const itemsList = items.map((item, i) => 
+    `[${i}] 标题: ${item.title}\n摘要: ${(item.summary || '').slice(0, 300)}`
+  ).join('\n\n');
+
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `待筛选文章列表：\n\n${itemsList}` }
+      ],
+      model,
+      temperature: 0.2,
+      max_tokens: 2048,
+    });
+
+    const raw = completion.choices[0].message.content || '';
+    let results: any[] = [];
+    try {
+      const jsonMatch = raw.match(/```json\n?([\s\S]*?)```/) || raw.match(/\[[\s\S]*\]/);
+      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : raw;
+      results = JSON.parse(jsonStr.trim());
+    } catch (e) {
+      console.error('❌ [filterRssItemsWithAI] JSON parse failed:', raw);
+    }
+
+    if (!Array.isArray(results)) return [];
+
+    const filteredItems = [];
+    for (const res of results) {
+      if (typeof res.index === 'number' && res.index >= 0 && res.index < items.length) {
+        filteredItems.push({
+          ...items[res.index],
+          match_reason: res.match_reason || 'AI 智能推荐'
+        });
+      }
+    }
+
+    return filteredItems;
+
+  } catch (error: any) {
+    console.error('❌ [filterRssItemsWithAI] API Error:', error.message);
+    return [];
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // 知识库导语 & 封面生成
 // ═══════════════════════════════════════════════════════
@@ -403,4 +539,76 @@ export async function generateDigestCover(params: {
     console.error(`❌ [generateDigestCover] Error:`, error.message);
     return null;
   }
+}
+
+/**
+ * 根据用户对某篇文章的多条想法/灵感，生成一段「用户对该文章理解的总结」
+ * 用于写入 feeds.user_notes，供 PC/移动端展示为「AI 汇总理解」
+ */
+export async function summarizeUserNotesForFeed(
+  notes: { content: string; created_at?: string }[],
+  feedTitle: string | null,
+  userConfig?: { apiKey?: string; baseURL?: string; model?: string }
+): Promise<string> {
+  if (!notes || notes.length === 0) return '';
+
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let rawBaseURL = userConfig?.baseURL || process.env.AI_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+  let model = userConfig?.model || process.env.AI_MODEL || 'doubao-seed-1-8-251228';
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  if (!apiKey) {
+    console.error('❌ [summarizeUserNotesForFeed] No API key');
+    return notes.map((n) => n.content).join('\n\n');
+  }
+
+  const openai = new OpenAI({ apiKey, baseURL });
+  const notesBlock = notes
+    .map((n, i) => `[${i + 1}] ${n.content}`)
+    .join('\n\n');
+  const systemPrompt = `你是一个阅读助手。用户对一篇文章写下了多条零散的想法和灵感，请将这些想法归纳成一段连贯的「用户对这篇文章的理解总结」，用第三人称或概括性语言，200 字以内。只输出这段总结正文，不要标题、不要编号、不要引用原文。`;
+  const userPrompt = `文章标题：${feedTitle || '无标题'}\n\n用户的想法与灵感：\n\n${notesBlock}`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      model,
+      temperature: 0.4,
+      max_tokens: 512,
+    });
+    const raw = completion.choices[0]?.message?.content?.trim() || '';
+    return raw || notes.map((n) => n.content).join('\n\n');
+  } catch (error: any) {
+    console.error('❌ [summarizeUserNotesForFeed] Error:', error.message);
+    return notes.map((n) => n.content).join('\n\n');
+  }
+}
+
+/**
+ * 通用单轮对话：用用户配置的 API 发送消息并返回助手回复
+ */
+export async function chatCompletion(
+  messages: { role: 'system' | 'user' | 'assistant'; content: string }[],
+  userConfig?: { apiKey?: string; baseURL?: string; model?: string }
+): Promise<string> {
+  let apiKey = userConfig?.apiKey || process.env.SILICONFLOW_API_KEY;
+  let rawBaseURL = userConfig?.baseURL || process.env.AI_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+  let model = userConfig?.model || process.env.AI_MODEL || 'doubao-seed-1-8-251228';
+  let baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
+  if (!apiKey) {
+    throw new Error('未配置 AI API，请在设置中填写 API Key');
+  }
+
+  const openai = new OpenAI({ apiKey, baseURL });
+  const completion = await openai.chat.completions.create({
+    messages,
+    model,
+    temperature: 0.5,
+    max_tokens: 2048,
+  });
+  return completion.choices[0]?.message?.content?.trim() || '';
 }

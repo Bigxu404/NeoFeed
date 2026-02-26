@@ -24,6 +24,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "NeoFeed",
   description: "Feed the Singularity",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "NeoFeed",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({

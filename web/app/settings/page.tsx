@@ -2,15 +2,16 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe, Cpu } from 'lucide-react';
+import { ChevronLeft, Monitor, HardDrive, Shield, AlertTriangle, Terminal, RefreshCw, Power, Globe, Cpu, Rss } from 'lucide-react';
 import AIConfiguration from '@/components/settings/AIConfiguration';
+import RssSubscriptions from '@/components/settings/RssSubscriptions';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { useProfile } from '@/hooks/useProfile';
 import { useFeeds } from '@/hooks/useFeeds';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 // 类型定义
-type TabId = 'display' | 'system' | 'ai' | 'account' | 'danger';
+type TabId = 'display' | 'system' | 'ai' | 'rss' | 'account' | 'danger';
 
 // 模拟设置项组件：开关
 function Switch({ label, checked, onChange, description }: { label: string; checked: boolean; onChange: () => void; description?: string }) {
@@ -86,6 +87,7 @@ export default function SettingsPage() {
     { id: 'display', label: '显示设置', icon: Monitor, desc: '视觉效果参数 Visual Parameters' },
     { id: 'ai', label: '神经核心', icon: Cpu, desc: 'LLM 与 洞察引擎 Core Intelligence' },
     { id: 'system', label: '系统配置', icon: HardDrive, desc: '核心功能设定 Core Configuration' },
+    { id: 'rss', label: '订阅源管理', icon: Rss, desc: '智能 RSS 抓取 Smart RSS Feeds' },
     { id: 'account', label: '账户安全', icon: Shield, desc: '身份与密钥 Identity & Security' },
     { id: 'danger', label: '危险区域', icon: AlertTriangle, desc: '不可逆操作 Irreversible Actions', danger: true },
   ];
@@ -183,6 +185,11 @@ export default function SettingsPage() {
               {/* AI SETTINGS */}
               {activeTab === 'ai' && (
                 <AIConfiguration />
+              )}
+
+              {/* RSS SETTINGS */}
+              {activeTab === 'rss' && (
+                <RssSubscriptions />
               )}
 
               {/* SYSTEM SETTINGS */}

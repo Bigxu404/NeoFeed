@@ -2,11 +2,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Maximize2, Minimize2, Sparkles, Check, Loader2 } from 'lucide-react';
+import { X, Maximize2, Minimize2, Sparkles, Check, Loader2, Quote } from 'lucide-react';
 import { GalaxyItem } from '@/types';
 import { toast } from 'sonner';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import ReactMarkdown from 'react-markdown';
+import { getFeedNotes } from '@/app/dashboard/feed-notes-actions';
+import type { FeedNote } from '@/types/database';
 
 interface DualPaneModalProps {
   isOpen: boolean;
@@ -23,6 +25,8 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
   const [weight, setWeight] = useState(1.0);
   const [isCrystallized, setIsCrystallized] = useState(false);
   const [viewMode, setViewMode] = useState<'ai' | 'original'>('ai');
+  const [feedNotesList, setFeedNotesList] = useState<FeedNote[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
 
   // 获取完整内容
   const { 
@@ -61,28 +65,41 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
 
   useEffect(() => {
     if (isOpen && item) {
-      // 初始化状态，如果 item 中有已保存的数据，则加载
-      setNoteContent(item.user_notes || '');
+      setNoteContent('');
       setSelectedTags(item.user_tags || []);
       setWeight(item.user_weight || 1.0);
-      setIsCrystallized(!!item.user_notes); // 如果有笔记，视为已结晶
+      if (!isDiscovery && item.id) {
+        setNotesLoading(true);
+        getFeedNotes(item.id).then(({ data }) => {
+          setFeedNotesList(data || []);
+          setIsCrystallized((data?.length ?? 0) > 0 || !!item.user_notes);
+          setNotesLoading(false);
+        });
+      } else {
+        setFeedNotesList([]);
+        setIsCrystallized(!!item.user_notes);
+      }
     } else if (!isOpen) {
-      // 关闭时重置，防止闪烁
       setNoteContent('');
       setSelectedTags([]);
       setWeight(1.0);
       setIsCrystallized(false);
+      setFeedNotesList([]);
     }
-  }, [isOpen, item]);
+  }, [isOpen, item, isDiscovery]);
 
-  const handleCrystallizeClick = () => {
+  const handleCrystallizeClick = async () => {
     if (!noteContent.trim() || selectedTags.length === 0) {
       toast.error('请填写笔记内容并选择至少一个标签。');
       return;
     }
-    if (onCrystallize) onCrystallize(noteContent, selectedTags, weight);
+    if (onCrystallize) await onCrystallize(noteContent, selectedTags, weight);
     setIsCrystallized(true);
     toast.success('知识已结晶并存入慢宇宙');
+    if (item?.id && !isDiscovery) {
+      const { data } = await getFeedNotes(item.id);
+      setFeedNotesList(data || []);
+    }
   };
 
   if (!isOpen || !item) return null;
@@ -245,11 +262,47 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
               ${isMaximized ? 'w-1/2' : 'hidden md:block md:w-1/2'}
             `}>
               <h3 className="text-2xl font-bold text-white mb-6">我的思考与总结</h3>
-              
-              {/* 灵感提示 - 已移除预设问题 */}
-              
+
+              {/* AI 汇总理解 */}
+              {item.user_notes && (
+                <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <h4 className="text-xs font-bold text-amber-400/90 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <Quote className="w-3.5 h-3.5" />
+                    AI 汇总理解
+                  </h4>
+                  <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{item.user_notes}</p>
+                </div>
+              )}
+
+              {/* 想法列表 */}
+              {!isDiscovery && (
+                <div className="mb-6">
+                  <h4 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">想法列表</h4>
+                  {notesLoading ? (
+                    <div className="flex items-center gap-2 text-white/40 text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      加载中...
+                    </div>
+                  ) : feedNotesList.length > 0 ? (
+                    <ul className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar">
+                      {feedNotesList.map((note) => (
+                        <li key={note.id} className="p-3 rounded-lg bg-white/5 border border-white/10 text-sm">
+                          <p className="text-white/40 text-xs mb-1">
+                            {new Date(note.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                          <p className="text-white/80 whitespace-pre-wrap">{note.content}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-white/30 text-sm">暂无想法，在下方新增一条</p>
+                  )}
+                </div>
+              )}
+
+              <h4 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-2">新增一条想法</h4>
               <textarea
-                className="w-full h-64 bg-white/5 border border-white/10 rounded-xl p-4 text-base text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all font-mono text-sm"
+                className="w-full h-40 bg-white/5 border border-white/10 rounded-xl p-4 text-base text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all font-mono text-sm"
                 placeholder="写下你的思考、感悟、提炼..."
                 value={noteContent}
                 onChange={(e) => setNoteContent(e.target.value)}

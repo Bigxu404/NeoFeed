@@ -213,15 +213,9 @@ export default function Workbench() {
             toast.error('保存失败: ' + res.error);
           } else {
             toast.success('洞察已结晶');
-            // 更新本地缓存
-            const currentFeed = feeds.find(f => f.id === selectedGalaxyItem.id);
-            if (currentFeed) {
-              updateFeedInCache({
-                ...currentFeed,
-                user_notes: note,
-                user_tags: tags,
-                user_weight: weight
-              });
+            if (res.data) {
+              updateFeedInCache(res.data);
+              setSelectedGalaxyItem(prev => prev && res.data ? { ...prev, user_notes: res.data.user_notes, user_tags: res.data.user_tags, user_weight: res.data.user_weight } : null);
             }
           }
         }}

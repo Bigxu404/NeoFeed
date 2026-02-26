@@ -43,7 +43,7 @@ export const generateWeeklyReport = inngest.createFunction(
       if (reportType === 'insight') {
       const { data: feedData } = await supabase
         .from('feeds')
-        .select('id, title, summary, tags, created_at, category')
+        .select('id, title, summary, tags, created_at, category, source_type')
         .eq('user_id', userId)
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString())
@@ -86,7 +86,7 @@ export const generateWeeklyReport = inngest.createFunction(
       if (!apiKey) throw new Error("No API Key available for generation.");
       const openai = new OpenAI({ apiKey, baseURL });
       
-        const context = dataItems.map((f: any) => `- [手动捕捉][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n');
+        const context = dataItems.map((f: any) => `- [${f.source_type?.startsWith('rss') ? (f.source_type === 'rss_smart' ? 'AI 智能推荐' : 'RSS 抓取') : '手动捕捉'}][${(f.category || 'OTHER').toUpperCase()}] ${f.title}: ${f.summary}`).join('\n');
         const customPrompt = userConfig.insightPrompt || userConfig.prompt || 'You are NeoFeed Intelligence...';
 
       const completion = await openai.chat.completions.create({

@@ -50,6 +50,18 @@ function ActionButtons({ item, onSummarize, onDelete }: { item: FeedItem; onSumm
   );
 }
 
+// ── 智能推荐标识 ──
+function SmartBadge({ item }: { item: FeedItem }) {
+  if (item.source_type !== 'rss_smart') return null;
+  const reason = item.user_notes?.replace('推荐理由:', '') || '智能过滤';
+  return (
+    <div className="flex items-center gap-1.5 mt-3 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-md max-w-full">
+      <Sparkles className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+      <span className="text-[10px] text-blue-300 font-medium truncate">{reason}</span>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════
 // 布局 A：信号矩阵 — tech
 // 三段式：头条 → 精选网格 → 终端信号流
@@ -78,14 +90,15 @@ function TechLayout({ items, onSelectFeed, onSummarize, onDelete }: { items: Fee
                   {new Date(lead.created_at).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
                 </span>
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-white/90 leading-snug group-hover/card:text-white transition-colors mb-3 tracking-tight">
-                {lead.title || 'Untitled'}
-              </h3>
-              {lead.summary && (
-                <p className="text-sm text-white/40 group-hover/card:text-white/60 leading-relaxed line-clamp-2 font-light transition-colors">
-                  {lead.summary}
-                </p>
-              )}
+                <h3 className="text-xl md:text-2xl font-bold text-white/90 leading-snug group-hover/card:text-white transition-colors mb-3 tracking-tight">
+                  {lead.title || 'Untitled'}
+                </h3>
+                {lead.summary && (
+                  <p className="text-sm text-white/40 group-hover/card:text-white/60 leading-relaxed line-clamp-2 font-light transition-colors">
+                    {lead.summary}
+                  </p>
+                )}
+                <SmartBadge item={lead} />
             </div>
             <div className="md:w-44 shrink-0 flex flex-col justify-between">
               <div className="flex flex-wrap gap-1.5 mb-3">
@@ -136,7 +149,8 @@ function TechLayout({ items, onSelectFeed, onSummarize, onDelete }: { items: Fee
                     {item.summary}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-1">
+                <SmartBadge item={item} />
+                <div className="flex flex-wrap gap-1 mt-2">
                   {item.tags?.slice(0, 2).map(tag => (
                     <span key={tag} className="px-1.5 py-0.5 rounded text-[8px] font-mono text-white/20 bg-white/[0.03]">#{tag}</span>
                   ))}
@@ -166,8 +180,11 @@ function TechLayout({ items, onSelectFeed, onSummarize, onDelete }: { items: Fee
               <span className="text-xs text-white/40 font-mono w-12 shrink-0 group-hover/card:text-white/60 transition-colors">
                 {new Date(item.created_at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}
               </span>
-              <h3 className="flex-1 text-sm text-white/60 group-hover/card:text-white/90 transition-colors truncate font-medium">
+              <h3 className="flex-1 text-sm text-white/60 group-hover/card:text-white/90 transition-colors truncate font-medium flex items-center gap-2">
                 {item.title || 'Untitled'}
+                {item.source_type === 'rss_smart' && (
+                  <Sparkles className="w-3 h-3 text-blue-400 shrink-0" title={item.user_notes?.replace('推荐理由:', '') || '智能推荐'} />
+                )}
               </h3>
               <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                 {item.tags?.slice(0, 2).map(tag => (
@@ -242,6 +259,7 @@ function IdeaLayout({ items, onSelectFeed, onSummarize, onDelete }: { items: Fee
                     </p>
                   </div>
                 )}
+                <SmartBadge item={item} />
               </div>
 
               {/* 右侧：摘要 (在桌面端显示在右侧，移动端在下方) */}
@@ -288,7 +306,7 @@ function MosaicLayout({ items, category, onSelectFeed, onSummarize, onDelete }: 
             whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
             transition={{ delay: idx * 0.03 }}
             onClick={() => onSelectFeed(item)}
-            className="group/item cursor-pointer flex flex-col relative p-6 -mx-6 rounded-2xl hover:bg-[#202022] transition-all duration-300"
+            className="group/item cursor-pointer flex flex-col relative p-6 rounded-xl bg-[#202022] border border-white/5 hover:border-white/10 transition-all duration-300"
           >
             {/* 顶部装饰线 - 移除发光效果，改为静态分割线 */}
             {/* <div className={cn("w-12 h-0.5 mb-5 transition-all duration-500 group-hover/item:w-full group-hover/item:opacity-100", style.bg, "opacity-70")} /> */}
@@ -314,13 +332,21 @@ function MosaicLayout({ items, category, onSelectFeed, onSummarize, onDelete }: 
                 </p>
               )}
               
+              <SmartBadge item={item} />
+              
               {/* Footer Tags - 底部对齐 */}
-              <div className="mt-auto pt-2 flex items-center gap-2 opacity-60 group-hover/item:opacity-100 transition-opacity">
-                 {item.tags?.slice(0, 1).map(tag => (
-                  <span key={tag} className="text-[9px] font-mono text-white/30 border border-white/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    {tag}
-                  </span>
-                ))}
+              <div className="mt-auto pt-4 flex items-center justify-between opacity-60 group-hover/item:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2">
+                  {item.tags?.slice(0, 1).map(tag => (
+                    <span key={tag} className="text-[9px] font-mono text-white/30 border border-white/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-white/20 font-mono group-hover/item:text-white/60 transition-colors">
+                  <span>阅读全文</span>
+                  <ArrowRight className="w-3 h-3 group-hover/item:translate-x-1 transition-transform" />
+                </div>
               </div>
             </div>
 
@@ -363,10 +389,17 @@ function DefaultLayout({ items, category, onSelectFeed, onSummarize, onDelete }:
             <h3 className="font-serif font-bold text-white/90 leading-snug mb-3 group-hover/card:text-white transition-colors text-base line-clamp-2">
               {item.title || 'Untitled'}
             </h3>
-            <div className="flex flex-wrap gap-2 mt-auto pt-2">
-              {item.tags?.slice(0, 2).map(tag => (
-                <span key={tag} className="px-2 py-0.5 rounded text-[9px] font-mono bg-white/5 text-white/40 transition-colors">#{tag}</span>
-              ))}
+            <SmartBadge item={item} />
+            <div className="flex items-center justify-between mt-auto pt-4 opacity-60 group-hover/card:opacity-100 transition-opacity">
+              <div className="flex flex-wrap gap-2">
+                {item.tags?.slice(0, 2).map(tag => (
+                  <span key={tag} className="px-2 py-0.5 rounded text-[9px] font-mono bg-white/5 text-white/40 transition-colors">#{tag}</span>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-white/20 font-mono group-hover/card:text-white/60 transition-colors">
+                <span>阅读全文</span>
+                <ArrowRight className="w-3 h-3 group-hover/card:translate-x-1 transition-transform" />
+              </div>
             </div>
           </div>
           <ActionButtons item={item} onSummarize={onSummarize} onDelete={onDelete} />

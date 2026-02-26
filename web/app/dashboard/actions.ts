@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Database } from '@/types/database';
 import { AIConfig } from '@/types/index'; // 🚀 引入类型
+import { createFeedNote } from '@/app/dashboard/feed-notes-actions';
 
 export type FeedItem = Database['public']['Tables']['feeds']['Row'];
 
@@ -230,16 +231,21 @@ export async function summarizeFeed(feedId: string) {
   }
 }
 
-export async function crystallizeFeed(feedId: string, notes: string, tags: string[], weight: number) {
+export async function crystallizeFeed(feedId: string, notes: string, tags: string[], weight: number): Promise<{ success?: boolean; data?: FeedItem; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return { error: 'Unauthorized' };
 
+  const { error: noteError } = await createFeedNote(feedId, notes, null);
+  if (noteError) {
+    console.error('Error creating feed note:', noteError);
+    return { error: noteError };
+  }
+
   const { data, error } = await supabase
     .from('feeds')
     .update({
-      user_notes: notes,
       user_tags: tags,
       user_weight: weight,
     })
@@ -249,11 +255,11 @@ export async function crystallizeFeed(feedId: string, notes: string, tags: strin
     .single();
 
   if (error) {
-    console.error('Error crystallizing feed:', error);
+    console.error('Error updating feed tags/weight:', error);
     return { error: error.message };
   }
 
-  return { success: true, data };
+  return { success: true, data: data as FeedItem };
 }
 
 export async function processUrl(url: string) {

@@ -132,9 +132,13 @@ export default function IntelligenceStream({ onFeed, onSelectItem }: {
                                             <h3 className="text-xl font-bold text-white/90 group-hover:text-cyan-400 transition-colors leading-tight tracking-tight">
                                                 {item.title}
                                             </h3>
-                                            {/* 展示“一句话总结” */}
-                                            <p className="text-[15px] text-cyan-400/80 font-medium leading-relaxed italic">
-                                                “{item.reason}”
+                                            {/* 展示“一句话总结”或“智能推荐理由” */}
+                                            <p className={cn(
+                                                "text-[15px] font-medium leading-relaxed italic flex items-start gap-2",
+                                                item.reason?.includes('[智能匹配]') ? "text-blue-400/90 bg-blue-500/10 px-3 py-2 rounded-lg border border-blue-500/20" : "text-cyan-400/80"
+                                            )}>
+                                                {item.reason?.includes('[智能匹配]') && <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-blue-400" />}
+                                                <span>“{item.reason?.replace('[智能匹配] ', '')}”</span>
                                             </p>
                                         </div>
 

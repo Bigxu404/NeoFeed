@@ -137,14 +137,11 @@ export default function HistoryPage() {
             toast.error('保存失败: ' + res.error);
           } else {
             toast.success('知识已结晶并存入慢宇宙');
-            // 更新本地状态
-            setItems(prev => prev.map(item => 
-              item.id === selectedItem.id 
-                ? { ...item, user_notes: note, user_tags: tags, user_weight: weight }
-                : item
+            const updatedNotes = res.data?.user_notes ?? note;
+            setItems(prev => prev.map(item =>
+              item.id === selectedItem.id ? { ...item, user_notes: updatedNotes, user_tags: tags, user_weight: weight } : item
             ));
-            // 更新选中项，确保弹窗不闪烁
-            setSelectedItem(prev => prev ? { ...prev, user_notes: note, user_tags: tags, user_weight: weight } : null);
+            setSelectedItem(prev => prev ? { ...prev, user_notes: updatedNotes, user_tags: tags, user_weight: weight } : null);
           }
         }}
       />

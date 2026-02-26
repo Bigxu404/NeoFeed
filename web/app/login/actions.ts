@@ -20,7 +20,8 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  const to = (formData.get('redirect') as string)?.trim()
+  redirect(to && to.startsWith('/') ? to : '/dashboard')
 }
 
 export async function signup(formData: FormData) {

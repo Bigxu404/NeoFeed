@@ -24,7 +24,8 @@ export async function getDiscoveryItems() {
     .from('discovery_stream')
     .select('*')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(30);
 
   if (error) {
     console.error('Error fetching discovery items:', error);
@@ -32,6 +33,69 @@ export async function getDiscoveryItems() {
   }
 
   return { data: data as DiscoveryItem[], error: null };
+}
+
+export async function discardDiscoveryItem(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Unauthorized' };
+
+  const { error } = await supabase
+    .from('discovery_stream')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath('/mobile');
+  return { success: true };
+}
+
+export async function saveDiscoveryItemToFeeds(id: string, userNotes?: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Unauthorized' };
+
+  // 1. Fetch the discovery item
+  const { data: item, error: fetchError } = await supabase
+    .from('discovery_stream')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+
+  if (fetchError || !item) return { error: fetchError?.message || 'Item not found' };
+
+  // 2. Insert into feeds table
+  const insertData = {
+    user_id: user.id,
+    url: item.url,
+    title: item.title,
+    summary: item.summary,
+    content_raw: item.summary, // We use summary as content if raw isn't available
+    user_notes: userNotes || '',
+    category: item.category || 'idea',
+    source_type: item.reason?.includes('[智能匹配]') ? 'rss_smart' : 'rss',
+    status: 'done' // Auto mark as done
+  };
+
+  const { error: insertError } = await supabase
+    .from('feeds')
+    .insert([insertData]);
+
+  if (insertError) return { error: insertError.message };
+
+  // 3. Delete from discovery_stream
+  const { error: deleteError } = await supabase
+    .from('discovery_stream')
+    .delete()
+    .eq('id', id);
+
+  if (deleteError) return { error: deleteError.message };
+
+  revalidatePath('/mobile');
+  revalidatePath('/galaxy');
+  return { success: true };
 }
 
 // 订阅源管理

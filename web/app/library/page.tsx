@@ -78,18 +78,10 @@ export default function LibraryPage() {
       toast.error('保存失败: ' + res.error);
     } else {
       toast.success('洞察已结晶');
-      // Update local cache to reflect changes instantly
-      const currentFeed = feeds.find(f => f.id === selectedGalaxyItem.id);
-      if (currentFeed) {
-        updateFeedInCache({
-          ...currentFeed,
-          user_notes: note,
-          user_tags: tags,
-          user_weight: weight
-        });
+      if (res.data) {
+        updateFeedInCache(res.data);
+        setSelectedGalaxyItem(prev => prev ? { ...prev, user_notes: res.data!.user_notes, user_tags: tags, user_weight: weight } : null);
       }
-      // Update selected item so modal doesn't flicker/reset incorrectly
-      setSelectedGalaxyItem(prev => prev ? { ...prev, user_notes: note, user_tags: tags, user_weight: weight } : null);
     }
   };
 

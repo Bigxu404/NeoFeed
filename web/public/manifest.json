@@ -1,0 +1,17 @@
+{
+  "name": "NeoFeed",
+  "short_name": "NeoFeed",
+  "description": "Feed the Singularity",
+  "start_url": "/mobile",
+  "display": "standalone",
+  "background_color": "#05020a",
+  "theme_color": "#05020a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

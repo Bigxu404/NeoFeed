@@ -100,6 +100,58 @@ export interface Database {
           user_weight?: number | null
         }
       }
+      rss_subscriptions: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          feed_url: string
+          title: string | null
+          mode: 'all' | 'smart'
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          feed_url: string
+          title?: string | null
+          mode?: 'all' | 'smart'
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string
+          feed_url?: string
+          title?: string | null
+          mode?: 'all' | 'smart'
+        }
+      }
+      feed_notes: {
+        Row: {
+          id: string
+          feed_id: string
+          user_id: string
+          content: string
+          selected_text: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          feed_id: string
+          user_id: string
+          content: string
+          selected_text?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          feed_id?: string
+          user_id?: string
+          content?: string
+          selected_text?: string | null
+          created_at?: string
+        }
+      }
       weekly_reports: {
         Row: {
           id: string
@@ -139,5 +191,7 @@ export interface Database {
 // Helper types for easier consumption
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Feed = Database['public']['Tables']['feeds']['Row']
+export type FeedNote = Database['public']['Tables']['feed_notes']['Row']
 export type WeeklyReport = Database['public']['Tables']['weekly_reports']['Row']
+export type RssSubscription = Database['public']['Tables']['rss_subscriptions']['Row']
 

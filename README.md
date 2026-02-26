@@ -68,7 +68,21 @@ npm install
 npm run dev
 ```
 
-前端运行在 `http://localhost:3000`
+前端运行在 `http://localhost:3000`。
+
+**局域网访问（手机/其他电脑同 WiFi）：**
+
+```bash
+cd web
+npm run dev:lan:safe   # 推荐：自动提高「打开文件数」再启动，避免 404/白屏
+# 或
+npm run dev:lan        # 若你已在当前终端执行过 ulimit -n 10240
+```
+
+- 本机：<http://localhost:3000>
+- 局域网：<http://你的本机IP:3000>（如 `ifconfig | grep "inet "` 查看）
+
+若出现 404 或白屏，多半是 Mac 默认「打开文件数」不够，用 `dev:lan:safe` 即可。想一劳永逸可在 `~/.zshrc` 末尾加一行：`ulimit -n 10240`，然后新开终端用 `npm run dev:lan`。
 
 ### 5. 访问应用
 
