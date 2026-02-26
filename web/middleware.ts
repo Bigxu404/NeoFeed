@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   // 局域网访问：不跑 Supabase updateSession，避免手机端因会话校验/网络挂起一直加载；只做根路径重定向
   if (!isLocalhost) {
     if (request.nextUrl.pathname === '/') {
-      const path = isMobile ? '/mobile' : '/landing'
+      const path = isMobile ? '/mobile/landing' : '/landing'
       const port = request.nextUrl.port || '3000'
       const protocol = request.nextUrl.protocol
       // 公网域名（如 www.neofeed.cn）或标准端口：URL 中不带端口，避免出现 https://www.neofeed.cn:3000
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   if (isMobile && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
-    url.pathname = '/mobile'
+    url.pathname = '/mobile/landing'
     const rewriteResponse = NextResponse.rewrite(url)
     response.cookies.getAll().forEach((cookie) => {
       rewriteResponse.cookies.set(cookie.name, cookie.value)
