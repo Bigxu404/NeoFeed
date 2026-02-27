@@ -95,6 +95,7 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
     }
     if (onCrystallize) await onCrystallize(noteContent, selectedTags, weight);
     setIsCrystallized(true);
+    setNoteContent(''); // 清空输入，便于继续新建下一条
     toast.success('知识已结晶并存入慢宇宙');
     if (item?.id && !isDiscovery) {
       const { data } = await getFeedNotes(item.id);
@@ -351,16 +352,16 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
 
               <button
                 onClick={handleCrystallizeClick}
-                disabled={isCrystallized || !noteContent.trim() || selectedTags.length === 0}
+                disabled={!noteContent.trim() || selectedTags.length === 0}
                 className={`
                   mt-8 w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all
-                  ${isCrystallized 
-                    ? 'bg-green-600 text-white cursor-not-allowed' 
+                  ${isCrystallized && !noteContent.trim()
+                    ? 'bg-green-600 text-white'
                     : 'bg-white/10 text-white/80 hover:bg-white/20'}
                   ${(!noteContent.trim() || selectedTags.length === 0) && 'opacity-50 cursor-not-allowed'}
                 `}
               >
-                {isCrystallized ? (
+                {isCrystallized && !noteContent.trim() ? (
                   <>
                     <Check className="w-4 h-4" />
                     <span>已结晶</span>
