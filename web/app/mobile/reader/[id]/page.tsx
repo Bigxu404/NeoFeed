@@ -56,6 +56,34 @@ export default function MobileReaderPage() {
   const [assistantInput, setAssistantInput] = useState('');
   const [assistantLoading, setAssistantLoading] = useState(false);
   const [assistantInputFocused, setAssistantInputFocused] = useState(false);
+  // 键盘弹起时 Visual Viewport 的可视高度与顶部偏移，用于固定卡片在可视区域内
+  const [visualHeight, setVisualHeight] = useState<number | null>(null);
+  const [visualOffsetTop, setVisualOffsetTop] = useState(0);
+
+  // 监听 Visual Viewport 变化（键盘弹起/收起），驱动 Neo-AI 卡片位置与高度
+  useEffect(() => {
+    if (!assistantOpen || typeof window === 'undefined' || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const sync = () => {
+      setVisualHeight(vv.height);
+      setVisualOffsetTop(vv.offsetTop);
+    };
+    sync();
+    vv.addEventListener('resize', sync);
+    vv.addEventListener('scroll', sync);
+    return () => {
+      vv.removeEventListener('resize', sync);
+      vv.removeEventListener('scroll', sync);
+    };
+  }, [assistantOpen]);
+
+  // 关闭浮层时清空，避免下次打开沿用旧值
+  useEffect(() => {
+    if (!assistantOpen) {
+      setVisualHeight(null);
+      setVisualOffsetTop(0);
+    }
+  }, [assistantOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -482,7 +510,7 @@ export default function MobileReaderPage() {
         )}
       </AnimatePresence>
 
-      {/* 半屏 Neo-AI 对话：浮动卡片，与屏幕边缘留距，键盘弹起时顶部不挤压 */}
+      {/* 半屏 Neo-AI 对话：浮动卡片，键盘弹起时用 Visual Viewport 保证输入框在可视区内 */}
       <AnimatePresence>
         {assistantOpen && (
           <>
@@ -498,15 +526,31 @@ export default function MobileReaderPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-              className="fixed left-4 right-4 bottom-4 z-[60] flex flex-col rounded-[24px] bg-[#FAFAFA] shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
-              style={{
-                ...(assistantInputFocused ? { top: 'max(env(safe-area-inset-top), 1rem)' } : {}),
-                maxHeight: assistantInputFocused
-                  ? 'min(55vh, calc(100vh - env(safe-area-inset-top) - 2rem - 2rem))'
-                  : 'min(55vh, calc(100vh - env(safe-area-inset-top) - 3rem))',
-                minHeight: '280px',
-                paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
-              }}
+              className="fixed left-4 right-4 z-[60] flex flex-col rounded-[24px] bg-[#FAFAFA] shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
+              style={
+                assistantInputFocused && visualHeight != null
+                  ? {
+                      top: `${visualOffsetTop + 16}px`,
+                      bottom: 'auto',
+                      maxHeight: `${Math.max(240, visualHeight - 32)}px`,
+                      minHeight: '240px',
+                      paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
+                    }
+                  : assistantInputFocused
+                    ? {
+                        top: 'max(env(safe-area-inset-top), 1rem)',
+                        bottom: 'auto',
+                        maxHeight: 'min(55vh, calc(100vh - env(safe-area-inset-top) - 2rem - 2rem))',
+                        minHeight: '280px',
+                        paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
+                      }
+                    : {
+                        bottom: '1rem',
+                        maxHeight: 'min(55vh, calc(100vh - env(safe-area-inset-top) - 3rem))',
+                        minHeight: '280px',
+                        paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
+                      }
+              }
             >
               {/* 拖拽条，与卡片顶边保持正常间距 */}
               <div className="flex justify-center pt-3 pb-1 shrink-0">
