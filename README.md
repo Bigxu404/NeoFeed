@@ -12,55 +12,40 @@ NeoFeed 是一个个人信息管理系统，帮助你：
 
 ## 🏗️ 技术架构
 
+当前以 **Web 为主**：主应用在 `web/`（Next.js + Supabase + Inngest），旧 Python 后端与旧前端已迁至 `legacy_engine/`。
+
 ```
 NeoFeed/
-├── core/              # 核心模块（可复用）
-│   ├── config.py      # 配置管理
-│   ├── database.py    # 数据库操作
-│   ├── fetcher.py     # 网页抓取
-│   └── processor.py   # AI 处理
-├── api/               # FastAPI 后端
-│   └── main.py        # API 服务
-├── web/               # Next.js 前端
-│   ├── app/           # 页面
-│   └── components/    # 组件
-└── database/          # 数据库
-    ├── schema.sql     # 表结构
-    └── init_db.py     # 初始化脚本
+├── web/               # 主应用（Next.js 16, App Router）
+│   ├── app/           # 页面与 API 路由
+│   ├── components/    # UI 组件
+│   ├── lib/           # Supabase、AI、工具函数
+│   ├── inngest/       # 定时与异步任务
+│   └── supabase/      # 迁移与类型
+├── legacy_engine/     # 遗留（可选）
+│   ├── core/          # Python 核心模块
+│   ├── api/           # FastAPI 服务
+│   ├── database/      # 旧数据库脚本
+│   └── Figma1/        # 旧 Vite 前端
+├── docs/              # 项目文档
+└── .agent-skills/     # Cursor 技能（独立仓库）
 ```
 
 ## 🚀 快速开始
 
 ### 1. 环境要求
 
-- Python 3.9+
 - Node.js 18+
-- npm/yarn
+- npm / yarn / pnpm
 
-### 2. 数据库初始化
-
-```bash
-cd database
-python init_db.py
-```
-
-### 3. 启动后端 API
+### 2. 环境变量
 
 ```bash
-# 安装 Python 依赖
-pip install -r requirements.txt
-
-# 配置环境变量（可选）
 cp .env.example .env
-
-# 启动 FastAPI 服务
-cd api
-python main.py
+# 编辑 .env，配置 Supabase（NEXT_PUBLIC_SUPABASE_URL、SUPABASE_SERVICE_ROLE_KEY 等）
 ```
 
-后端运行在 `http://localhost:8000`
-
-### 4. 启动前端
+### 3. 启动前端（主应用）
 
 ```bash
 cd web
@@ -68,9 +53,9 @@ npm install
 npm run dev
 ```
 
-前端运行在 `http://localhost:3000`。
+应用运行在 `http://localhost:3000`。数据库与认证由 Supabase 提供，无需单独启动 Python 后端。
 
-**局域网访问（手机/其他电脑同 WiFi）：**
+### 4. 局域网访问（手机/其他电脑同 WiFi）
 
 ```bash
 cd web
@@ -108,66 +93,38 @@ npm run dev:lan        # 若你已在当前终端执行过 ulimit -n 10240
 
 ## 🛠️ 开发指南
 
-### API 端点
+### 主应用 API（Next.js 路由）
 
-```
-GET  /                    # 欢迎页
-GET  /health              # 健康检查
-POST /api/items           # 保存信息
-GET  /api/items           # 获取列表
-GET  /api/items/{id}      # 获取详情
-GET  /api/stats           # 统计数据
-POST /api/items/{id}/process  # AI 处理
-```
+主要接口在 `web/app/api/`，例如：
+- `GET/POST /api/feed/[id]` - 单条 Feed
+- `POST /api/ingest-url` - 抓取并入库 URL
+- `POST /api/process-feed` - 触发 AI 处理
+- `GET /api/galaxy` - 星系数据
+- `GET/POST /api/settings/rss` - RSS 订阅
+- Cron：`/api/cron/fetch-rss`、`/api/cron/extract-keywords`
+- Inngest：`/api/inngest`（后台任务）
 
 ### 数据库
 
-使用 SQLite，位于 `database/neofeed.db`
+使用 **Supabase (PostgreSQL)**。表结构见 `web/supabase/migrations/` 与 `web/types/database.ts`。
 
-核心表：
-- `users` - 用户
-- `items` - 信息条目
-- `ai_results` - AI 处理结果
-- `tags` - 标签
-- `weekly_reports` - 周报
-
-详见 `database/schema.sql`
+核心表：`profiles`、`feeds`、`feed_notes` 等。
 
 ### 配置说明
 
-**后端配置** (`.env`)：
-- `OPENAI_API_KEY` - OpenAI API 密钥（可选）
-- `ENABLE_AI_PROCESSING` - 是否启用 AI 处理
-- `ENABLE_WEB_SCRAPING` - 是否启用网页抓取
+根目录 `.env` / `web/.env.local` 常用变量：
+- `NEXT_PUBLIC_SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY` - Supabase
+- `OPENAI_API_KEY` 或各 AI 提供商 - 摘要/分类
+- `INNGEST_EVENT_KEY`、`INNGEST_SIGNING_KEY` - 定时与异步任务
 
-**前端配置** (`web/.env.local`)：
-- `NEXT_PUBLIC_API_URL` - 后端 API 地址
+详见 `.env.example`。
 
 ## 📦 技术栈
 
-### 后端
-- **框架**: FastAPI
-- **数据库**: SQLite (开发) / PostgreSQL (生产)
-- **AI**: OpenAI GPT-4o-mini
-- **抓取**: Jina Reader API
-
-### 前端
-- **框架**: Next.js 14 (App Router)
-- **语言**: TypeScript
-- **样式**: Tailwind CSS
-- **状态**: React Hooks
-
-## 🧪 测试
-
-```bash
-# 测试后端 API
-curl http://localhost:8000/health
-
-# 测试保存文本
-curl -X POST http://localhost:8000/api/items \
-  -H "Content-Type: application/json" \
-  -d '{"content": "这是一条测试信息", "enable_ai": false}'
-```
+- **前端**: Next.js 16 (App Router)、React 19、TypeScript、Tailwind CSS
+- **后端/数据**: Supabase（PostgreSQL、Auth）
+- **任务**: Inngest（定时抓取、周报等）
+- **AI**: OpenAI / 多提供商（见设置）
 
 ## 📝 更新日志
 
