@@ -381,9 +381,9 @@ export default function MobileReaderPage() {
               </div>
               <div className="flex-1 overflow-hidden flex flex-col min-h-0">
                 <div
-                  className={`flex overflow-x-auto snap-x snap-mandatory gap-5 px-5 py-5 flex-1 min-h-0 ${!notesLoading && notes.length === 0 ? 'justify-center' : ''}`}
+                  className={`flex overflow-x-auto snap-x snap-mandatory gap-5 px-5 py-5 flex-1 min-h-0 ${notes.length === 0 ? 'justify-center' : ''}`}
                 >
-                  {/* 第一张：新建想法卡片（立即展示，不等待笔记加载） */}
+                  {/* 第一张：新建想法卡片（立即展示；无笔记时仅此一卡，始终居中不跳动） */}
                   <div className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center snap-always flex flex-col min-h-0">
                       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1 flex flex-col min-h-0 overflow-hidden">
                         {selectedQuote ? (
@@ -401,6 +401,12 @@ export default function MobileReaderPage() {
                           placeholder="输入你的观点或想法"
                           className="flex-1 min-h-[120px] w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10 focus:bg-white resize-none"
                         />
+                        {notesLoading && notes.length === 0 ? (
+                          <div className="mt-3 flex items-center justify-center gap-2 text-gray-400 text-sm">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            加载历史想法…
+                          </div>
+                        ) : null}
                         <button
                           onClick={handleSaveNote}
                           disabled={!noteInput.trim() || saving}
@@ -411,12 +417,6 @@ export default function MobileReaderPage() {
                         </button>
                       </div>
                     </div>
-                  {/* 加载中时占位，不阻塞表单展示 */}
-                  {notesLoading && (
-                    <div className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center flex items-center justify-center min-h-[200px]">
-                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                    </div>
-                  )}
                   {/* 已有记录卡片：左右滑动查看，支持编辑/删除 */}
                   {!notesLoading && notes.map((note) => (
                       <div
