@@ -4,42 +4,42 @@ import useSWR from 'swr';
 import { getFeeds, getFeedsCount } from '@/app/dashboard/actions';
 import type { FeedItem } from '@/app/dashboard/actions';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const FEEDS_KEY = 'api/feeds';
 const FEEDS_COUNT_KEY = 'api/feeds/count';
 const CACHE_KEY = 'neofeed_feeds_cache';
 const COUNT_CACHE_KEY = 'neofeed_feeds_count_cache';
 
+function getCachedFeeds(): FeedItem[] {
+    if (typeof window === 'undefined') return [];
+    try {
+        const c = localStorage.getItem(CACHE_KEY);
+        return c ? JSON.parse(c) : [];
+    } catch {
+        return [];
+    }
+}
+
+function getCachedCount(): number {
+    if (typeof window === 'undefined') return 0;
+    const c = localStorage.getItem(COUNT_CACHE_KEY);
+    return c ? parseInt(c, 10) || 0 : 0;
+}
+
 export function useFeeds() {
     const [isOffline, setIsOffline] = useState(false);
 
-    // 1. Initial sync with localStorage
-    const [initialData, setInitialData] = useState<FeedItem[]>([]);
-    const [initialCount, setInitialCount] = useState<number>(0);
-    
+    // 首帧就从 localStorage 注入，列表页和阅读页打开即显示缓存，无需等请求
+    const [initialData] = useState<FeedItem[]>(() => getCachedFeeds());
+    const [initialCount] = useState<number>(() => getCachedCount());
+
     useEffect(() => {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-            try {
-                setInitialData(JSON.parse(cached));
-            } catch (e) {
-                console.error('Failed to parse feeds cache', e);
-            }
-        }
-
-        const cachedCount = localStorage.getItem(COUNT_CACHE_KEY);
-        if (cachedCount) {
-            setInitialCount(parseInt(cachedCount, 10) || 0);
-        }
-
-        // 监听在线状态
         const handleOnline = () => setIsOffline(false);
         const handleOffline = () => setIsOffline(true);
-        
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
         setIsOffline(!navigator.onLine);
-
         return () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
@@ -49,12 +49,23 @@ export function useFeeds() {
     const fetcherWithRetry = async (): Promise<FeedItem[]> => {
         const res = await getFeeds();
         if (res.error) {
-            // PWA 冷启动时 Server Action 首次请求可能未带 cookie，延迟重试一次
             if (res.error === 'Unauthorized' || res.error.includes('Unauthorized')) {
                 await new Promise((r) => setTimeout(r, 800));
                 const retry = await getFeeds();
-                if (retry.error) throw new Error(retry.error);
+                if (retry.error) {
+                    const cached = getCachedFeeds();
+                    if (cached.length > 0) {
+                        toast.info('网络异常，显示的是上次缓存');
+                        return cached;
+                    }
+                    throw new Error(retry.error);
+                }
                 return retry.data || [];
+            }
+            const cached = getCachedFeeds();
+            if (cached.length > 0) {
+                toast.info('网络异常，显示的是上次缓存');
+                return cached;
             }
             throw new Error(res.error);
         }
@@ -77,9 +88,15 @@ export function useFeeds() {
             if (res.error === 'Unauthorized' || String(res.error).includes('Unauthorized')) {
                 await new Promise((r) => setTimeout(r, 800));
                 const retry = await getFeedsCount();
-                if (retry.error) throw new Error(retry.error);
+                if (retry.error) {
+                    const cached = getCachedCount();
+                    if (cached > 0) return cached;
+                    throw new Error(retry.error);
+                }
                 return retry.data ?? 0;
             }
+            const cached = getCachedCount();
+            if (cached > 0) return cached;
             throw new Error(res.error);
         }
         return res.data ?? 0;
