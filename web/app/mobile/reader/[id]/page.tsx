@@ -380,14 +380,11 @@ export default function MobileReaderPage() {
                 <button onClick={() => setDrawerOpen(false)} className="p-2 -m-2 text-gray-500 font-medium">关闭</button>
               </div>
               <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-                {notesLoading ? (
-                  <div className="flex items-center justify-center flex-1">
-                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                  </div>
-                ) : (
-                  <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 px-5 py-5 flex-1 min-h-0">
-                    {/* 第一张：新建想法卡片 */}
-                    <div className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center snap-always flex flex-col min-h-0">
+                <div
+                  className={`flex overflow-x-auto snap-x snap-mandatory gap-5 px-5 py-5 flex-1 min-h-0 ${!notesLoading && notes.length === 0 ? 'justify-center' : ''}`}
+                >
+                  {/* 第一张：新建想法卡片（立即展示，不等待笔记加载） */}
+                  <div className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center snap-always flex flex-col min-h-0">
                       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1 flex flex-col min-h-0 overflow-hidden">
                         {selectedQuote ? (
                           <QuoteBlock
@@ -414,8 +411,14 @@ export default function MobileReaderPage() {
                         </button>
                       </div>
                     </div>
-                    {/* 已有记录卡片：左右滑动查看，支持编辑/删除 */}
-                    {notes.map((note) => (
+                  {/* 加载中时占位，不阻塞表单展示 */}
+                  {notesLoading && (
+                    <div className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center flex items-center justify-center min-h-[200px]">
+                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                    </div>
+                  )}
+                  {/* 已有记录卡片：左右滑动查看，支持编辑/删除 */}
+                  {!notesLoading && notes.map((note) => (
                       <div
                         key={note.id}
                         className="flex-shrink-0 w-[calc(100%-2rem)] max-w-lg snap-center snap-always flex flex-col min-h-0"
@@ -502,8 +505,7 @@ export default function MobileReaderPage() {
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
+                </div>
               </div>
             </motion.div>
           </>
