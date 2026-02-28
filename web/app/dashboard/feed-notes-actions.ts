@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { FeedNote } from '@/types/database';
+import type { AIConfig } from '@/types/index';
 import { summarizeUserNotesForFeed } from '@/lib/ai';
 
 export async function getFeedNotes(feedId: string): Promise<{ data: FeedNote[]; error: string | null }> {
@@ -40,6 +41,17 @@ export async function syncFeedNotesSummaryToFeed(
 
   if (!user) return { data: null, error: 'Unauthorized' };
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('ai_config')
+    .eq('id', user.id)
+    .single();
+
+  const aiConfig = (profile?.ai_config as AIConfig) || null;
+  if (!aiConfig?.apiKey) {
+    return { data: null, error: '未配置 AI API，请在设置中填写 API Key 后生成总结' };
+  }
+
   const { data: feedRow } = await supabase
     .from('feeds')
     .select('title')
@@ -56,7 +68,11 @@ export async function syncFeedNotesSummaryToFeed(
 
   const summary =
     notes && notes.length > 0
-      ? await summarizeUserNotesForFeed(notes, feedRow?.title ?? null)
+      ? await summarizeUserNotesForFeed(notes, feedRow?.title ?? null, {
+          apiKey: aiConfig.apiKey,
+          baseURL: aiConfig.baseURL,
+          model: aiConfig.model,
+        })
       : '';
 
   const { error: updateError } = await supabase
