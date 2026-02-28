@@ -219,6 +219,12 @@ export default function Workbench() {
             }
           }
         }}
+        onSummaryGenerated={(feedId, userNotes) => {
+          if (!selectedGalaxyItem || selectedGalaxyItem.id !== feedId) return;
+          const updated = { ...selectedGalaxyItem, user_notes: userNotes ?? undefined };
+          updateFeedInCache(updated);
+          setSelectedGalaxyItem(updated);
+        }}
       />
 
       <AnimatePresence>

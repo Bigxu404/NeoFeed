@@ -241,6 +241,12 @@ export default function LibraryPage() {
         onClose={() => setSelectedGalaxyItem(null)}
         item={selectedGalaxyItem}
         onCrystallize={handleCrystallize}
+        onSummaryGenerated={(feedId, userNotes) => {
+          if (!selectedGalaxyItem || selectedGalaxyItem.id !== feedId) return;
+          const updated = { ...selectedGalaxyItem, user_notes: userNotes ?? undefined };
+          updateFeedInCache(updated);
+          setSelectedGalaxyItem(updated);
+        }}
       />
     </div>
   );

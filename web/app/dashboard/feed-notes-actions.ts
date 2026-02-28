@@ -27,15 +27,18 @@ export async function getFeedNotes(feedId: string): Promise<{ data: FeedNote[]; 
 }
 
 /**
- * 根据该 feed 下所有 feed_notes 调用 AI 生成总结，写入 feeds.user_notes
+ * 根据该 feed 下所有 feed_notes 调用 AI 生成总结，写入 feeds.user_notes。
+ * 仅由用户点击「生成总结」触发，不再在增删改想法时自动调用。
  */
-export async function syncFeedNotesSummaryToFeed(feedId: string): Promise<{ error: string | null }> {
+export async function syncFeedNotesSummaryToFeed(
+  feedId: string
+): Promise<{ data: { user_notes: string | null } | null; error: string | null }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: 'Unauthorized' };
+  if (!user) return { data: null, error: 'Unauthorized' };
 
   const { data: feedRow } = await supabase
     .from('feeds')
@@ -64,9 +67,9 @@ export async function syncFeedNotesSummaryToFeed(feedId: string): Promise<{ erro
 
   if (updateError) {
     console.error('syncFeedNotesSummaryToFeed update error:', updateError);
-    return { error: updateError.message };
+    return { data: null, error: updateError.message };
   }
-  return { error: null };
+  return { data: { user_notes: summary || null }, error: null };
 }
 
 export async function createFeedNote(
@@ -106,11 +109,6 @@ export async function createFeedNote(
     return { data: null, error: insertError.message };
   }
 
-  const syncRes = await syncFeedNotesSummaryToFeed(feedId);
-  if (syncRes.error) {
-    return { data: inserted as FeedNote, error: null };
-  }
-
   return { data: inserted as FeedNote, error: null };
 }
 
@@ -144,7 +142,6 @@ export async function updateFeedNote(noteId: string, content: string): Promise<{
     return { data: null, error: updateError.message };
   }
 
-  await syncFeedNotesSummaryToFeed(existing.feed_id);
   return { data: updated as FeedNote, error: null };
 }
 
@@ -176,6 +173,5 @@ export async function deleteFeedNote(noteId: string): Promise<{ feedId: string |
     return { feedId: null, error: deleteError.message };
   }
 
-  await syncFeedNotesSummaryToFeed(existing.feed_id);
   return { feedId: existing.feed_id, error: null };
 }

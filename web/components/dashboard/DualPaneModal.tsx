@@ -2,12 +2,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Maximize2, Minimize2, Sparkles, Check, Loader2, Quote } from 'lucide-react';
+import { X, Maximize2, Minimize2, Sparkles, Check, Loader2, Quote, RefreshCw } from 'lucide-react';
 import { GalaxyItem } from '@/types';
 import { toast } from 'sonner';
 import { useFeedContent } from '@/hooks/useFeedContent';
 import ReactMarkdown from 'react-markdown';
-import { getFeedNotes } from '@/app/dashboard/feed-notes-actions';
+import { getFeedNotes, syncFeedNotesSummaryToFeed } from '@/app/dashboard/feed-notes-actions';
 import type { FeedNote } from '@/types/database';
 
 interface DualPaneModalProps {
@@ -15,10 +15,11 @@ interface DualPaneModalProps {
   onClose: () => void;
   item: GalaxyItem | null;
   onCrystallize?: (note: string, tags: string[], weight: number) => void;
-  isDiscovery?: boolean; // 🌟 新增：标记是否为发现流内容
+  onSummaryGenerated?: (feedId: string, userNotes: string | null) => void;
+  isDiscovery?: boolean;
 }
 
-const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, onCrystallize, isDiscovery }) => {
+const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, onCrystallize, onSummaryGenerated, isDiscovery }) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -27,6 +28,8 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
   const [viewMode, setViewMode] = useState<'ai' | 'original'>('ai');
   const [feedNotesList, setFeedNotesList] = useState<FeedNote[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
+  const [displayUserNotes, setDisplayUserNotes] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // 获取完整内容
   const { 
@@ -68,16 +71,19 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
       setNoteContent('');
       setSelectedTags(item.user_tags || []);
       setWeight(item.user_weight || 1.0);
+      setDisplayUserNotes(item.user_notes ?? null);
       if (!isDiscovery && item.id) {
         setNotesLoading(true);
         getFeedNotes(item.id).then(({ data }) => {
           setFeedNotesList(data || []);
           setIsCrystallized((data?.length ?? 0) > 0 || !!item.user_notes);
+          setDisplayUserNotes(item.user_notes ?? null);
           setNotesLoading(false);
         });
       } else {
         setFeedNotesList([]);
         setIsCrystallized(!!item.user_notes);
+        setDisplayUserNotes(null);
       }
     } else if (!isOpen) {
       setNoteContent('');
@@ -85,6 +91,7 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
       setWeight(1.0);
       setIsCrystallized(false);
       setFeedNotesList([]);
+      setDisplayUserNotes(null);
     }
   }, [isOpen, item, isDiscovery]);
 
@@ -95,11 +102,27 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
     }
     if (onCrystallize) await onCrystallize(noteContent, selectedTags, weight);
     setIsCrystallized(true);
-    setNoteContent(''); // 清空输入，便于继续新建下一条
+    setNoteContent('');
     toast.success('知识已结晶并存入慢宇宙');
     if (item?.id && !isDiscovery) {
       const { data } = await getFeedNotes(item.id);
       setFeedNotesList(data || []);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!item?.id || isDiscovery) return;
+    setSummaryLoading(true);
+    const res = await syncFeedNotesSummaryToFeed(item.id);
+    setSummaryLoading(false);
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    if (res.data) {
+      setDisplayUserNotes(res.data.user_notes);
+      onSummaryGenerated?.(item.id, res.data.user_notes);
+      toast.success('AI 汇总理解已更新');
     }
   };
 
@@ -264,14 +287,29 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
             `}>
               <h3 className="text-2xl font-bold text-white mb-6">我的思考与总结</h3>
 
-              {/* AI 汇总理解 */}
-              {item.user_notes && (
+              {/* AI 汇总理解：仅当有至少一条想法时展示，由用户点击「生成总结」更新 */}
+              {!isDiscovery && feedNotesList.length > 0 && (
                 <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                  <h4 className="text-xs font-bold text-amber-400/90 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                    <Quote className="w-3.5 h-3.5" />
-                    AI 汇总理解
+                  <h4 className="text-xs font-bold text-amber-400/90 uppercase tracking-widest mb-2 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5">
+                      <Quote className="w-3.5 h-3.5" />
+                      AI 汇总理解
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleGenerateSummary}
+                      disabled={summaryLoading}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-xs font-medium disabled:opacity-50"
+                    >
+                      {summaryLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                      {displayUserNotes ? '刷新总结' : '生成总结'}
+                    </button>
                   </h4>
-                  <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{item.user_notes}</p>
+                  {displayUserNotes ? (
+                    <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{displayUserNotes}</p>
+                  ) : (
+                    <p className="text-sm text-white/40">点击「生成总结」根据上方想法生成 AI 汇总</p>
+                  )}
                 </div>
               )}
 

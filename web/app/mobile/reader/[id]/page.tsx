@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useFeedContent } from '@/hooks/useFeedContent';
-import { ArrowLeft, Quote, Sparkles, ArrowUp, Pen, Loader2, Trash2, Pencil, MessageCircle, Send } from 'lucide-react';
+import { ArrowLeft, Quote, Sparkles, ArrowUp, Pen, Loader2, Trash2, Pencil, MessageCircle, Send, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getFeedNotes, createFeedNote, updateFeedNote, deleteFeedNote } from '@/app/dashboard/feed-notes-actions';
+import { getFeedNotes, createFeedNote, updateFeedNote, deleteFeedNote, syncFeedNotesSummaryToFeed } from '@/app/dashboard/feed-notes-actions';
 import { askArticleAssistant } from '@/app/dashboard/reader-assistant-actions';
 import type { FeedNote } from '@/types/database';
 
@@ -56,6 +57,7 @@ export default function MobileReaderPage() {
   const [assistantInput, setAssistantInput] = useState('');
   const [assistantLoading, setAssistantLoading] = useState(false);
   const [assistantInputFocused, setAssistantInputFocused] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   // 键盘弹起时 Visual Viewport 的可视高度与顶部偏移，用于固定卡片在可视区域内
   const [visualHeight, setVisualHeight] = useState<number | null>(null);
   const [visualOffsetTop, setVisualOffsetTop] = useState(0);
@@ -112,6 +114,10 @@ export default function MobileReaderPage() {
   }, [id]);
 
   useEffect(() => {
+    if (id) loadNotes();
+  }, [id, loadNotes]);
+
+  useEffect(() => {
     if (drawerOpen && id) {
       loadNotes();
       setQuoteExpanded(false);
@@ -134,8 +140,24 @@ export default function MobileReaderPage() {
   }, []);
 
   // 从列表缓存中获取元数据（标题、摘要、笔记等）
-  const { feeds, loading: feedsLoading, refreshFeeds } = useFeeds();
+  const { feeds, loading: feedsLoading, refreshFeeds, updateFeedInCache } = useFeeds();
   const feed = feeds.find(f => f.id === id);
+
+  const handleGenerateSummary = async () => {
+    if (!id || !feed) return;
+    setSummaryLoading(true);
+    const res = await syncFeedNotesSummaryToFeed(id);
+    setSummaryLoading(false);
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    if (res.data) {
+      updateFeedInCache({ ...feed, user_notes: res.data.user_notes });
+      await refreshFeeds();
+      toast.success('AI 汇总理解已更新');
+    }
+  };
 
   const handleSaveNote = async () => {
     if (!id || !noteInput.trim()) return;
@@ -273,16 +295,31 @@ export default function MobileReaderPage() {
           </a>
         )}
 
-        {/* AI 汇总理解：由所有想法经 AI 总结生成 */}
-        {feed.user_notes && (
+        {/* AI 汇总理解：仅当有至少一条想法时展示，由用户点击「生成总结」更新 */}
+        {notes.length > 0 && (
           <div className="bg-gradient-to-br from-[#FFF5E9] to-[#FFF0DB] rounded-[24px] p-6 mb-8 border border-[#FFE8CC]/50 shadow-sm">
-            <h3 className="text-xs font-bold text-[#D49854] uppercase tracking-widest mb-3 flex items-center gap-1.5">
-              <Quote className="w-4 h-4" />
-              AI 汇总理解
+            <h3 className="text-xs font-bold text-[#D49854] uppercase tracking-widest mb-3 flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5">
+                <Quote className="w-4 h-4" />
+                AI 汇总理解
+              </span>
+              <button
+                type="button"
+                onClick={handleGenerateSummary}
+                disabled={summaryLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E2A669]/20 text-[#A67843] hover:bg-[#E2A669]/30 text-xs font-medium disabled:opacity-50"
+              >
+                {summaryLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                {feed?.user_notes ? '刷新总结' : '生成总结'}
+              </button>
             </h3>
-            <p className="text-[16px] text-[#A67843] leading-relaxed font-medium whitespace-pre-wrap">
-              {feed.user_notes}
-            </p>
+            {feed?.user_notes ? (
+              <p className="text-[16px] text-[#A67843] leading-relaxed font-medium whitespace-pre-wrap">
+                {feed.user_notes}
+              </p>
+            ) : (
+              <p className="text-[14px] text-[#A67843]/70">点击「生成总结」根据你的想法生成 AI 汇总</p>
+            )}
           </div>
         )}
 

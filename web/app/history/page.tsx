@@ -144,6 +144,13 @@ export default function HistoryPage() {
             setSelectedItem(prev => prev ? { ...prev, user_notes: updatedNotes, user_tags: tags, user_weight: weight } : null);
           }
         }}
+        onSummaryGenerated={(feedId, userNotes) => {
+          if (!selectedItem || selectedItem.id !== feedId) return;
+          setItems(prev => prev.map(item =>
+            item.id === feedId ? { ...item, user_notes: userNotes ?? undefined } : item
+          ));
+          setSelectedItem(prev => prev && prev.id === feedId ? { ...prev, user_notes: userNotes ?? undefined } : null);
+        }}
       />
     </div>
   );
