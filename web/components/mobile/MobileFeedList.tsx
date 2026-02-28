@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FeedItem } from '@/app/dashboard/actions';
-import { Check, Quote, Sparkles, ChevronDown, RefreshCw } from 'lucide-react';
+import { Check, Quote, Sparkles, ChevronDown, RefreshCw, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface MobileFeedListProps {
   feeds: FeedItem[];
@@ -116,15 +117,33 @@ export default function MobileFeedList({ feeds, loading, activeTab, error, onRet
         </div>
       </div>
 
-      {error && onRetry && (
-        <div
-          role="button"
-          onClick={onRetry}
-          className="bg-white rounded-[24px] p-8 flex flex-col items-center justify-center shadow-sm border border-gray-100 active:scale-[0.98] transition-transform"
-        >
-          <RefreshCw className="w-8 h-8 text-gray-400 mb-3" />
-          <p className="text-gray-500 font-medium text-[14px] mb-1">加载失败</p>
-          <p className="text-gray-400 text-[13px]">点击重试</p>
+      {error && (
+        <div className="bg-white rounded-[24px] p-8 flex flex-col items-center justify-center shadow-sm border border-gray-100">
+          {error.message && /unauthorized|未授权|登录/i.test(String(error.message)) ? (
+            <>
+              <LogIn className="w-8 h-8 text-gray-400 mb-3" />
+              <p className="text-gray-500 font-medium text-[14px] mb-1">登录已过期或未登录</p>
+              <p className="text-gray-400 text-[13px] mb-4">请重新登录后查看列表</p>
+              <Link
+                href="/mobile/login?mode=login"
+                className="px-5 py-2.5 rounded-full bg-black text-white text-sm font-medium active:scale-95"
+              >
+                去登录
+              </Link>
+            </>
+          ) : (
+            onRetry && (
+              <div
+                role="button"
+                onClick={onRetry}
+                className="flex flex-col items-center justify-center active:scale-[0.98] transition-transform"
+              >
+                <RefreshCw className="w-8 h-8 text-gray-400 mb-3" />
+                <p className="text-gray-500 font-medium text-[14px] mb-1">加载失败</p>
+                <p className="text-gray-400 text-[13px]">点击重试</p>
+              </div>
+            )
+          )}
         </div>
       )}
 
