@@ -9,7 +9,7 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import DualPaneModal from '@/components/dashboard/DualPaneModal';
 import { GalaxyItem } from '@/types';
 import { Search, Loader2, Zap, Brain, Calendar, Hash, ArrowRight } from 'lucide-react';
-import { crystallizeFeed } from '@/app/dashboard/actions';
+import { crystallizeFeed, getFeedsByIds } from '@/app/dashboard/actions';
 import { getFeedIdsWithNotes } from '@/app/dashboard/feed-notes-actions';
 import { toast } from 'sonner';
 
@@ -33,30 +33,36 @@ export default function LibraryPage() {
     { revalidateOnFocus: true }
   );
 
-  // 切换到慢思考 tab 时重新拉取「有笔记的 feed id」列表，避免列表漏显示已记录灵感的文章
+  // 切换到慢思考 tab 时重新拉取「有笔记的 feed id」列表
   useEffect(() => {
     if (activeTab === 'slow') {
       mutateFeedIdsWithNotes();
     }
   }, [activeTab, mutateFeedIdsWithNotes]);
 
+  // 慢思考 tab：按「有笔记的 id」单独拉取完整 feed 列表，不受 getFeeds() 的 100 条限制
+  const { data: feedsWithNotes = [], isLoading: feedsWithNotesLoading } = useSWR(
+    activeTab === 'slow' && feedIdsWithNotes.length > 0
+      ? ['library/feeds-with-notes', feedIdsWithNotes.join(',')]
+      : null,
+    async () => {
+      const r = await getFeedsByIds(feedIdsWithNotes);
+      if (r.error) return [];
+      return r.data;
+    },
+    { revalidateOnFocus: true }
+  );
+
   // ── Data Processing ──
   const filteredFeeds = useMemo(() => {
-    let result = feeds;
-
-    // Filter by Tab
-    if (activeTab === 'fast') {
-      result = feeds;
-    } else {
-      // 慢思考：展示有至少一条想法记录（feed_notes）的文章，不再仅依赖 user_notes（AI 总结）
-      result = feeds.filter(f => feedIdsWithNotes.includes(f.id));
-    }
+    const baseList = activeTab === 'fast' ? feeds : feedsWithNotes;
+    let result = baseList;
 
     // Filter by Search Query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(f => 
-        f.title?.toLowerCase().includes(q) || 
+      result = result.filter(f =>
+        f.title?.toLowerCase().includes(q) ||
         f.summary?.toLowerCase().includes(q) ||
         f.user_notes?.toLowerCase().includes(q) ||
         f.tags?.some(t => t.toLowerCase().includes(q)) ||
@@ -65,7 +71,7 @@ export default function LibraryPage() {
     }
 
     return result;
-  }, [feeds, activeTab, searchQuery, feedIdsWithNotes]);
+  }, [activeTab, feeds, feedsWithNotes, searchQuery]);
 
   // ── Actions ──
   const handleItemClick = (item: any) => {
@@ -153,7 +159,7 @@ export default function LibraryPage() {
 
         {/* ── List Content ── */}
         <div className="flex-1">
-          {loading ? (
+          {(loading || (activeTab === 'slow' && feedIdsWithNotes.length > 0 && feedsWithNotesLoading)) ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-8 h-8 animate-spin text-white/20 mb-4" />
               <div className="text-white/30 font-mono text-sm uppercase tracking-widest">Fetching Knowledge...</div>

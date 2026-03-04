@@ -30,6 +30,32 @@ export async function getFeeds() {
   return { data: data as FeedItem[], error: null };
 }
 
+/** 按 id 列表拉取当前用户的 feeds（用于慢思考知识库，不受 getFeeds 的 100 条限制） */
+export async function getFeedsByIds(ids: string[]): Promise<{ data: FeedItem[]; error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: [], error: 'Unauthorized' };
+  }
+  if (ids.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const { data, error } = await supabase
+    .from('feeds')
+    .select('*')
+    .eq('user_id', user.id)
+    .in('id', ids)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching feeds by ids:', error);
+    return { data: [], error: error.message };
+  }
+  return { data: (data || []) as FeedItem[], error: null };
+}
+
 export async function getFeedsCount() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
