@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSWRConfig } from 'swr';
 import { toast } from 'sonner';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useFeedContent } from '@/hooks/useFeedContent';
@@ -11,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getFeedNotes, createFeedNote, updateFeedNote, deleteFeedNote, syncFeedNotesSummaryToFeed } from '@/app/dashboard/feed-notes-actions';
 import { askArticleAssistant } from '@/app/dashboard/reader-assistant-actions';
 import type { FeedNote } from '@/types/database';
+
+const LIBRARY_FEED_IDS_WITH_NOTES_KEY = 'library/feed-ids-with-notes';
 
 function QuoteBlock({ text, expanded, onToggle }: { text: string; expanded: boolean; onToggle: () => void }) {
   const isLong = text.length > 120 || text.split(/\n/).length > 3;
@@ -37,6 +40,7 @@ function QuoteBlock({ text, expanded, onToggle }: { text: string; expanded: bool
 export default function MobileReaderPage() {
   const params = useParams();
   const router = useRouter();
+  const { mutate: globalMutate } = useSWRConfig();
   const id = params.id as string;
   const articleContentRef = useRef<HTMLDivElement>(null);
 
@@ -169,6 +173,7 @@ export default function MobileReaderPage() {
     setSelectedQuote('');
     await loadNotes();
     await refreshFeeds();
+    globalMutate(LIBRARY_FEED_IDS_WITH_NOTES_KEY);
   };
 
   const handleUpdateNote = async (note: FeedNote) => {
@@ -180,6 +185,7 @@ export default function MobileReaderPage() {
     setEditingNoteId(null);
     await loadNotes();
     await refreshFeeds();
+    globalMutate(LIBRARY_FEED_IDS_WITH_NOTES_KEY);
   };
 
   const handleDeleteNote = async (note: FeedNote) => {
@@ -190,6 +196,7 @@ export default function MobileReaderPage() {
     setEditingNoteId(null);
     await loadNotes();
     await refreshFeeds();
+    globalMutate(LIBRARY_FEED_IDS_WITH_NOTES_KEY);
   };
 
   const handleAskAssistant = async () => {

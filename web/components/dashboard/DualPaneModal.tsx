@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSWRConfig } from 'swr';
 import { X, Maximize2, Minimize2, Sparkles, Check, Loader2, Quote, RefreshCw } from 'lucide-react';
 import { GalaxyItem } from '@/types';
 import { toast } from 'sonner';
@@ -9,6 +10,8 @@ import { useFeedContent } from '@/hooks/useFeedContent';
 import ReactMarkdown from 'react-markdown';
 import { getFeedNotes, syncFeedNotesSummaryToFeed } from '@/app/dashboard/feed-notes-actions';
 import type { FeedNote } from '@/types/database';
+
+const LIBRARY_FEED_IDS_WITH_NOTES_KEY = 'library/feed-ids-with-notes';
 
 interface DualPaneModalProps {
   isOpen: boolean;
@@ -20,6 +23,7 @@ interface DualPaneModalProps {
 }
 
 const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, onCrystallize, onSummaryGenerated, isDiscovery }) => {
+  const { mutate: globalMutate } = useSWRConfig();
   const [isMaximized, setIsMaximized] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -107,6 +111,8 @@ const DualPaneModal: React.FC<DualPaneModalProps> = ({ isOpen, onClose, item, on
     if (item?.id && !isDiscovery) {
       const { data } = await getFeedNotes(item.id);
       setFeedNotesList(data || []);
+      // 使知识库「慢思考」列表的缓存失效，这样该文章会出现在慢思考中
+      globalMutate(LIBRARY_FEED_IDS_WITH_NOTES_KEY);
     }
   };
 
