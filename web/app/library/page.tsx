@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import useSWR from 'swr';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useProfile } from '@/hooks/useProfile';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -9,6 +10,7 @@ import DualPaneModal from '@/components/dashboard/DualPaneModal';
 import { GalaxyItem } from '@/types';
 import { Search, Loader2, Zap, Brain, Calendar, Hash, ArrowRight } from 'lucide-react';
 import { crystallizeFeed } from '@/app/dashboard/actions';
+import { getFeedIdsWithNotes } from '@/app/dashboard/feed-notes-actions';
 import { toast } from 'sonner';
 
 type TabType = 'fast' | 'slow';
@@ -21,17 +23,33 @@ export default function LibraryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGalaxyItem, setSelectedGalaxyItem] = useState<GalaxyItem | null>(null);
 
+  const { data: feedIdsWithNotes = [], mutate: mutateFeedIdsWithNotes } = useSWR(
+    'library/feed-ids-with-notes',
+    async () => {
+      const r = await getFeedIdsWithNotes();
+      if (r.error) throw new Error(r.error);
+      return r.data;
+    },
+    { revalidateOnFocus: true }
+  );
+
+  // 切换到慢思考 tab 时重新拉取「有笔记的 feed id」列表，避免列表漏显示已记录灵感的文章
+  useEffect(() => {
+    if (activeTab === 'slow') {
+      mutateFeedIdsWithNotes();
+    }
+  }, [activeTab, mutateFeedIdsWithNotes]);
+
   // ── Data Processing ──
   const filteredFeeds = useMemo(() => {
     let result = feeds;
 
     // Filter by Tab
     if (activeTab === 'fast') {
-      // Fast: All feeds (or maybe just those without notes, but usually all feeds)
       result = feeds;
     } else {
-      // Slow: Only feeds with user_notes
-      result = feeds.filter(f => f.user_notes && f.user_notes.trim().length > 0);
+      // 慢思考：展示有至少一条想法记录（feed_notes）的文章，不再仅依赖 user_notes（AI 总结）
+      result = feeds.filter(f => feedIdsWithNotes.includes(f.id));
     }
 
     // Filter by Search Query
@@ -47,7 +65,7 @@ export default function LibraryPage() {
     }
 
     return result;
-  }, [feeds, activeTab, searchQuery]);
+  }, [feeds, activeTab, searchQuery, feedIdsWithNotes]);
 
   // ── Actions ──
   const handleItemClick = (item: any) => {
@@ -180,10 +198,12 @@ export default function LibraryPage() {
                         )}
                       </>
                     ) : (
-                      // SLOW THINKING VIEW
+                      // SLOW THINKING VIEW（有 feed_notes 即展示；user_notes 可能尚未生成总结）
                       <>
                         <p className="text-base md:text-lg font-serif italic text-white/90 line-clamp-2 leading-relaxed">
-                          "{feed.user_notes}"
+                          {feed.user_notes?.trim()
+                            ? `"${feed.user_notes}"`
+                            : '已记录想法，点击打开可查看或生成 AI 总结'}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-white/40 mt-1">
                           <ArrowRight className="w-3 h-3" />
