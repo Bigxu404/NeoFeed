@@ -27,6 +27,32 @@ export async function getFeedNotes(feedId: string): Promise<{ data: FeedNote[]; 
   return { data: (data || []) as FeedNote[], error: null };
 }
 
+/** 返回当前用户有至少一条想法（feed_notes）的 feed id 列表，供知识库慢思考 tab 筛选用 */
+export async function getFeedIdsWithNotes(): Promise<{ data: string[]; error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { data: [], error: 'Unauthorized' };
+
+  // 明确 order + limit，避免 PostgREST 默认 1000 行导致只拿到部分 feed_id
+  const { data, error } = await supabase
+    .from('feed_notes')
+    .select('feed_id')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(5000);
+
+  if (error) {
+    console.error('getFeedIdsWithNotes error:', error);
+    return { data: [], error: error.message };
+  }
+
+  const ids = [...new Set((data || []).map((r) => String(r.feed_id).trim()))];
+  return { data: ids, error: null };
+}
+
 /**
  * 根据该 feed 下所有 feed_notes 调用 AI 生成总结，写入 feeds.user_notes。
  * 仅由用户点击「生成总结」触发，不再在增删改想法时自动调用。

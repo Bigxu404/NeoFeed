@@ -30,6 +30,8 @@ export async function getFeeds() {
   return { data: data as FeedItem[], error: null };
 }
 
+const FEEDS_BY_IDS_CHUNK_SIZE = 200;
+
 /** 按 id 列表拉取当前用户的 feeds（用于慢思考知识库，不受 getFeeds 的 100 条限制） */
 export async function getFeedsByIds(ids: string[]): Promise<{ data: FeedItem[]; error: string | null }> {
   const supabase = await createClient();
@@ -42,18 +44,29 @@ export async function getFeedsByIds(ids: string[]): Promise<{ data: FeedItem[]; 
     return { data: [], error: null };
   }
 
-  const { data, error } = await supabase
-    .from('feeds')
-    .select('*')
-    .eq('user_id', user.id)
-    .in('id', ids)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching feeds by ids:', error);
-    return { data: [], error: error.message };
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += FEEDS_BY_IDS_CHUNK_SIZE) {
+    chunks.push(ids.slice(i, i + FEEDS_BY_IDS_CHUNK_SIZE));
   }
-  return { data: (data || []) as FeedItem[], error: null };
+
+  const all: FeedItem[] = [];
+  for (const chunk of chunks) {
+    const { data, error } = await supabase
+      .from('feeds')
+      .select('*')
+      .eq('user_id', user.id)
+      .in('id', chunk)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching feeds by ids:', error);
+      return { data: [], error: error.message };
+    }
+    if (data?.length) all.push(...(data as FeedItem[]));
+  }
+
+  all.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return { data: all, error: null };
 }
 
 export async function getFeedsCount() {
@@ -272,6 +285,7 @@ export async function crystallizeFeed(feedId: string, notes: string, tags: strin
   const { data, error } = await supabase
     .from('feeds')
     .update({
+      user_notes: notes.trim() || null,
       user_tags: tags,
       user_weight: weight,
     })

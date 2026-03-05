@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import useSWR from 'swr';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useFeeds } from '@/hooks/useFeeds';
 import { useProfile } from '@/hooks/useProfile';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -10,6 +9,7 @@ import DualPaneModal from '@/components/dashboard/DualPaneModal';
 import { GalaxyItem } from '@/types';
 import { Search, Loader2, Zap, Brain, Calendar, Hash, ArrowRight } from 'lucide-react';
 import { crystallizeFeed, getFeedsByIds } from '@/app/dashboard/actions';
+import type { FeedItem } from '@/app/dashboard/actions';
 import { getFeedIdsWithNotes } from '@/app/dashboard/feed-notes-actions';
 import { toast } from 'sonner';
 
@@ -22,40 +22,45 @@ export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState<TabType>('fast');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGalaxyItem, setSelectedGalaxyItem] = useState<GalaxyItem | null>(null);
+  // 慢思考 tab 专用：每次切到该 tab 时直接串行请求，避免 SWR 缓存/时序导致漏显示
+  const [slowTabFeeds, setSlowTabFeeds] = useState<FeedItem[]>([]);
+  const [slowTabLoading, setSlowTabLoading] = useState(false);
 
-  const { data: feedIdsWithNotes = [], mutate: mutateFeedIdsWithNotes } = useSWR(
-    'library/feed-ids-with-notes',
-    async () => {
-      const r = await getFeedIdsWithNotes();
-      if (r.error) throw new Error(r.error);
-      return r.data;
-    },
-    { revalidateOnFocus: true }
-  );
+  const fetchSlowTabFeeds = useCallback(async () => {
+    setSlowTabLoading(true);
+    const idsRes = await getFeedIdsWithNotes();
+    if (idsRes.error) {
+      toast.error('拉取有笔记的列表失败: ' + idsRes.error);
+      setSlowTabFeeds([]);
+      setSlowTabLoading(false);
+      return;
+    }
+    if (!idsRes.data?.length) {
+      setSlowTabFeeds([]);
+      setSlowTabLoading(false);
+      return;
+    }
+    const feedsRes = await getFeedsByIds(idsRes.data);
+    if (feedsRes.error) {
+      toast.error('拉取文章详情失败: ' + feedsRes.error);
+      setSlowTabFeeds([]);
+      setSlowTabLoading(false);
+      return;
+    }
+    setSlowTabFeeds(feedsRes.data || []);
+    setSlowTabLoading(false);
+  }, []);
 
-  // 切换到慢思考 tab 时重新拉取「有笔记的 feed id」列表
+  // 切换到慢思考 tab 时直接拉取「有笔记的 id」再拉 feed 列表，保证数据与库一致
   useEffect(() => {
     if (activeTab === 'slow') {
-      mutateFeedIdsWithNotes();
+      fetchSlowTabFeeds();
     }
-  }, [activeTab, mutateFeedIdsWithNotes]);
-
-  // 慢思考 tab：按「有笔记的 id」单独拉取完整 feed 列表，不受 getFeeds() 的 100 条限制
-  const { data: feedsWithNotes = [], isLoading: feedsWithNotesLoading } = useSWR(
-    activeTab === 'slow' && feedIdsWithNotes.length > 0
-      ? ['library/feeds-with-notes', feedIdsWithNotes.join(',')]
-      : null,
-    async () => {
-      const r = await getFeedsByIds(feedIdsWithNotes);
-      if (r.error) return [];
-      return r.data;
-    },
-    { revalidateOnFocus: true }
-  );
+  }, [activeTab, fetchSlowTabFeeds]);
 
   // ── Data Processing ──
   const filteredFeeds = useMemo(() => {
-    const baseList = activeTab === 'fast' ? feeds : feedsWithNotes;
+    const baseList = activeTab === 'fast' ? feeds : slowTabFeeds;
     let result = baseList;
 
     // Filter by Search Query
@@ -71,7 +76,7 @@ export default function LibraryPage() {
     }
 
     return result;
-  }, [activeTab, feeds, feedsWithNotes, searchQuery]);
+  }, [activeTab, feeds, slowTabFeeds, searchQuery]);
 
   // ── Actions ──
   const handleItemClick = (item: any) => {
@@ -105,6 +110,7 @@ export default function LibraryPage() {
       if (res.data) {
         updateFeedInCache(res.data);
         setSelectedGalaxyItem(prev => prev ? { ...prev, user_notes: res.data!.user_notes, user_tags: tags, user_weight: weight } : null);
+        if (activeTab === 'slow') fetchSlowTabFeeds();
       }
     }
   };
@@ -159,7 +165,7 @@ export default function LibraryPage() {
 
         {/* ── List Content ── */}
         <div className="flex-1">
-          {(loading || (activeTab === 'slow' && feedIdsWithNotes.length > 0 && feedsWithNotesLoading)) ? (
+          {(loading || (activeTab === 'slow' && slowTabLoading)) ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-8 h-8 animate-spin text-white/20 mb-4" />
               <div className="text-white/30 font-mono text-sm uppercase tracking-widest">Fetching Knowledge...</div>
@@ -178,6 +184,12 @@ export default function LibraryPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
+              {activeTab === 'slow' && slowTabFeeds.length > 0 && (
+                <p className="text-white/50 text-sm font-medium mb-2">
+                  共 <span className="text-white/90 font-mono">{slowTabFeeds.length}</span> 条有笔记的文章（列表会全部展示，可向下滚动）
+                  {searchQuery.trim() && filteredFeeds.length !== slowTabFeeds.length && ` · 搜索后显示 ${filteredFeeds.length} 条`}
+                </p>
+              )}
               {filteredFeeds.map((feed) => (
                 <div 
                   key={feed.id}
@@ -257,6 +269,11 @@ export default function LibraryPage() {
                   </div>
                 </div>
               ))}
+              {activeTab === 'slow' && filteredFeeds.length > 4 && (
+                <p className="text-white/30 text-xs text-center py-4 mt-2 border-t border-white/5">
+                  已全部展示 {filteredFeeds.length} 条，无分页限制
+                </p>
+              )}
             </div>
           )}
         </div>
